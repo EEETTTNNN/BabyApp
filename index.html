@@ -3,71 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Suivi Bébé</title>
+  <title>Suivi Bébé Pro</title>
   
-  <!-- PWA Metadata -->
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="theme-color" content="#3b82f6">
 
-  <!-- Tailwind CSS (Design) -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 font-sans text-gray-800 antialiased selection:bg-blue-200">
+<body class="bg-slate-100 font-sans text-gray-800 antialiased">
 
-  <div id="app" class="max-w-md mx-auto min-h-screen bg-white flex flex-col shadow-xl pb-20">
+  <div id="app" class="max-w-md mx-auto min-h-screen bg-white flex flex-col shadow-xl pb-10 relative">
     
-    <!-- En-tête Profil -->
-    <header class="p-6 bg-blue-500 text-white rounded-b-3xl text-center shadow-md relative">
-      <div class="w-20 h-20 bg-white/20 rounded-full mx-auto flex items-center justify-center text-4xl mb-2 backdrop-blur-sm">
+    <header onclick="openBabyModal()" class="p-6 bg-blue-500 text-white rounded-b-3xl text-center shadow-md cursor-pointer hover:bg-blue-600 transition">
+      <div class="w-20 h-20 bg-white/20 rounded-full mx-auto flex items-center justify-center text-4xl mb-2 backdrop-blur-sm border-2 border-white/40">
         👶
       </div>
-      <h1 class="text-2xl font-extrabold tracking-wide">Suivi Bébé</h1>
+      <h1 id="display-baby-name" class="text-2xl font-extrabold tracking-wide">Aimé</h1>
+      <p id="display-baby-age" class="text-xs text-blue-100 mt-1">Appuyer pour modifier la fiche</p>
       
       <div class="flex justify-around mt-4 pt-3 border-t border-white/20 text-sm">
         <div>
-          <span class="block text-blue-200 text-xs">Dernier poids</span>
+          <span class="block text-blue-200 text-xs">Poids</span>
           <span id="stat-weight" class="font-bold">-- kg</span>
         </div>
         <div>
           <span class="block text-blue-200 text-xs">Taille</span>
           <span id="stat-height" class="font-bold">-- cm</span>
         </div>
+        <div>
+          <span class="block text-blue-200 text-xs">Pieds</span>
+          <span id="stat-feet" class="font-bold">-- cm</span>
+        </div>
       </div>
     </header>
 
-    <!-- Boutons d'ajout rapide (Saisie d'événement) -->
     <section class="p-4">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Ajouter une activité</h2>
+      <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Ajouter un événement</h2>
       <div class="grid grid-cols-3 gap-3">
         
-        <button onclick="addQuickEvent('Sieste', '🛏️')" class="p-3 bg-indigo-50 border border-indigo-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
+        <button onclick="openModal('sleep')" class="p-3 bg-indigo-50 border border-indigo-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
           <span class="text-2xl mb-1">🛏️</span>
-          <span class="text-xs font-bold text-indigo-900">Sieste</span>
+          <span class="text-xs font-bold text-indigo-900">Sommeil</span>
         </button>
 
-        <button onclick="addQuickEvent('Sommeil nuit', '🌙')" class="p-3 bg-blue-50 border border-blue-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
-          <span class="text-2xl mb-1">🌙</span>
-          <span class="text-xs font-bold text-blue-900">Sommeil Nuit</span>
-        </button>
-
-        <button onclick="addQuickEvent('Allaitement', '🤱')" class="p-3 bg-emerald-50 border border-emerald-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
+        <button onclick="openModal('breastfeeding')" class="p-3 bg-emerald-50 border border-emerald-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
           <span class="text-2xl mb-1">🤱</span>
           <span class="text-xs font-bold text-emerald-900">Allaitement</span>
         </button>
 
-        <button onclick="addQuickEvent('Repas solide', '🥣')" class="p-3 bg-green-50 border border-green-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
-          <span class="text-2xl mb-1">🥣</span>
-          <span class="text-xs font-bold text-green-900">Solide</span>
-        </button>
-
-        <button onclick="addQuickEvent('Couche', '👶')" class="p-3 bg-amber-50 border border-amber-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
+        <button onclick="openModal('diaper')" class="p-3 bg-amber-50 border border-amber-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
           <span class="text-2xl mb-1">👶</span>
           <span class="text-xs font-bold text-amber-900">Couche</span>
         </button>
 
-        <button onclick="addQuickEvent('Divers', '📝')" class="p-3 bg-purple-50 border border-purple-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
+        <button onclick="openModal('solid')" class="p-3 bg-green-50 border border-green-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
+          <span class="text-2xl mb-1">🥣</span>
+          <span class="text-xs font-bold text-green-900">Repas Solide</span>
+        </button>
+
+        <button onclick="openModal('other')" class="p-3 bg-purple-50 border border-purple-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
           <span class="text-2xl mb-1">📝</span>
           <span class="text-xs font-bold text-purple-900">Divers</span>
         </button>
@@ -75,30 +71,81 @@
       </div>
     </section>
 
-    <!-- Historique / Fil d'actualité -->
     <main class="flex-1 p-4 bg-slate-50 border-t border-slate-100">
       <div class="flex justify-between items-center mb-3">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400">Historique</h2>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400">Journal & Historique</h2>
         <div class="space-x-1">
           <button onclick="exportData('csv')" class="text-xs px-2 py-1 bg-white border rounded shadow-sm text-gray-600 font-semibold">CSV</button>
           <button onclick="exportData('json')" class="text-xs px-2 py-1 bg-white border rounded shadow-sm text-gray-600 font-semibold">JSON</button>
         </div>
       </div>
 
-      <!-- Liste dynamique gérée par Firebase -->
+      <div class="mb-4 bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between">
+        <label for="filter-date" class="text-xs font-semibold text-gray-500">Filtrer par jour :</label>
+        <input type="date" id="filter-date" onchange="renderEvents()" class="text-xs font-bold bg-slate-100 p-2 rounded-lg text-gray-700 outline-none">
+      </div>
+
       <div id="events-list" class="space-y-2">
-        <p class="text-center text-sm text-gray-400 py-6">Chargement des données...</p>
+        <p class="text-center text-sm text-gray-400 py-6">Chargement des événements...</p>
       </div>
     </main>
 
   </div>
 
-  <!-- Scripts Firebase SDK (v9 Modulaire / Compat) -->
+  <div id="modal-baby" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
+      <h3 class="text-lg font-bold text-gray-800 border-b pb-2">Fiche Bébé & Mensurations</h3>
+      
+      <div>
+        <label class="text-xs font-semibold text-gray-500">Prénom</label>
+        <input type="text" id="input-baby-name" value="Aimé" class="w-full p-2 border rounded-xl mt-1 text-sm">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs font-semibold text-gray-500">Poids (kg)</label>
+          <input type="number" step="0.01" id="input-baby-weight" class="w-full p-2 border rounded-xl mt-1 text-sm">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-500">Taille (cm)</label>
+          <input type="number" step="0.1" id="input-baby-height" class="w-full p-2 border rounded-xl mt-1 text-sm">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-500">Périmètre crâne (cm)</label>
+          <input type="number" step="0.1" id="input-baby-head" class="w-full p-2 border rounded-xl mt-1 text-sm">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-500">Pied (cm)</label>
+          <input type="number" step="0.1" id="input-baby-feet" class="w-full p-2 border rounded-xl mt-1 text-sm">
+        </div>
+      </div>
+
+      <div class="flex space-x-2 pt-2">
+        <button onclick="closeModal('modal-baby')" class="w-1/2 py-2 bg-slate-100 rounded-xl text-xs font-bold text-gray-600">Annuler</button>
+        <button onclick="saveBabyStats()" class="w-1/2 py-2 bg-blue-500 text-white rounded-xl text-xs font-bold">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-event" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
+      <h3 id="modal-title" class="text-lg font-bold text-gray-800 border-b pb-2">Ajouter</h3>
+      
+      <div id="modal-body" class="space-y-3">
+        </div>
+
+      <div class="flex space-x-2 pt-2">
+        <button onclick="closeModal('modal-event')" class="w-1/2 py-3 bg-slate-100 rounded-2xl text-xs font-bold text-gray-600">Annuler</button>
+        <button onclick="submitEvent()" class="w-1/2 py-3 bg-blue-500 text-white rounded-2xl text-xs font-bold">Sauvegarder</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
   <script>
-    // 1. REMPLACE LES VALEURS CI-DESSOUS PAR CELLES DE TA CONSOLE FIREBASE
+    // ⚠️ Remplacez par vos clés Firebase Firestore
     const firebaseConfig = {
       apiKey: "VOTRE_API_KEY",
       authDomain: "VOTRE_PROJECT_ID.firebaseapp.com",
@@ -108,82 +155,240 @@
       appId: "VOTRE_APP_ID"
     };
 
-    // Initialisation de Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     let allEvents = [];
+    let currentCategory = '';
+    let timerInterval = null;
+    let timerSeconds = 0;
 
-    // 2. Synchronisation en temps réel avec Firebase Firestore
-    db.collection("events")
-      .orderBy("timestamp", "desc")
-      .onSnapshot((snapshot) => {
-        allEvents = [];
-        const container = document.getElementById("events-list");
-        container.innerHTML = "";
+    // Initialisation
+    document.getElementById('filter-date').valueAsDate = new Date();
 
-        if (snapshot.empty) {
-          container.innerHTML = '<p class="text-center text-sm text-gray-400 py-6">Aucun événement enregistré.</p>';
-          return;
-        }
+    // Ecouteur en temps réel pour la Fiche Bébé
+    db.collection("baby_info").doc("profile").onSnapshot((doc) => {
+      if (doc.exists) {
+        const data = doc.data();
+        document.getElementById('display-baby-name').innerText = data.name || "Aimé";
+        document.getElementById('stat-weight').innerText = (data.weight || '--') + " kg";
+        document.getElementById('stat-height').innerText = (data.height || '--') + " cm";
+        document.getElementById('stat-feet').innerText = (data.feet || '--') + " cm";
 
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          allEvents.push({ id: doc.id, ...data });
+        document.getElementById('input-baby-name').value = data.name || "Aimé";
+        document.getElementById('input-baby-weight').value = data.weight || "";
+        document.getElementById('input-baby-height').value = data.height || "";
+        document.getElementById('input-baby-head').value = data.head || "";
+        document.getElementById('input-baby-feet').value = data.feet || "";
+      }
+    });
 
-          const dateObj = data.timestamp ? data.timestamp.toDate() : new Date();
-          const timeStr = dateObj.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-          const dateStr = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    // Ecouteur en temps réel pour les événements
+    db.collection("events").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+      allEvents = [];
+      snapshot.forEach(doc => allEvents.push({ id: doc.id, ...doc.data() }));
+      renderEvents();
+    });
 
-          const itemHtml = `
-            <div class="p-3 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
-              <div class="flex items-center space-x-3">
-                <span class="text-2xl">${data.icon || '📌'}</span>
-                <div>
-                  <div class="font-semibold text-gray-800 text-sm">${data.category}</div>
-                  <div class="text-xs text-gray-400">${dateStr} à ${timeStr}</div>
-                </div>
-              </div>
-              <button onclick="deleteEvent('${doc.id}')" class="text-gray-300 hover:text-red-500 text-xs p-1">✕</button>
-            </div>
-          `;
-          container.innerHTML += itemHtml;
-        });
+    // Afficher les événements filtrés
+    function renderEvents() {
+      const selectedDate = document.getElementById('filter-date').value;
+      const container = document.getElementById("events-list");
+      container.innerHTML = "";
+
+      const filtered = allEvents.filter(e => {
+        if (!e.timestamp) return false;
+        const d = e.timestamp.toDate();
+        const dateStr = d.toISOString().split('T')[0];
+        return dateStr === selectedDate;
       });
 
-    // 3. Ajouter un événement rapidement
-    function addQuickEvent(category, icon) {
-      db.collection("events").add({
-        category: category,
-        icon: icon,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      })
-      .then(() => console.log("Événement ajouté !"))
-      .catch((error) => alert("Erreur d'enregistrement : " + error.message));
-    }
-
-    // 4. Supprimer un événement
-    function deleteEvent(id) {
-      if (confirm("Supprimer cet événement ?")) {
-        db.collection("events").doc(id).delete();
-      }
-    }
-
-    // 5. Exporter les données (CSV / JSON)
-    function exportData(format) {
-      if (allEvents.length === 0) {
-        alert("Aucune donnée à exporter.");
+      if (filtered.length === 0) {
+        container.innerHTML = '<p class="text-center text-sm text-gray-400 py-6">Aucun événement pour cette date.</p>';
         return;
       }
 
+      filtered.forEach(e => {
+        const dateObj = e.timestamp.toDate();
+        const timeStr = dateObj.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        
+        container.innerHTML += `
+          <div class="p-3 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">${e.icon || '📌'}</span>
+              <div>
+                <div class="font-semibold text-gray-800 text-sm">${e.category} ${e.subType ? '(' + e.subType + ')' : ''}</div>
+                <div class="text-xs text-gray-400">${timeStr} ${e.details ? '• ' + e.details : ''}</div>
+              </div>
+            </div>
+            <button onclick="deleteEvent('${e.id}')" class="text-gray-300 hover:text-red-500 text-xs p-1">✕</button>
+          </div>
+        `;
+      });
+    }
+
+    // Gestion des Modals
+    function openModal(category) {
+      currentCategory = category;
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+      stopTimer();
+
+      if (category === 'diaper') {
+        title.innerText = "Couche 👶";
+        body.innerHTML = `
+          <label class="text-xs font-semibold text-gray-500">État de la couche</label>
+          <select id="diaper-type" class="w-full p-3 border rounded-xl text-sm bg-slate-50">
+            <option value="Propre">Propre</option>
+            <option value="Mouillée">Mouillée (Pipi)</option>
+            <option value="Sale">Sale (Caca)</option>
+            <option value="Les deux">Les deux (Pipi + Caca)</option>
+          </select>
+          <input type="text" id="event-notes" placeholder="Commentaire (optionnel)" class="w-full p-3 border rounded-xl text-sm">
+        `;
+      } else if (category === 'sleep') {
+        title.innerText = "Sommeil 🛏️";
+        body.innerHTML = `
+          <label class="text-xs font-semibold text-gray-500">Type de sommeil</label>
+          <select id="sleep-type" class="w-full p-3 border rounded-xl text-sm bg-slate-50">
+            <option value="Sieste">Sieste</option>
+            <option value="Nuit">Sommeil nocturne</option>
+          </select>
+          <div class="bg-indigo-50 p-4 rounded-2xl text-center space-y-2">
+            <div id="timer-display" class="text-3xl font-extrabold text-indigo-900">00:00:00</div>
+            <button type="button" onclick="toggleTimer()" id="btn-timer" class="px-4 py-2 bg-indigo-600 text-white font-bold rounded-xl text-xs">Démarrer Minuteur</button>
+          </div>
+          <input type="text" id="event-notes" placeholder="Commentaire (optionnel)" class="w-full p-3 border rounded-xl text-sm">
+        `;
+      } else if (category === 'breastfeeding') {
+        title.innerText = "Allaitement 🤱";
+        body.innerHTML = `
+          <label class="text-xs font-semibold text-gray-500">Côté</label>
+          <select id="breast-side" class="w-full p-3 border rounded-xl text-sm bg-slate-50">
+            <option value="Gauche">Sein Gauche</option>
+            <option value="Droit">Sein Droit</option>
+            <option value="Les deux">Les deux seins</option>
+          </select>
+          <div class="bg-emerald-50 p-4 rounded-2xl text-center space-y-2">
+            <div id="timer-display" class="text-3xl font-extrabold text-emerald-900">00:00:00</div>
+            <button type="button" onclick="toggleTimer()" id="btn-timer" class="px-4 py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs">Démarrer Minuteur</button>
+          </div>
+          <input type="text" id="event-notes" placeholder="Commentaire (optionnel)" class="w-full p-3 border rounded-xl text-sm">
+        `;
+      } else {
+        title.innerText = category === 'solid' ? "Repas Solide 🥣" : "Divers 📝";
+        body.innerHTML = `
+          <input type="text" id="event-notes" placeholder="Détails du repas ou notes" class="w-full p-3 border rounded-xl text-sm">
+        `;
+      }
+
+      document.getElementById('modal-event').classList.remove('hidden');
+      document.getElementById('modal-event').classList.add('flex');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      document.getElementById(id).classList.remove('flex');
+      stopTimer();
+    }
+
+    // Minuteur
+    function toggleTimer() {
+      const btn = document.getElementById('btn-timer');
+      if (timerInterval) {
+        stopTimer();
+        btn.innerText = "Reprendre";
+      } else {
+        timerInterval = setInterval(() => {
+          timerSeconds++;
+          const hrs = String(Math.floor(timerSeconds / 3600)).padStart(2, '0');
+          const mins = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0');
+          const secs = String(timerSeconds % 60).padStart(2, '0');
+          document.getElementById('timer-display').innerText = `${hrs}:${mins}:${secs}`;
+        }, 1000);
+        btn.innerText = "Pause";
+      }
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerSeconds = 0;
+    }
+
+    // Enregistrement de l'événement dans Firestore
+    function submitEvent() {
+      let payload = {
+        category: currentCategory,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      const notes = document.getElementById('event-notes')?.value || '';
+
+      if (currentCategory === 'diaper') {
+        payload.icon = '👶';
+        payload.category = 'Couche';
+        payload.subType = document.getElementById('diaper-type').value;
+        payload.details = notes;
+      } else if (currentCategory === 'sleep') {
+        payload.icon = '🛏️';
+        payload.category = 'Sommeil';
+        payload.subType = document.getElementById('sleep-type').value;
+        const duration = document.getElementById('timer-display').innerText;
+        payload.details = (duration !== '00:00:00' ? `Durée: ${duration} ` : '') + notes;
+      } else if (currentCategory === 'breastfeeding') {
+        payload.icon = '🤱';
+        payload.category = 'Allaitement';
+        payload.subType = document.getElementById('breast-side').value;
+        const duration = document.getElementById('timer-display').innerText;
+        payload.details = (duration !== '00:00:00' ? `Durée: ${duration} ` : '') + notes;
+      } else if (currentCategory === 'solid') {
+        payload.icon = '🥣';
+        payload.category = 'Repas Solide';
+        payload.details = notes;
+      } else {
+        payload.icon = '📝';
+        payload.category = 'Divers';
+        payload.details = notes;
+      }
+
+      db.collection("events").add(payload).then(() => closeModal('modal-event'));
+    }
+
+    // Fiche Bébé
+    function openBabyModal() {
+      document.getElementById('modal-baby').classList.remove('hidden');
+      document.getElementById('modal-baby').classList.add('flex');
+    }
+
+    function saveBabyStats() {
+      db.collection("baby_info").doc("profile").set({
+        name: document.getElementById('input-baby-name').value,
+        weight: parseFloat(document.getElementById('input-baby-weight').value) || 0,
+        height: parseFloat(document.getElementById('input-baby-height').value) || 0,
+        head: parseFloat(document.getElementById('input-baby-head').value) || 0,
+        feet: parseFloat(document.getElementById('input-baby-feet').value) || 0,
+      }).then(() => closeModal('modal-baby'));
+    }
+
+    function deleteEvent(id) {
+      if (confirm("Supprimer cet événement ?")) db.collection("events").doc(id).delete();
+    }
+
+    // Exports CSV / JSON
+    function exportData(format) {
+      if (allEvents.length === 0) return alert("Aucune donnée disponible.");
+
       if (format === 'json') {
-        const jsonString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allEvents, null, 2));
-        downloadFile(jsonString, `suivi_bebe_${new Date().toISOString().slice(0,10)}.json`);
-      } else if (format === 'csv') {
-        const headers = ["ID", "Categorie", "Date_Heure"];
+        const jsonStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allEvents, null, 2));
+        downloadFile(jsonStr, `suivi_bebe_${new Date().toISOString().slice(0,10)}.json`);
+      } else {
+        const headers = ["ID", "Categorie", "Sous_Type", "Details", "Date_Heure"];
         const rows = allEvents.map(e => [
           e.id,
           `"${e.category}"`,
+          `"${e.subType || ''}"`,
+          `"${e.details || ''}"`,
           `"${e.timestamp ? e.timestamp.toDate().toISOString() : ''}"`
         ]);
         const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
@@ -198,11 +403,6 @@
       document.body.appendChild(link);
       link.click();
       link.remove();
-    }
-
-    // Enregistrement du Service Worker pour la PWA
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
     }
   </script>
 </body>
