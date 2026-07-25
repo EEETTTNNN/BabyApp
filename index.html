@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Suivi Bébé Pro v1.0.0</title>
+  <title>Suivi Bébé Pro v1.1.0</title>
   
   <!-- PWA Metadata -->
   <link rel="manifest" href="manifest.json">
@@ -21,9 +21,9 @@
     
     <!-- En-tête Profil avec Badge Version -->
     <header onclick="openBabyModal()" class="p-6 bg-blue-500 text-white rounded-b-3xl text-center shadow-md cursor-pointer hover:bg-blue-600 transition relative">
-      <!-- Badge de Version -->
+      <!-- Badge Version 1.1.0 -->
       <span class="absolute top-4 right-4 bg-white/20 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-white/30 backdrop-blur-sm">
-        v1.0.0
+        v1.1.0
       </span>
 
       <div class="w-20 h-20 bg-white/20 rounded-full mx-auto flex items-center justify-center text-4xl mb-2 backdrop-blur-sm border-2 border-white/40">
@@ -33,7 +33,7 @@
       <div class="flex items-center justify-center space-x-2">
         <h1 id="display-baby-name" class="text-2xl font-extrabold tracking-wide">Aimé</h1>
       </div>
-      <p id="display-baby-age" class="text-xs text-blue-100 mt-1">Appuyer pour voir la courbe de croissance</p>
+      <p id="display-baby-age" class="text-xs text-blue-100 mt-1">Appuyer pour voir les courbes de croissance</p>
       
       <div class="flex justify-around mt-4 pt-3 border-t border-white/20 text-sm">
         <div>
@@ -84,7 +84,18 @@
       </div>
     </section>
 
-    <!-- Section Historique & Calendrier -->
+    <!-- Section Résumé des Derniers Événements -->
+    <section class="px-4 pb-2">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Dernières activités</h2>
+      <div id="latest-summary" class="grid grid-cols-2 gap-2 text-xs">
+        <div class="p-2 bg-slate-50 border rounded-xl flex items-center justify-between"><span class="text-gray-500">🛏️ Sommeil</span><span id="last-sleep" class="font-bold text-gray-700">--</span></div>
+        <div class="p-2 bg-slate-50 border rounded-xl flex items-center justify-between"><span class="text-gray-500">🤱 Tétée</span><span id="last-breast" class="font-bold text-gray-700">--</span></div>
+        <div class="p-2 bg-slate-50 border rounded-xl flex items-center justify-between"><span class="text-gray-500">👶 Couche</span><span id="last-diaper" class="font-bold text-gray-700">--</span></div>
+        <div class="p-2 bg-slate-50 border rounded-xl flex items-center justify-between"><span class="text-gray-500">🥣 Repas</span><span id="last-solid" class="font-bold text-gray-700">--</span></div>
+      </div>
+    </section>
+
+    <!-- Section Historique & Journal -->
     <main class="flex-1 p-4 bg-slate-50 border-t border-slate-100">
       <div class="flex justify-between items-center mb-3">
         <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400">Journal & Historique</h2>
@@ -108,7 +119,7 @@
 
   </div>
 
-  <!-- MODAL : FICHE BÉBÉ & CROISSANCE (AVEC HISTORIQUE / GRAPHIQUE) -->
+  <!-- MODAL : FICHE BÉBÉ & COURBES DE CROISSANCE -->
   <div id="modal-baby" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
       <h3 class="text-lg font-bold text-gray-800 border-b pb-2">Suivi Croissance Bébé</h3>
@@ -119,31 +130,49 @@
       </div>
 
       <div class="bg-blue-50 p-3 rounded-2xl space-y-2">
-        <h4 class="text-xs font-bold text-blue-900 uppercase">Nouvelle mesure (Aujourd'hui)</h4>
+        <h4 class="text-xs font-bold text-blue-900 uppercase">Nouvelle mesure</h4>
+        <div>
+          <label class="text-[10px] font-semibold text-gray-500">Date de la mesure</label>
+          <input type="date" id="input-baby-date" class="w-full p-2 border rounded-xl text-sm bg-white mb-2">
+        </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-[10px] font-semibold text-gray-500">Poids (kg)</label>
-            <input type="number" step="0.01" id="input-baby-weight" class="w-full p-2 border rounded-xl text-sm">
+            <input type="number" step="0.01" id="input-baby-weight" class="w-full p-2 border rounded-xl text-sm bg-white">
           </div>
           <div>
             <label class="text-[10px] font-semibold text-gray-500">Taille (cm)</label>
-            <input type="number" step="0.1" id="input-baby-height" class="w-full p-2 border rounded-xl text-sm">
+            <input type="number" step="0.1" id="input-baby-height" class="w-full p-2 border rounded-xl text-sm bg-white">
           </div>
           <div>
             <label class="text-[10px] font-semibold text-gray-500">Périmètre crâne (cm)</label>
-            <input type="number" step="0.1" id="input-baby-head" class="w-full p-2 border rounded-xl text-sm">
+            <input type="number" step="0.1" id="input-baby-head" class="w-full p-2 border rounded-xl text-sm bg-white">
           </div>
           <div>
             <label class="text-[10px] font-semibold text-gray-500">Pied (cm)</label>
-            <input type="number" step="0.1" id="input-baby-feet" class="w-full p-2 border rounded-xl text-sm">
+            <input type="number" step="0.1" id="input-baby-feet" class="w-full p-2 border rounded-xl text-sm bg-white">
           </div>
         </div>
       </div>
 
-      <!-- Graphique de croissance -->
-      <div class="pt-2">
-        <h4 class="text-xs font-bold text-gray-700 mb-2">📊 Courbe de Poids</h4>
-        <canvas id="growthChart" class="w-full h-40"></canvas>
+      <!-- Graphiques de croissance -->
+      <div class="pt-2 space-y-4">
+        <div>
+          <h4 class="text-xs font-bold text-gray-700 mb-1">📊 Courbe de Poids (kg)</h4>
+          <canvas id="weightChart" class="w-full h-36"></canvas>
+        </div>
+        <div>
+          <h4 class="text-xs font-bold text-gray-700 mb-1">📊 Courbe de Taille (cm)</h4>
+          <canvas id="heightChart" class="w-full h-36"></canvas>
+        </div>
+        <div>
+          <h4 class="text-xs font-bold text-gray-700 mb-1">📊 Courbe du Périmètre Crânien (cm)</h4>
+          <canvas id="headChart" class="w-full h-36"></canvas>
+        </div>
+        <div>
+          <h4 class="text-xs font-bold text-gray-700 mb-1">📊 Courbe de la Pointure / Pied (cm)</h4>
+          <canvas id="feetChart" class="w-full h-36"></canvas>
+        </div>
       </div>
 
       <div class="flex space-x-2 pt-2">
@@ -192,9 +221,11 @@
     let currentCategory = '';
     let timerInterval = null;
     let timerSeconds = 0;
-    let myChart = null;
+
+    let chartInstances = {};
 
     document.getElementById('filter-date').valueAsDate = new Date();
+    document.getElementById('input-baby-date').valueAsDate = new Date();
 
     // Écouteur en temps réel de la croissance
     db.collection("baby_growth").orderBy("date", "asc").onSnapshot((snapshot) => {
@@ -204,11 +235,11 @@
       if (growthHistory.length > 0) {
         const last = growthHistory[growthHistory.length - 1];
         document.getElementById('display-baby-name').innerText = last.name || "Aimé";
-        document.getElementById('stat-weight').innerText = (last.weight || '--') + " kg";
-        document.getElementById('stat-height').innerText = (last.height || '--') + " cm";
-        document.getElementById('stat-feet').innerText = (last.feet || '--') + " cm";
+        document.getElementById('stat-weight').innerText = (last.weight ? last.weight + " kg" : '--');
+        document.getElementById('stat-height').innerText = (last.height ? last.height + " cm" : '--');
+        document.getElementById('stat-feet').innerText = (last.feet ? last.feet + " cm" : '--');
       }
-      renderChart();
+      renderCharts();
     });
 
     // Écouteur en temps réel des événements
@@ -216,6 +247,7 @@
       allEvents = [];
       snapshot.forEach(doc => allEvents.push({ id: doc.id, ...doc.data() }));
       renderEvents();
+      updateLatestSummary();
     });
 
     function renderEvents() {
@@ -249,6 +281,18 @@
           </div>
         `;
       });
+    }
+
+    function updateLatestSummary() {
+      const sleep = allEvents.find(e => e.category === 'Sommeil');
+      const breast = allEvents.find(e => e.category === 'Allaitement');
+      const diaper = allEvents.find(e => e.category === 'Couche');
+      const solid = allEvents.find(e => e.category === 'Repas Solide');
+
+      if (sleep) document.getElementById('last-sleep').innerText = sleep.timestamp ? sleep.timestamp.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '--';
+      if (breast) document.getElementById('last-breast').innerText = breast.timestamp ? breast.timestamp.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '--';
+      if (diaper) document.getElementById('last-diaper').innerText = diaper.timestamp ? diaper.timestamp.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '--';
+      if (solid) document.getElementById('last-solid').innerText = solid.timestamp ? solid.timestamp.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '--';
     }
 
     function openModal(category) {
@@ -285,7 +329,7 @@
             <div class="flex justify-center space-x-2">
               <button type="button" onclick="startTimer()" id="btn-start" class="px-3 py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs">Démarrer</button>
               <button type="button" onclick="pauseTimer()" id="btn-pause" class="px-3 py-2 bg-amber-500 text-white font-bold rounded-xl text-xs hidden">Pause</button>
-              <button type="button" onclick="stopTimer()" id="btn-stop" class="px-3 py-2 bg-red-600 text-white font-bold rounded-xl text-xs hidden">Stop & Valider</button>
+              <button type="button" onclick="stopTimer()" id="btn-stop" class="px-3 py-2 bg-red-600 text-white font-bold rounded-xl text-xs hidden">Stop</button>
             </div>
           </div>
           <input type="text" id="event-notes" placeholder="Commentaire (optionnel)" class="w-full p-3 border rounded-xl text-sm">
@@ -305,7 +349,7 @@
       resetTimer();
     }
 
-    // Minuteur avec bouton Stop clair
+    // Minuteur
     function startTimer() {
       if (!timerInterval) {
         timerInterval = setInterval(() => {
@@ -348,7 +392,7 @@
       if (display) display.innerText = `${hrs}:${mins}:${secs}`;
     }
 
-    // Soumission garantie sans bug
+    // Sauvegarde événement dans Firestore
     function submitEvent() {
       let payload = {
         category: '',
@@ -385,17 +429,20 @@
         .catch(err => alert("Erreur d'enregistrement : " + err.message));
     }
 
-    // Enregistrement de la croissance horodatée
+    // Sauvegarde des mesures avec date personnalisée
     function saveBabyStats() {
       const name = document.getElementById('input-baby-name').value;
+      const dateVal = document.getElementById('input-baby-date').value;
       const weight = parseFloat(document.getElementById('input-baby-weight').value);
       const height = parseFloat(document.getElementById('input-baby-height').value);
       const head = parseFloat(document.getElementById('input-baby-head').value);
       const feet = parseFloat(document.getElementById('input-baby-feet').value);
 
-      if (isNaN(weight) && isNaN(height)) {
-        return alert("Veuillez entrer au moins une valeur de poids ou de taille.");
+      if (isNaN(weight) && isNaN(height) && isNaN(head) && isNaN(feet)) {
+        return alert("Veuillez saisir au moins une mesure.");
       }
+
+      const customTimestamp = dateVal ? firebase.firestore.Timestamp.fromDate(new Date(dateVal)) : firebase.firestore.FieldValue.serverTimestamp();
 
       db.collection("baby_growth").add({
         name: name,
@@ -403,31 +450,44 @@
         height: height || null,
         head: head || null,
         feet: feet || null,
-        date: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => closeModal('modal-baby'))
-        .catch(err => alert("Erreur : " + err.message));
+        date: customTimestamp
+      }).then(() => {
+        document.getElementById('input-baby-weight').value = '';
+        document.getElementById('input-baby-height').value = '';
+        document.getElementById('input-baby-head').value = '';
+        document.getElementById('input-baby-feet').value = '';
+        closeModal('modal-baby');
+      }).catch(err => alert("Erreur : " + err.message));
     }
 
-    function renderChart() {
-      const ctx = document.getElementById('growthChart');
+    // Affichage des 4 graphiques distincts
+    function renderCharts() {
+      const labels = growthHistory.map(g => g.date ? g.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '');
+
+      createSingleChart('weightChart', 'Poids (kg)', labels, growthHistory.map(g => g.weight), '#3b82f6');
+      createSingleChart('heightChart', 'Taille (cm)', labels, growthHistory.map(g => g.height), '#10b981');
+      createSingleChart('headChart', 'Périmètre Crânien (cm)', labels, growthHistory.map(g => g.head), '#f59e0b');
+      createSingleChart('feetChart', 'Pied (cm)', labels, growthHistory.map(g => g.feet), '#8b5cf6');
+    }
+
+    function createSingleChart(canvasId, label, labels, data, color) {
+      const ctx = document.getElementById(canvasId);
       if (!ctx) return;
 
-      const labels = growthHistory.map(g => g.date ? g.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '');
-      const dataWeights = growthHistory.map(g => g.weight);
+      if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
 
-      if (myChart) myChart.destroy();
-
-      myChart = new Chart(ctx, {
+      chartInstances[canvasId] = new Chart(ctx, {
         type: 'line',
         data: {
           labels: labels,
           datasets: [{
-            label: 'Poids (kg)',
-            data: dataWeights,
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            label: label,
+            data: data,
+            borderColor: color,
+            backgroundColor: color + '22',
             fill: true,
-            tension: 0.3
+            tension: 0.3,
+            spanGaps: true
           }]
         },
         options: {
@@ -441,7 +501,7 @@
     function openBabyModal() {
       document.getElementById('modal-baby').classList.remove('hidden');
       document.getElementById('modal-baby').classList.add('flex');
-      renderChart();
+      renderCharts();
     }
 
     function deleteEvent(id) {
