@@ -3,16 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Suivi Bébé Pro v1.4.0</title>
+  <title>Suivi Bébé Pro v1.4.1</title>
   
-  <!-- Icône d'application iOS (Écran d'accueil) -->
-  <link rel="apple-touch-icon" href="https://i.imgur.com/RvHzs8e.png">
-  <link rel="icon" type="image/png" href="https://i.imgur.com/RvHzs8e.png">
+  <!-- Icône d'application iOS / Safari (Écran d'accueil) -->
+  <link rel="apple-touch-icon" href="https://i.imgur.com/aZupMKZ.png" crossorigin="anonymous">
+  <link rel="apple-touch-icon-precomposed" href="https://i.imgur.com/aZupMKZ.png">
+  <link rel="icon" type="image/png" href="https://i.imgur.com/aZupMKZ.png">
 
   <!-- PWA Metadata -->
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Suivi Bébé">
   <meta name="theme-color" content="#3b82f6">
 
   <!-- Tailwind CSS -->
@@ -29,7 +31,7 @@
     <!-- En-tête Profil -->
     <header onclick="openBabyModal()" class="p-6 bg-blue-500 text-white rounded-b-3xl text-center shadow-md cursor-pointer hover:bg-blue-600 transition relative">
       <span class="absolute top-4 right-4 bg-white/20 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-white/30 backdrop-blur-sm">
-        v1.4.0
+        v1.4.1
       </span>
 
       <!-- Avatar avec Émoji -->
@@ -124,7 +126,7 @@
       </main>
     </div>
 
-    <!-- VUE 2 : HISTORIQUE & TENDANCES (Inspiré de l'image) -->
+    <!-- VUE 2 : HISTORIQUE & TENDANCES -->
     <div id="view-history" class="hidden p-4 bg-slate-50">
       <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Statistiques & Tendances</h2>
       
@@ -152,7 +154,7 @@
         </button>
       </div>
 
-      <!-- Liste Chronologique par Jour avec barres de tendance -->
+      <!-- Liste Chronologique par Jour -->
       <div id="history-timeline" class="space-y-4">
         <!-- Généré dynamiquement -->
       </div>
@@ -340,7 +342,6 @@
         return;
       }
 
-      // Groupement par date
       const grouped = {};
       allEvents.forEach(e => {
         if (selectedHistoryCategory !== 'all' && e.category !== selectedHistoryCategory) return;
@@ -380,7 +381,6 @@
               <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-bold">${events.length} evt</span>
             </div>
             
-            <!-- Visuel Tendance (Barre d'activité fictive / résumé) -->
             <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden flex my-2">
               <div class="bg-blue-500 h-full" style="width: ${Math.min(events.length * 20, 100)}%"></div>
             </div>
