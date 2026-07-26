@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Suivi Bébé Pro v1.3.0 (Local)</title>
+  <title>Suivi Bébé Pro v1.4.0</title>
   
-  <!-- Icône PWA (Imgur) -->
-  <link rel="icon" type="image/png" href="https://i.imgur.com/RvHzs8e.png">
+  <!-- Icône d'application iOS (Écran d'accueil) -->
   <link rel="apple-touch-icon" href="https://i.imgur.com/RvHzs8e.png">
+  <link rel="icon" type="image/png" href="https://i.imgur.com/RvHzs8e.png">
 
   <!-- PWA Metadata -->
   <link rel="manifest" href="manifest.json">
@@ -18,23 +18,23 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Chart.js & Adaptateur Temporel (Pour les courbes) -->
+  <!-- Chart.js & Adaptateur Temporel -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 </head>
 <body class="bg-slate-100 font-sans text-gray-800 antialiased selection:bg-blue-200">
 
-  <div id="app" class="max-w-md mx-auto min-h-screen bg-white flex flex-col shadow-xl pb-10 relative">
+  <div id="app" class="max-w-md mx-auto min-h-screen bg-white flex flex-col shadow-xl pb-16 relative">
     
     <!-- En-tête Profil -->
     <header onclick="openBabyModal()" class="p-6 bg-blue-500 text-white rounded-b-3xl text-center shadow-md cursor-pointer hover:bg-blue-600 transition relative">
       <span class="absolute top-4 right-4 bg-white/20 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-white/30 backdrop-blur-sm">
-        v1.3.0 (Local)
+        v1.4.0
       </span>
 
-      <!-- Logo / Avatar -->
-      <div class="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center mb-2 shadow-md overflow-hidden border-2 border-white">
-        <img src="https://i.imgur.com/RvHzs8e.png" alt="Icon" class="w-full h-full object-cover" onerror="this.outerHTML='👶'">
+      <!-- Avatar avec Émoji -->
+      <div class="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center mb-2 shadow-md border-2 border-white text-4xl">
+        👶
       </div>
       
       <div class="flex items-center justify-center space-x-2">
@@ -58,76 +58,112 @@
       </div>
     </header>
 
-    <!-- Boutons d'action rapide -->
-    <section class="p-4">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Ajouter un événement</h2>
-      <div class="grid grid-cols-3 gap-3">
-        <button onclick="openModal('sleep')" class="p-3 bg-indigo-50 border border-indigo-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
-          <span class="text-2xl mb-1">🛏️</span>
-          <span class="text-xs font-bold text-indigo-900">Sommeil</span>
-        </button>
+    <!-- BARRE D'ONGLETS / NAVIGATION -->
+    <nav class="flex border-b border-gray-200 bg-white text-xs font-bold text-gray-500 mt-2">
+      <button id="tab-btn-today" onclick="switchTab('today')" class="flex-1 py-3 text-center border-b-2 border-blue-500 text-blue-600 transition">
+        Journal du jour
+      </button>
+      <button id="tab-btn-history" onclick="switchTab('history')" class="flex-1 py-3 text-center border-b-2 border-transparent hover:text-gray-700 transition">
+        Historique & Tendances
+      </button>
+    </nav>
 
-        <button onclick="openModal('breastfeeding')" class="p-3 bg-emerald-50 border border-emerald-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
-          <span class="text-2xl mb-1">🤱</span>
-          <span class="text-xs font-bold text-emerald-900">Allaitement</span>
-        </button>
+    <!-- VUE 1 : JOURNAL DU JOUR -->
+    <div id="view-today" class="block">
+      <!-- Boutons d'action rapide -->
+      <section class="p-4">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Ajouter un événement</h2>
+        <div class="grid grid-cols-3 gap-3">
+          <button onclick="openModal('sleep')" class="p-3 bg-indigo-50 border border-indigo-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
+            <span class="text-2xl mb-1">🛏️</span>
+            <span class="text-xs font-bold text-indigo-900">Sommeil</span>
+          </button>
 
-        <button onclick="openModal('diaper')" class="p-3 bg-amber-50 border border-amber-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
-          <span class="text-2xl mb-1">👶</span>
-          <span class="text-xs font-bold text-amber-900">Couche</span>
-        </button>
+          <button onclick="openModal('breastfeeding')" class="p-3 bg-emerald-50 border border-emerald-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
+            <span class="text-2xl mb-1">🤱</span>
+            <span class="text-xs font-bold text-emerald-900">Allaitement</span>
+          </button>
 
-        <button onclick="openModal('solid')" class="p-3 bg-green-50 border border-green-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
-          <span class="text-2xl mb-1">🥣</span>
-          <span class="text-xs font-bold text-green-900">Repas Solide</span>
-        </button>
+          <button onclick="openModal('diaper')" class="p-3 bg-amber-50 border border-amber-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
+            <span class="text-2xl mb-1">👶</span>
+            <span class="text-xs font-bold text-amber-900">Couche</span>
+          </button>
 
-        <button onclick="openModal('other')" class="p-3 bg-purple-50 border border-purple-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
-          <span class="text-2xl mb-1">📝</span>
-          <span class="text-xs font-bold text-purple-900">Divers</span>
-        </button>
-      </div>
-    </section>
+          <button onclick="openModal('solid')" class="p-3 bg-green-50 border border-green-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
+            <span class="text-2xl mb-1">🥣</span>
+            <span class="text-xs font-bold text-green-900">Repas Solide</span>
+          </button>
 
-    <!-- Section Résumé des Derniers Événements -->
-    <section class="px-4 pb-2">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Dernières activités</h2>
-      <div id="latest-summary" class="grid grid-cols-2 gap-2 text-xs">
-        <div class="p-2 bg-slate-50 border rounded-xl flex items-center justify-between"><span class="text-gray-500">🛏️ Sommeil</span><span id="last-sleep" class="font-bold text-gray-700">--</span></div>
-        <div class="p-2 bg-slate-50 border rounded-xl flex items-center justify-between"><span class="text-gray-500">🤱 Tétée</span><span id="last-breast" class="font-bold text-gray-700">--</span></div>
-        <div class="p-2 bg-slate-50 border rounded-xl flex items-center justify-between"><span class="text-gray-500">👶 Couche</span><span id="last-diaper" class="font-bold text-gray-700">--</span></div>
-        <div class="p-2 bg-slate-50 border rounded-xl flex items-center justify-between"><span class="text-gray-500">🥣 Repas</span><span id="last-solid" class="font-bold text-gray-700">--</span></div>
-      </div>
-    </section>
-
-    <!-- Section Historique & Journal -->
-    <main class="flex-1 p-4 bg-slate-50 border-t border-slate-100">
-      <div class="flex justify-between items-center mb-3">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400">Journal & Historique</h2>
-        <div class="space-x-1">
-          <button onclick="exportData('csv')" class="text-xs px-2 py-1 bg-white border rounded shadow-sm text-gray-600 font-semibold">CSV</button>
-          <button onclick="exportData('json')" class="text-xs px-2 py-1 bg-white border rounded shadow-sm text-gray-600 font-semibold">JSON</button>
+          <button onclick="openModal('other')" class="p-3 bg-purple-50 border border-purple-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
+            <span class="text-2xl mb-1">📝</span>
+            <span class="text-xs font-bold text-purple-900">Divers</span>
+          </button>
         </div>
+      </section>
+
+      <!-- Section Journal par Date -->
+      <main class="p-4 bg-slate-50 border-t border-slate-100">
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400">Événements enregistrés</h2>
+          <div class="space-x-1">
+            <button onclick="exportData('csv')" class="text-xs px-2 py-1 bg-white border rounded shadow-sm text-gray-600 font-semibold">CSV</button>
+            <button onclick="exportData('json')" class="text-xs px-2 py-1 bg-white border rounded shadow-sm text-gray-600 font-semibold">JSON</button>
+          </div>
+        </div>
+
+        <!-- Filtre par date -->
+        <div class="mb-4 bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between">
+          <label for="filter-date" class="text-xs font-semibold text-gray-500">Filtrer par jour :</label>
+          <input type="date" id="filter-date" onchange="renderEvents()" class="text-xs font-bold bg-slate-100 p-2 rounded-lg text-gray-700 outline-none">
+        </div>
+
+        <!-- Liste des événements -->
+        <div id="events-list" class="space-y-2">
+          <p class="text-center text-sm text-gray-400 py-6">Aucun événement pour cette date.</p>
+        </div>
+      </main>
+    </div>
+
+    <!-- VUE 2 : HISTORIQUE & TENDANCES (Inspiré de l'image) -->
+    <div id="view-history" class="hidden p-4 bg-slate-50">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Statistiques & Tendances</h2>
+      
+      <!-- Filtres par catégorie style bulles -->
+      <div class="flex space-x-3 overflow-x-auto pb-3 mb-2 scrollbar-none">
+        <button onclick="filterHistoryCategory('all')" class="cat-filter-btn flex flex-col items-center min-w-[55px]" data-cat="all">
+          <div class="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg shadow-sm border border-blue-600">✨</div>
+          <span class="text-[10px] font-bold text-gray-700 mt-1">Tous</span>
+        </button>
+        <button onclick="filterHistoryCategory('Sommeil')" class="cat-filter-btn flex flex-col items-center min-w-[55px]" data-cat="Sommeil">
+          <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-lg border border-indigo-200">🛏️</div>
+          <span class="text-[10px] font-bold text-gray-500 mt-1">Sommeil</span>
+        </button>
+        <button onclick="filterHistoryCategory('Allaitement')" class="cat-filter-btn flex flex-col items-center min-w-[55px]" data-cat="Allaitement">
+          <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg border border-emerald-200">🤱</div>
+          <span class="text-[10px] font-bold text-gray-500 mt-1">Tétée</span>
+        </button>
+        <button onclick="filterHistoryCategory('Couche')" class="cat-filter-btn flex flex-col items-center min-w-[55px]" data-cat="Couche">
+          <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-lg border border-amber-200">👶</div>
+          <span class="text-[10px] font-bold text-gray-500 mt-1">Couche</span>
+        </button>
+        <button onclick="filterHistoryCategory('Repas Solide')" class="cat-filter-btn flex flex-col items-center min-w-[55px]" data-cat="Repas Solide">
+          <div class="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-lg border border-green-200">🥣</div>
+          <span class="text-[10px] font-bold text-gray-500 mt-1">Solides</span>
+        </button>
       </div>
 
-      <!-- Filtre par date -->
-      <div class="mb-4 bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between">
-        <label for="filter-date" class="text-xs font-semibold text-gray-500">Filtrer par jour :</label>
-        <input type="date" id="filter-date" onchange="renderEvents()" class="text-xs font-bold bg-slate-100 p-2 rounded-lg text-gray-700 outline-none">
+      <!-- Liste Chronologique par Jour avec barres de tendance -->
+      <div id="history-timeline" class="space-y-4">
+        <!-- Généré dynamiquement -->
       </div>
-
-      <!-- Liste des événements -->
-      <div id="events-list" class="space-y-2">
-        <p class="text-center text-sm text-gray-400 py-6">Chargement des événements...</p>
-      </div>
-    </main>
+    </div>
 
   </div>
 
-  <!-- MODAL : FICHE BÉBÉ & COURBES -->
+  <!-- MODAL : FICHE BÉBÉ & COURBES DE CROISSANCE -->
   <div id="modal-baby" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
-      <h3 class="text-lg font-bold text-gray-800 border-b pb-2">Suivi Croissance Bébé</h3>
+      <h3 class="text-lg font-bold text-gray-800 border-b pb-2">Courbes de Croissance</h3>
       
       <div>
         <label class="text-xs font-semibold text-gray-500">Prénom</label>
@@ -182,7 +218,7 @@
 
       <div class="flex space-x-2 pt-2">
         <button onclick="closeModal('modal-baby')" class="w-1/2 py-2 bg-slate-100 rounded-xl text-xs font-bold text-gray-600">Fermer</button>
-        <button onclick="saveBabyStats()" class="w-1/2 py-2 bg-blue-500 text-white rounded-xl text-xs font-bold">Enregistrer Mesure</button>
+        <button onclick="saveBabyStats()" class="w-1/2 py-2 bg-blue-500 text-white rounded-xl text-xs font-bold">Enregistrer</button>
       </div>
     </div>
   </div>
@@ -202,23 +238,43 @@
   </div>
 
   <script>
-    // Variable locale pour stocker données
     let allEvents = JSON.parse(localStorage.getItem('baby_events') || '[]');
     let growthHistory = JSON.parse(localStorage.getItem('baby_growth') || '[]');
     let currentCategory = '';
+    let selectedHistoryCategory = 'all';
     let timerInterval = null;
     let timerSeconds = 0;
     let chartInstances = {};
 
-    // Date actuelle
+    // Initialisation dates
     const todayStr = new Date().toISOString().split('T')[0];
     document.getElementById('filter-date').value = todayStr;
     document.getElementById('input-baby-date').value = todayStr;
 
-    // Chargement initial
+    // Chargement UI
     updateGrowthUI();
     renderEvents();
-    updateLatestSummary();
+    renderHistoryTimeline();
+
+    function switchTab(tab) {
+      const viewToday = document.getElementById('view-today');
+      const viewHistory = document.getElementById('view-history');
+      const btnToday = document.getElementById('tab-btn-today');
+      const btnHistory = document.getElementById('tab-btn-history');
+
+      if (tab === 'today') {
+        viewToday.classList.remove('hidden');
+        viewHistory.classList.add('hidden');
+        btnToday.className = "flex-1 py-3 text-center border-b-2 border-blue-500 text-blue-600 transition font-bold";
+        btnHistory.className = "flex-1 py-3 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition";
+      } else {
+        viewToday.classList.add('hidden');
+        viewHistory.classList.remove('hidden');
+        btnHistory.className = "flex-1 py-3 text-center border-b-2 border-blue-500 text-blue-600 transition font-bold";
+        btnToday.className = "flex-1 py-3 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition";
+        renderHistoryTimeline();
+      }
+    }
 
     function updateGrowthUI() {
       if (growthHistory.length > 0) {
@@ -265,22 +321,76 @@
       });
     }
 
-    function updateLatestSummary() {
-      const sleep = allEvents.find(e => e.category === 'Sommeil');
-      const breast = allEvents.find(e => e.category === 'Allaitement');
-      const diaper = allEvents.find(e => e.category === 'Couche');
-      const solid = allEvents.find(e => e.category === 'Repas Solide');
+    function filterHistoryCategory(cat) {
+      selectedHistoryCategory = cat;
+      document.querySelectorAll('.cat-filter-btn div').forEach(div => {
+        div.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
+      });
+      const activeBtn = document.querySelector(`.cat-filter-btn[data-cat="${cat}"] div`);
+      if (activeBtn) activeBtn.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+      renderHistoryTimeline();
+    }
 
-      const formatTime = (item) => {
-        if (!item) return '--';
-        const d = new Date(item.timestampIso);
-        return isNaN(d.getTime()) ? '--' : d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-      };
+    function renderHistoryTimeline() {
+      const container = document.getElementById('history-timeline');
+      container.innerHTML = '';
 
-      document.getElementById('last-sleep').innerText = formatTime(sleep);
-      document.getElementById('last-breast').innerText = formatTime(breast);
-      document.getElementById('last-diaper').innerText = formatTime(diaper);
-      document.getElementById('last-solid').innerText = formatTime(solid);
+      if (allEvents.length === 0) {
+        container.innerHTML = '<p class="text-center text-sm text-gray-400 py-6">Aucune donnée historique.</p>';
+        return;
+      }
+
+      // Groupement par date
+      const grouped = {};
+      allEvents.forEach(e => {
+        if (selectedHistoryCategory !== 'all' && e.category !== selectedHistoryCategory) return;
+        const dateKey = (e.timestampIso || '').slice(0, 10);
+        if (!dateKey) return;
+        if (!grouped[dateKey]) grouped[dateKey] = [];
+        grouped[dateKey].push(e);
+      });
+
+      const dates = Object.keys(grouped).sort().reverse();
+
+      if (dates.length === 0) {
+        container.innerHTML = '<p class="text-center text-sm text-gray-400 py-6">Aucun événement pour cette catégorie.</p>';
+        return;
+      }
+
+      dates.forEach(dateStr => {
+        const events = grouped[dateStr];
+        const d = new Date(dateStr + 'T00:00:00');
+        const formattedDate = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        let itemsHtml = '';
+        events.forEach(e => {
+          const evtTime = new Date(e.timestampIso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+          itemsHtml += `
+            <div class="flex items-center justify-between text-xs py-1 border-b border-gray-100 last:border-0">
+              <span class="font-semibold text-gray-700">${e.icon} ${e.category} ${e.subType ? '('+e.subType+')' : ''}</span>
+              <span class="text-gray-400">${evtTime}</span>
+            </div>
+          `;
+        });
+
+        container.innerHTML += `
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-2">
+            <div class="flex items-center justify-between border-b pb-2">
+              <h3 class="font-extrabold text-sm text-gray-800">${formattedDate}</h3>
+              <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-bold">${events.length} evt</span>
+            </div>
+            
+            <!-- Visuel Tendance (Barre d'activité fictive / résumé) -->
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden flex my-2">
+              <div class="bg-blue-500 h-full" style="width: ${Math.min(events.length * 20, 100)}%"></div>
+            </div>
+
+            <div class="space-y-1 pt-1">
+              ${itemsHtml}
+            </div>
+          </div>
+        `;
+      });
     }
 
     function openModal(category) {
@@ -406,15 +516,13 @@
         payload.category = 'Repas Solide';
       }
 
-      // Enregistrement local
       allEvents.unshift(payload);
       localStorage.setItem('baby_events', JSON.stringify(allEvents));
 
-      // Repositionne automatiquement le filtre sur la date du jour
       document.getElementById('filter-date').value = nowIso.split('T')[0];
       
       renderEvents();
-      updateLatestSummary();
+      renderHistoryTimeline();
       closeModal('modal-event');
     }
 
@@ -532,7 +640,7 @@
         allEvents = allEvents.filter(e => e.id !== id);
         localStorage.setItem('baby_events', JSON.stringify(allEvents));
         renderEvents();
-        updateLatestSummary();
+        renderHistoryTimeline();
       }
     }
 
