@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Suivi Bébé Pro v1.2.0</title>
+  <title>Suivi Bébé Pro v1.3.0 (Local)</title>
   
+  <!-- Icône PWA (Imgur) -->
+  <link rel="icon" type="image/png" href="https://i.imgur.com/RvHzs8e.png">
+  <link rel="apple-touch-icon" href="https://i.imgur.com/RvHzs8e.png">
+
   <!-- PWA Metadata -->
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,7 +18,7 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Chart.js & Adaptateur Temporel Luxeon/Date-fns -->
+  <!-- Chart.js & Adaptateur Temporel (Pour les courbes) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 </head>
@@ -22,14 +26,15 @@
 
   <div id="app" class="max-w-md mx-auto min-h-screen bg-white flex flex-col shadow-xl pb-10 relative">
     
-    <!-- En-tête Profil avec Badge Version -->
+    <!-- En-tête Profil -->
     <header onclick="openBabyModal()" class="p-6 bg-blue-500 text-white rounded-b-3xl text-center shadow-md cursor-pointer hover:bg-blue-600 transition relative">
       <span class="absolute top-4 right-4 bg-white/20 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-white/30 backdrop-blur-sm">
-        v1.2.0
+        v1.3.0 (Local)
       </span>
 
-      <div class="w-20 h-20 bg-white/20 rounded-full mx-auto flex items-center justify-center text-4xl mb-2 backdrop-blur-sm border-2 border-white/40">
-        👶
+      <!-- Logo / Avatar -->
+      <div class="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center mb-2 shadow-md overflow-hidden border-2 border-white">
+        <img src="https://i.imgur.com/RvHzs8e.png" alt="Icon" class="w-full h-full object-cover" onerror="this.outerHTML='👶'">
       </div>
       
       <div class="flex items-center justify-center space-x-2">
@@ -57,7 +62,6 @@
     <section class="p-4">
       <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Ajouter un événement</h2>
       <div class="grid grid-cols-3 gap-3">
-        
         <button onclick="openModal('sleep')" class="p-3 bg-indigo-50 border border-indigo-100 rounded-2xl flex flex-col items-center active:scale-95 transition">
           <span class="text-2xl mb-1">🛏️</span>
           <span class="text-xs font-bold text-indigo-900">Sommeil</span>
@@ -82,7 +86,6 @@
           <span class="text-2xl mb-1">📝</span>
           <span class="text-xs font-bold text-purple-900">Divers</span>
         </button>
-
       </div>
     </section>
 
@@ -107,7 +110,7 @@
         </div>
       </div>
 
-      <!-- Filtre par date / Calendrier -->
+      <!-- Filtre par date -->
       <div class="mb-4 bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between">
         <label for="filter-date" class="text-xs font-semibold text-gray-500">Filtrer par jour :</label>
         <input type="date" id="filter-date" onchange="renderEvents()" class="text-xs font-bold bg-slate-100 p-2 rounded-lg text-gray-700 outline-none">
@@ -121,7 +124,7 @@
 
   </div>
 
-  <!-- MODAL : FICHE BÉBÉ & COURBES DE CROISSANCE -->
+  <!-- MODAL : FICHE BÉBÉ & COURBES -->
   <div id="modal-baby" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
       <h3 class="text-lg font-bold text-gray-800 border-b pb-2">Suivi Croissance Bébé</h3>
@@ -157,7 +160,7 @@
         </div>
       </div>
 
-      <!-- Graphiques de croissance à échelle réelle -->
+      <!-- Graphiques -->
       <div class="pt-2 space-y-4">
         <div>
           <h4 class="text-xs font-bold text-gray-700 mb-1">📊 Courbe de Poids (kg)</h4>
@@ -184,14 +187,12 @@
     </div>
   </div>
 
-  <!-- MODAL GÉNÉRIQUE SAISIE D'ÉVÉNEMENT -->
+  <!-- MODAL ÉVÉNEMENT -->
   <div id="modal-event" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
       <h3 id="modal-title" class="text-lg font-bold text-gray-800 border-b pb-2">Ajouter</h3>
       
-      <div id="modal-body" class="space-y-3">
-        <!-- Contenu dynamique -->
-      </div>
+      <div id="modal-body" class="space-y-3"></div>
 
       <div class="flex space-x-2 pt-2">
         <button onclick="closeModal('modal-event')" class="w-1/2 py-3 bg-slate-100 rounded-2xl text-xs font-bold text-gray-600">Annuler</button>
@@ -200,44 +201,26 @@
     </div>
   </div>
 
-  <!-- Scripts Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
   <script>
-    // ⚠️ REMPLACEZ PAR VOS CLÉS FIREBASE
-    const firebaseConfig = {
-      apiKey: "VOTRE_API_KEY",
-      authDomain: "VOTRE_PROJECT_ID.firebaseapp.com",
-      projectId: "VOTRE_PROJECT_ID",
-      storageBucket: "VOTRE_PROJECT_ID.appspot.com",
-      messagingSenderId: "VOTRE_NUMERO",
-      appId: "VOTRE_APP_ID"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    let allEvents = [];
-    let growthHistory = [];
+    // Variable locale pour stocker données
+    let allEvents = JSON.parse(localStorage.getItem('baby_events') || '[]');
+    let growthHistory = JSON.parse(localStorage.getItem('baby_growth') || '[]');
     let currentCategory = '';
     let timerInterval = null;
     let timerSeconds = 0;
     let chartInstances = {};
 
-    document.getElementById('filter-date').valueAsDate = new Date();
-    document.getElementById('input-baby-date').valueAsDate = new Date();
+    // Date actuelle
+    const todayStr = new Date().toISOString().split('T')[0];
+    document.getElementById('filter-date').value = todayStr;
+    document.getElementById('input-baby-date').value = todayStr;
 
-    // Écouteur en temps réel de la croissance
-    db.collection("baby_growth").orderBy("date", "asc").onSnapshot((snapshot) => {
-      growthHistory = [];
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        if (data.date) {
-          growthHistory.push({ id: doc.id, ...data, dateObj: data.date.toDate() });
-        }
-      });
+    // Chargement initial
+    updateGrowthUI();
+    renderEvents();
+    updateLatestSummary();
 
+    function updateGrowthUI() {
       if (growthHistory.length > 0) {
         const last = growthHistory[growthHistory.length - 1];
         document.getElementById('display-baby-name').innerText = last.name || "Aimé";
@@ -246,15 +229,7 @@
         document.getElementById('stat-feet').innerText = (last.feet ? last.feet + " cm" : '--');
       }
       renderCharts();
-    });
-
-    // Écouteur en temps réel des événements
-    db.collection("events").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
-      allEvents = [];
-      snapshot.forEach(doc => allEvents.push({ id: doc.id, ...doc.data() }));
-      renderEvents();
-      updateLatestSummary();
-    }, (err) => console.error("Erreur Firestore :", err));
+    }
 
     function renderEvents() {
       const selectedDate = document.getElementById('filter-date').value;
@@ -262,9 +237,8 @@
       container.innerHTML = "";
 
       const filtered = allEvents.filter(e => {
-        if (!e.timestamp) return false;
-        const d = e.timestamp.toDate();
-        return d.toISOString().split('T')[0] === selectedDate;
+        const iso = e.timestampIso || '';
+        return iso.slice(0, 10) === selectedDate;
       });
 
       if (filtered.length === 0) {
@@ -273,7 +247,9 @@
       }
 
       filtered.forEach(e => {
-        const timeStr = e.timestamp.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        const d = new Date(e.timestampIso);
+        const timeStr = isNaN(d.getTime()) ? '--:--' : d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        
         container.innerHTML += `
           <div class="p-3 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -295,10 +271,16 @@
       const diaper = allEvents.find(e => e.category === 'Couche');
       const solid = allEvents.find(e => e.category === 'Repas Solide');
 
-      if (sleep) document.getElementById('last-sleep').innerText = sleep.timestamp ? sleep.timestamp.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '--';
-      if (breast) document.getElementById('last-breast').innerText = breast.timestamp ? breast.timestamp.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '--';
-      if (diaper) document.getElementById('last-diaper').innerText = diaper.timestamp ? diaper.timestamp.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '--';
-      if (solid) document.getElementById('last-solid').innerText = solid.timestamp ? solid.timestamp.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '--';
+      const formatTime = (item) => {
+        if (!item) return '--';
+        const d = new Date(item.timestampIso);
+        return isNaN(d.getTime()) ? '--' : d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      };
+
+      document.getElementById('last-sleep').innerText = formatTime(sleep);
+      document.getElementById('last-breast').innerText = formatTime(breast);
+      document.getElementById('last-diaper').innerText = formatTime(diaper);
+      document.getElementById('last-solid').innerText = formatTime(solid);
     }
 
     function openModal(category) {
@@ -357,10 +339,7 @@
 
     function startTimer() {
       if (!timerInterval) {
-        timerInterval = setInterval(() => {
-          timerSeconds++;
-          updateTimerDisplay();
-        }, 1000);
+        timerInterval = setInterval(() => { timerSeconds++; updateTimerDisplay(); }, 1000);
       }
       document.getElementById('btn-start').classList.add('hidden');
       document.getElementById('btn-pause').classList.remove('hidden');
@@ -397,18 +376,19 @@
       if (display) display.innerText = `${hrs}:${mins}:${secs}`;
     }
 
-    // Soumission garantie et blindée
     function submitEvent() {
       const notes = document.getElementById('event-notes')?.value || '';
       const timerDisplay = document.getElementById('timer-display');
       const durationStr = (timerDisplay && timerDisplay.innerText !== '00:00:00') ? `Durée: ${timerDisplay.innerText} ` : '';
 
+      const nowIso = new Date().toISOString();
       let payload = {
+        id: 'evt_' + Date.now(),
         category: 'Divers',
         icon: '📝',
         subType: '',
         details: notes,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        timestampIso: nowIso
       };
 
       if (currentCategory === 'diaper') {
@@ -426,12 +406,18 @@
         payload.category = 'Repas Solide';
       }
 
-      db.collection("events").add(payload)
-        .then(() => closeModal('modal-event'))
-        .catch(err => alert("Erreur d'enregistrement : " + err.message));
+      // Enregistrement local
+      allEvents.unshift(payload);
+      localStorage.setItem('baby_events', JSON.stringify(allEvents));
+
+      // Repositionne automatiquement le filtre sur la date du jour
+      document.getElementById('filter-date').value = nowIso.split('T')[0];
+      
+      renderEvents();
+      updateLatestSummary();
+      closeModal('modal-event');
     }
 
-    // Convertisseur de décimales (gère les virgules françaises et les points)
     function parseInputNumber(id) {
       const val = document.getElementById(id)?.value || '';
       if (!val) return null;
@@ -440,7 +426,6 @@
       return isNaN(parsed) ? null : parsed;
     }
 
-    // Sauvegarde des mesures avec date rétroactive
     function saveBabyStats() {
       const name = document.getElementById('input-baby-name').value || "Aimé";
       const dateVal = document.getElementById('input-baby-date').value;
@@ -454,30 +439,47 @@
         return alert("Veuillez remplir au moins une valeur numérique.");
       }
 
-      const customTimestamp = dateVal ? firebase.firestore.Timestamp.fromDate(new Date(dateVal + 'T12:00:00')) : firebase.firestore.FieldValue.serverTimestamp();
+      const dateObj = dateVal ? new Date(dateVal + 'T12:00:00') : new Date();
 
-      db.collection("baby_growth").add({
+      const payload = {
+        id: 'growth_' + Date.now(),
         name: name,
         weight: weight,
         height: height,
         head: head,
         feet: feet,
-        date: customTimestamp
-      }).then(() => {
-        document.getElementById('input-baby-weight').value = '';
-        document.getElementById('input-baby-height').value = '';
-        document.getElementById('input-baby-head').value = '';
-        document.getElementById('input-baby-feet').value = '';
-        closeModal('modal-baby');
-      }).catch(err => alert("Erreur : " + err.message));
+        dateIso: dateObj.toISOString()
+      };
+
+      growthHistory.push(payload);
+      growthHistory.sort((a,b) => new Date(a.dateIso) - new Date(b.dateIso));
+      localStorage.setItem('baby_growth', JSON.stringify(growthHistory));
+      
+      updateGrowthUI();
+      clearGrowthInputs();
+      closeModal('modal-baby');
     }
 
-    // Génération des graphiques avec axe temporel à vraie échelle
+    function clearGrowthInputs() {
+      document.getElementById('input-baby-weight').value = '';
+      document.getElementById('input-baby-height').value = '';
+      document.getElementById('input-baby-head').value = '';
+      document.getElementById('input-baby-feet').value = '';
+    }
+
     function renderCharts() {
-      createTimeChart('weightChart', 'Poids (kg)', growthHistory.map(g => ({ x: g.dateObj, y: g.weight })), '#3b82f6');
-      createTimeChart('heightChart', 'Taille (cm)', growthHistory.map(g => ({ x: g.dateObj, y: g.height })), '#10b981');
-      createTimeChart('headChart', 'Périmètre Crânien (cm)', growthHistory.map(g => ({ x: g.dateObj, y: g.head })), '#f59e0b');
-      createTimeChart('feetChart', 'Pied (cm)', growthHistory.map(g => ({ x: g.dateObj, y: g.feet })), '#8b5cf6');
+      const formatted = growthHistory.map(g => ({
+        date: new Date(g.dateIso),
+        weight: g.weight,
+        height: g.height,
+        head: g.head,
+        feet: g.feet
+      }));
+
+      createTimeChart('weightChart', 'Poids (kg)', formatted.map(g => ({ x: g.date, y: g.weight })), '#3b82f6');
+      createTimeChart('heightChart', 'Taille (cm)', formatted.map(g => ({ x: g.date, y: g.height })), '#10b981');
+      createTimeChart('headChart', 'Périmètre Crânien (cm)', formatted.map(g => ({ x: g.date, y: g.head })), '#f59e0b');
+      createTimeChart('feetChart', 'Pied (cm)', formatted.map(g => ({ x: g.date, y: g.feet })), '#8b5cf6');
     }
 
     function createTimeChart(canvasId, label, points, color) {
@@ -510,13 +512,8 @@
               type: 'time',
               time: {
                 tooltipFormat: 'dd MMM yyyy',
-                displayFormats: {
-                  day: 'dd MMM yy',
-                  month: 'MMM yyyy',
-                  year: 'yyyy'
-                }
-              },
-              title: { display: false }
+                displayFormats: { day: 'dd MMM yy', month: 'MMM yyyy', year: 'yyyy' }
+              }
             },
             y: { beginAtZero: false }
           }
@@ -531,7 +528,12 @@
     }
 
     function deleteEvent(id) {
-      if (confirm("Supprimer cet événement ?")) db.collection("events").doc(id).delete();
+      if (confirm("Supprimer cet événement ?")) {
+        allEvents = allEvents.filter(e => e.id !== id);
+        localStorage.setItem('baby_events', JSON.stringify(allEvents));
+        renderEvents();
+        updateLatestSummary();
+      }
     }
 
     function exportData(format) {
@@ -546,7 +548,7 @@
           `"${e.category || ''}"`,
           `"${e.subType || ''}"`,
           `"${e.details || ''}"`,
-          `"${e.timestamp ? e.timestamp.toDate().toISOString() : ''}"`
+          `"${e.timestampIso || ''}"`
         ]);
         const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
         downloadFile(encodeURI(csvContent), `suivi_bebe_${new Date().toISOString().slice(0,10)}.csv`);
