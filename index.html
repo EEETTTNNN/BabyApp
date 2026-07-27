@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Suivi Bébé Pro v1.5.0</title>
+  <title>Suivi Bébé Pro v1.6.0</title>
   
   <link id="dynamic-apple-icon" rel="apple-touch-icon" href="IMG_8196.jpeg">
   <link rel="apple-touch-icon-precomposed" href="IMG_8196.jpeg">
@@ -26,7 +26,7 @@
     
     <header class="p-6 bg-blue-500 text-white rounded-b-3xl text-center shadow-md relative">
       <span class="absolute top-4 right-4 bg-white/20 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-white/30 backdrop-blur-sm">
-        v1.5.0
+        v1.6.0
       </span>
 
       <div onclick="openAvatarSelector()" class="w-24 h-24 bg-white rounded-full mx-auto flex items-center justify-center mb-2 shadow-md border-4 border-white overflow-hidden cursor-pointer active:scale-95 transition relative group">
@@ -94,12 +94,27 @@
       </section>
 
       <main class="p-4 bg-slate-50 border-t border-slate-100">
+        <div class="mb-4 p-3 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold text-gray-700">Gestion des données</span>
+            <span class="text-[10px] text-gray-400">JSON & CSV</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="exportJSON()" class="py-1.5 px-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-[11px] font-bold hover:bg-blue-100 active:scale-95 transition flex items-center justify-center space-x-1">
+              <span>📤 Export JSON</span>
+            </button>
+            <button onclick="triggerImport()" class="py-1.5 px-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-[11px] font-bold hover:bg-emerald-100 active:scale-95 transition flex items-center justify-center space-x-1">
+              <span>📥 Import JSON</span>
+            </button>
+            <button onclick="exportCSV()" class="py-1.5 px-2 bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-[11px] font-bold hover:bg-slate-100 active:scale-95 transition flex items-center justify-center space-x-1">
+              <span>📊 Export CSV</span>
+            </button>
+          </div>
+          <input type="file" id="import-file-input" accept=".json" onchange="importJSON(event)" class="hidden">
+        </div>
+
         <div class="flex justify-between items-center mb-3">
           <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400">Événements enregistrés</h2>
-          <div class="space-x-1">
-            <button onclick="exportData('csv')" class="text-xs px-2 py-1 bg-white border rounded shadow-sm text-gray-600 font-semibold">CSV</button>
-            <button onclick="exportData('json')" class="text-xs px-2 py-1 bg-white border rounded shadow-sm text-gray-600 font-semibold">JSON</button>
-          </div>
         </div>
 
         <div class="mb-4 bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between">
@@ -125,8 +140,7 @@
       <h3 class="text-lg font-bold text-gray-800 border-b pb-2">Choisir une photo d'icône</h3>
       <p class="text-xs text-gray-500">Sélectionne l'image à utiliser comme photo de profil et comme icône d'application.</p>
 
-      <div class="grid grid-cols-3 gap-3 py-2" id="icon-grid">
-        </div>
+      <div class="grid grid-cols-3 gap-3 py-2" id="icon-grid"></div>
 
       <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-[11px] text-amber-800 text-left">
         💡 <strong>Astuce iOS :</strong> Pour que cette image devienne la nouvelle icône sur l'écran d'accueil de ton iPhone, ré-ajoute la page via <em>Partager ➔ Sur l'écran d'accueil</em> après avoir sélectionné la photo.
@@ -201,7 +215,6 @@
   </div>
 
   <script>
-    // LISTE DES 6 PHOTOS PRÉSENTES SUR TON GITHUB
     const availableIcons = [
       'IMG_8196.jpeg',
       'icon2.jpg',
@@ -215,13 +228,109 @@
     let growthHistory = JSON.parse(localStorage.getItem('baby_growth') || '[]');
     let currentIcon = localStorage.getItem('baby_icon') || 'IMG_8196.jpeg';
     let currentCategory = '';
-    let chartInstances = {};
 
     // Initialisation
     document.getElementById('filter-date').value = new Date().toISOString().split('T')[0];
     applySelectedIcon(currentIcon);
     updateGrowthUI();
     renderEvents();
+
+    // ----------------------------------------------------
+    // FONCTIONS D'EXPORTATION ET D'IMPORTATION (JSON & CSV)
+    // ----------------------------------------------------
+
+    function exportJSON() {
+      if (allEvents.length === 0 && growthHistory.length === 0) {
+        return alert("Aucune donnée à exporter.");
+      }
+      const backupData = {
+        version: "1.6.0",
+        exportDate: new Date().toISOString(),
+        baby_events: allEvents,
+        baby_growth: growthHistory,
+        baby_icon: currentIcon
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+      downloadFile(dataStr, `suivi_bebe_backup_${new Date().toISOString().slice(0,10)}.json`);
+    }
+
+    function triggerImport() {
+      document.getElementById('import-file-input').click();
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+
+          if (!imported.baby_events && !imported.baby_growth) {
+            return alert("Format de fichier invalide.");
+          }
+
+          let addedEvents = 0;
+          if (Array.isArray(imported.baby_events)) {
+            imported.baby_events.forEach(impEvt => {
+              if (!allEvents.some(e => e.id === impEvt.id)) {
+                allEvents.push(impEvt);
+                addedEvents++;
+              }
+            });
+            allEvents.sort((a,b) => new Date(b.timestampIso) - new Date(a.timestampIso));
+            localStorage.setItem('baby_events', JSON.stringify(allEvents));
+          }
+
+          if (Array.isArray(imported.baby_growth)) {
+            imported.baby_growth.forEach(impGrowth => {
+              if (!growthHistory.some(g => g.id === impGrowth.id)) {
+                growthHistory.push(impGrowth);
+              }
+            });
+            growthHistory.sort((a,b) => new Date(a.dateIso) - new Date(b.dateIso));
+            localStorage.setItem('baby_growth', JSON.stringify(growthHistory));
+          }
+
+          alert(`Importation réussie ! ${addedEvents} nouveaux événements ajoutés.`);
+          renderEvents();
+          updateGrowthUI();
+
+        } catch (err) {
+          alert("Erreur lors de la lecture du fichier JSON : " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function exportCSV() {
+      if (allEvents.length === 0) return alert("Aucun événement à exporter.");
+      const headers = ["ID", "Categorie", "Sous_Type", "Details", "Date_Heure"];
+      const rows = allEvents.map(e => [
+        e.id,
+        `"${e.category || ''}"`,
+        `"${e.subType || ''}"`,
+        `"${e.details || ''}"`,
+        `"${e.timestampIso || ''}"`
+      ]);
+      const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+      downloadFile(encodeURI(csvContent), `suivi_bebe_${new Date().toISOString().slice(0,10)}.csv`);
+    }
+
+    function downloadFile(content, fileName) {
+      const link = document.createElement("a");
+      link.setAttribute("href", content);
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+
+    // ----------------------------------------------------
+    // GESTION UI & ÉVÉNEMENTS
+    // ----------------------------------------------------
 
     function openAvatarSelector() {
       const grid = document.getElementById('icon-grid');
@@ -249,10 +358,7 @@
     }
 
     function applySelectedIcon(iconName) {
-      // Met à jour la photo de profil
       document.getElementById('profile-avatar-img').src = iconName;
-      
-      // Met à jour la balise meta d'icône iOS
       document.getElementById('dynamic-apple-icon').href = iconName;
       document.getElementById('dynamic-favicon').href = iconName;
     }
@@ -266,7 +372,6 @@
       } else {
         viewToday.classList.add('hidden');
         viewHistory.classList.remove('hidden');
-        renderHistoryTimeline();
       }
     }
 
