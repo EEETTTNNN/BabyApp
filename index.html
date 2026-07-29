@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Suivi Bébé Pro v1.6.2</title>
+  <title>Suivi Bébé Pro v1.7.0</title>
   
   <link id="dynamic-apple-icon" rel="apple-touch-icon" href="IMG_8196.jpeg">
   <link rel="apple-touch-icon-precomposed" href="IMG_8196.jpeg">
@@ -26,10 +26,15 @@
 
   <div id="app" class="max-w-md mx-auto min-h-screen bg-white flex flex-col shadow-xl pb-16 relative">
     
-    <!-- En-tête Profil -->
+    <!-- EN-TÊTE PRINCIPAL -->
     <header class="p-6 bg-blue-500 text-white rounded-b-3xl text-center shadow-md relative">
+      <!-- Bouton Statistiques en haut à gauche -->
+      <button id="btn-open-stats" class="absolute top-4 left-4 bg-white/20 hover:bg-white/30 text-white p-2.5 rounded-2xl border border-white/30 backdrop-blur-sm active:scale-95 transition flex items-center justify-center">
+        <span class="text-lg">📊</span>
+      </button>
+
       <span class="absolute top-4 right-4 bg-white/20 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-white/30 backdrop-blur-sm">
-        v1.6.2
+        v1.7.0
       </span>
 
       <!-- Avatar cliquable -->
@@ -40,12 +45,12 @@
         </div>
       </div>
       
-      <div id="btn-baby-info" class="cursor-pointer">
+      <div>
         <h1 id="display-baby-name" class="text-2xl font-extrabold tracking-wide">Aimé</h1>
-        <p id="display-baby-age" class="text-xs text-blue-100 mt-0.5">Appuyer pour voir les courbes de croissance</p>
       </div>
       
-      <div id="btn-baby-stats" class="flex justify-around mt-4 pt-3 border-t border-white/20 text-sm cursor-pointer">
+      <!-- Cartes de mensuration cliquables -->
+      <div id="btn-baby-stats" class="flex justify-around mt-4 pt-3 border-t border-white/20 text-sm cursor-pointer hover:bg-white/5 rounded-xl transition">
         <div>
           <span class="block text-blue-200 text-xs">Poids</span>
           <span id="stat-weight" class="font-bold">-- kg</span>
@@ -61,18 +66,15 @@
       </div>
     </header>
 
-    <!-- BARRE D'ONGLETS -->
-    <nav class="flex border-b border-gray-200 bg-white text-xs font-bold text-gray-500 mt-2">
-      <button id="tab-btn-today" class="flex-1 py-3 text-center border-b-2 border-blue-500 text-blue-600 transition">
-        Journal du jour
-      </button>
-      <button id="tab-btn-history" class="flex-1 py-3 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition">
-        Historique & Tendances
-      </button>
-    </nav>
+    <!-- JOURNAL DU JOUR -->
+    <div id="view-today" class="block flex-1 flex flex-col">
+      <!-- Section Sélection du Jour -->
+      <div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <label for="filter-date" class="text-xs font-bold uppercase tracking-wider text-gray-500">Filtrer par jour :</label>
+        <input type="date" id="filter-date" class="text-xs font-bold bg-white px-3 py-2 border border-slate-200 rounded-xl text-gray-700 outline-none shadow-sm">
+      </div>
 
-    <!-- VUE 1 : JOURNAL DU JOUR -->
-    <div id="view-today" class="block">
+      <!-- Section Ajouter un événement -->
       <section class="p-4">
         <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Ajouter un événement</h2>
         <div class="grid grid-cols-3 gap-3">
@@ -99,10 +101,17 @@
         </div>
       </section>
 
-      <!-- Section Journal par Date + Outils Import/Export -->
-      <main class="p-4 bg-slate-50 border-t border-slate-100">
-        <!-- Barre d'outils Sauvegarde/Restauration -->
-        <div class="mb-4 p-3 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-2">
+      <!-- Liste des événements du jour -->
+      <main class="p-4 flex-1">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Événements enregistrés</h2>
+        <div id="events-list" class="space-y-2">
+          <p class="text-center text-sm text-gray-400 py-6">Aucun événement pour cette date.</p>
+        </div>
+      </main>
+
+      <!-- Section Import/Export bas de page -->
+      <footer class="p-4 bg-slate-50 border-t border-slate-200 mt-auto">
+        <div class="p-3 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div class="flex justify-between items-center">
             <span class="text-xs font-bold text-gray-700">Gestion des données</span>
             <span class="text-[10px] text-gray-400">JSON & CSV</span>
@@ -120,53 +129,112 @@
           </div>
           <input type="file" id="import-file-input" accept=".json" class="hidden">
         </div>
-
-        <div class="flex justify-between items-center mb-3">
-          <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400">Événements enregistrés</h2>
-        </div>
-
-        <div class="mb-4 bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between">
-          <label for="filter-date" class="text-xs font-semibold text-gray-500">Filtrer par jour :</label>
-          <input type="date" id="filter-date" class="text-xs font-bold bg-slate-100 p-2 rounded-lg text-gray-700 outline-none">
-        </div>
-
-        <div id="events-list" class="space-y-2">
-          <p class="text-center text-sm text-gray-400 py-6">Aucun événement pour cette date.</p>
-        </div>
-      </main>
+      </footer>
     </div>
 
-    <!-- VUE 2 : HISTORIQUE & TENDANCES -->
-    <div id="view-history" class="hidden p-4 bg-slate-50">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Statistiques & Tendances</h2>
-      
-      <!-- Filtres par catégorie -->
-      <div class="flex space-x-3 overflow-x-auto pb-3 mb-2 scrollbar-none">
-        <button data-history-cat="all" class="cat-filter-btn flex flex-col items-center min-w-[55px]">
-          <div class="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg shadow-sm border border-blue-600 ring-2 ring-blue-500 ring-offset-2">✨</div>
-          <span class="text-[10px] font-bold text-gray-700 mt-1">Tous</span>
-        </button>
-        <button data-history-cat="Sommeil" class="cat-filter-btn flex flex-col items-center min-w-[55px]">
-          <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-lg border border-indigo-200">🛏️</div>
-          <span class="text-[10px] font-bold text-gray-500 mt-1">Sommeil</span>
-        </button>
-        <button data-history-cat="Allaitement" class="cat-filter-btn flex flex-col items-center min-w-[55px]">
-          <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg border border-emerald-200">🤱</div>
-          <span class="text-[10px] font-bold text-gray-500 mt-1">Tétée</span>
-        </button>
-        <button data-history-cat="Couche" class="cat-filter-btn flex flex-col items-center min-w-[55px]">
-          <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-lg border border-amber-200">👶</div>
-          <span class="text-[10px] font-bold text-gray-500 mt-1">Couche</span>
-        </button>
-        <button data-history-cat="Repas Solide" class="cat-filter-btn flex flex-col items-center min-w-[55px]">
-          <div class="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-lg border border-green-200">🥣</div>
-          <span class="text-[10px] font-bold text-gray-500 mt-1">Solides</span>
-        </button>
+  </div>
+
+  <!-- MODAL / ÉCRAN : STATISTIQUES & TENDANCES -->
+  <div id="modal-stats" class="fixed inset-0 bg-white z-50 hidden flex-col overflow-y-auto">
+    <!-- En-tête Statistiques -->
+    <div class="p-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
+      <button id="btn-close-stats" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 font-bold active:scale-95">‹</button>
+      <h2 class="text-lg font-extrabold text-gray-800">Statistiques</h2>
+      <div class="w-9"></div>
+    </div>
+
+    <!-- Onglets Statistiques -->
+    <div class="flex border-b border-gray-200 text-xs font-bold text-gray-500 bg-gray-50">
+      <button id="stats-tab-timeline" class="flex-1 py-3 text-center border-b-2 border-blue-500 text-blue-600 transition">Tendance</button>
+      <button id="stats-tab-trends" class="flex-1 py-3 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition">Tendances</button>
+      <button id="stats-tab-growth" class="flex-1 py-3 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition">Croissance</button>
+    </div>
+
+    <!-- Filtres par catégories -->
+    <div class="p-3 border-b border-gray-100 flex space-x-3 overflow-x-auto scrollbar-none bg-white">
+      <button data-stat-cat="all" class="stat-cat-filter flex flex-col items-center min-w-[55px]">
+        <div class="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg shadow-sm border border-blue-600 ring-2 ring-blue-500 ring-offset-2">✨</div>
+        <span class="text-[10px] font-bold text-gray-700 mt-1">Tous</span>
+      </button>
+      <button data-stat-cat="Sommeil" class="stat-cat-filter flex flex-col items-center min-w-[55px]">
+        <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-lg border border-indigo-200">🛏️</div>
+        <span class="text-[10px] font-bold text-gray-500 mt-1">Sommeil</span>
+      </button>
+      <button data-stat-cat="Allaitement" class="stat-cat-filter flex flex-col items-center min-w-[55px]">
+        <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg border border-emerald-200">🤱</div>
+        <span class="text-[10px] font-bold text-gray-500 mt-1">Allaitement</span>
+      </button>
+      <button data-stat-cat="Couche" class="stat-cat-filter flex flex-col items-center min-w-[55px]">
+        <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-lg border border-amber-200">👶</div>
+        <span class="text-[10px] font-bold text-gray-500 mt-1">Couche</span>
+      </button>
+      <button data-stat-cat="Repas Solide" class="stat-cat-filter flex flex-col items-center min-w-[55px]">
+        <div class="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-lg border border-green-200">🥣</div>
+        <span class="text-[10px] font-bold text-gray-500 mt-1">Solides</span>
+      </button>
+    </div>
+
+    <!-- VUE 1 : TIMELINE CHRONOLOGIQUE (00h - 24h) -->
+    <div id="stats-view-timeline" class="p-4 space-y-4">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-xs font-bold text-gray-400 uppercase">Vue chronologique</span>
+        <div class="bg-gray-100 p-1 rounded-xl flex space-x-1">
+          <button id="btn-zoom-day" class="p-1 px-2 text-xs font-bold rounded-lg bg-white shadow-sm text-blue-600">Jour</button>
+          <button id="btn-zoom-month" class="p-1 px-2 text-xs font-bold rounded-lg text-gray-500">Mois</button>
+        </div>
+      </div>
+      <div id="timeline-container" class="space-y-6"></div>
+    </div>
+
+    <!-- VUE 2 : TENDANCES & MOYENNES (S, M, 6M, A) -->
+    <div id="stats-view-trends" class="p-4 hidden space-y-6">
+      <!-- Sélecteur de période -->
+      <div class="flex justify-center">
+        <div class="bg-gray-100 p-1 rounded-2xl flex space-x-1 border border-gray-200">
+          <button data-period="week" class="period-btn px-4 py-1.5 rounded-xl text-xs font-bold text-gray-600">S</button>
+          <button data-period="month" class="period-btn px-4 py-1.5 rounded-xl text-xs font-bold text-gray-600">M</button>
+          <button data-period="6months" class="period-btn px-4 py-1.5 rounded-xl text-xs font-bold bg-white text-blue-600 shadow-sm">6M</button>
+          <button data-period="year" class="period-btn px-4 py-1.5 rounded-xl text-xs font-bold text-gray-600">A</button>
+        </div>
       </div>
 
-      <div id="history-timeline" class="space-y-4"></div>
+      <!-- Résumé Sommeil Moyenne -->
+      <div class="bg-blue-50/50 p-4 rounded-3xl border border-blue-100 space-y-2">
+        <div class="text-xs font-extrabold text-gray-800" id="trends-period-title">Sommeil sur les derniers mois</div>
+        <div class="flex items-baseline space-x-2">
+          <span id="trends-avg-total" class="text-2xl font-black text-indigo-600">--</span>
+          <span class="text-xs text-gray-400">norme 11-14h ⓘ</span>
+        </div>
+        
+        <div class="pt-3">
+          <canvas id="trendsChart" class="w-full h-44"></canvas>
+        </div>
+        <div class="flex justify-center space-x-4 text-xs font-bold pt-2">
+          <span class="text-indigo-400">● Jour</span>
+          <span class="text-indigo-700">● Nuit</span>
+        </div>
+      </div>
     </div>
 
+    <!-- VUE 3 : CROISSANCE -->
+    <div id="stats-view-growth" class="p-4 hidden space-y-6">
+      <div>
+        <h4 class="text-xs font-bold text-gray-700 mb-1">📊 Courbe de Poids (kg)</h4>
+        <canvas id="statsWeightChart" class="w-full h-36"></canvas>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-gray-700 mb-1">📊 Courbe de Taille (cm)</h4>
+        <canvas id="statsHeightChart" class="w-full h-36"></canvas>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-gray-700 mb-1">📊 Courbe du Périmètre Crânien (cm)</h4>
+        <canvas id="statsHeadChart" class="w-full h-36"></canvas>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-gray-700 mb-1">📊 Courbe du Pied (cm)</h4>
+        <canvas id="statsFeetChart" class="w-full h-36"></canvas>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL : CHOIX DE L'ICÔNE / PHOTO DE PROFIL -->
@@ -178,14 +246,14 @@
       <div class="grid grid-cols-3 gap-3 py-2" id="icon-grid"></div>
 
       <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-[11px] text-amber-800 text-left">
-        💡 <strong>Astuce iOS :</strong> Pour que cette image devienne la nouvelle icône sur l'écran d'accueil de ton iPhone, ré-ajoute la page via <em>Partager ➔ Sur l'écran d'accueil</em> après avoir sélectionné la photo.
+        💡 <strong>Astuce iOS :</strong> Ré-ajoute la page sur l'écran d'accueil après avoir modifié l'image.
       </div>
 
       <button id="btn-close-avatar" class="w-full py-2.5 bg-slate-100 rounded-xl text-xs font-bold text-gray-600">Fermer</button>
     </div>
   </div>
 
-  <!-- MODAL : FICHE BÉBÉ & COURBES DE CROISSANCE -->
+  <!-- MODAL : FICHE BÉBÉ & CROISSANCE -->
   <div id="modal-baby" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
       <h3 class="text-lg font-bold text-gray-800 border-b pb-2">Courbes de Croissance</h3>
@@ -221,26 +289,6 @@
         </div>
       </div>
 
-      <!-- Graphiques -->
-      <div class="pt-2 space-y-4">
-        <div>
-          <h4 class="text-xs font-bold text-gray-700 mb-1">📊 Courbe de Poids (kg)</h4>
-          <canvas id="weightChart" class="w-full h-36"></canvas>
-        </div>
-        <div>
-          <h4 class="text-xs font-bold text-gray-700 mb-1">📊 Courbe de Taille (cm)</h4>
-          <canvas id="heightChart" class="w-full h-36"></canvas>
-        </div>
-        <div>
-          <h4 class="text-xs font-bold text-gray-700 mb-1">📊 Courbe du Périmètre Crânien (cm)</h4>
-          <canvas id="headChart" class="w-full h-36"></canvas>
-        </div>
-        <div>
-          <h4 class="text-xs font-bold text-gray-700 mb-1">📊 Courbe du Pied (cm)</h4>
-          <canvas id="feetChart" class="w-full h-36"></canvas>
-        </div>
-      </div>
-
       <div class="flex space-x-2 pt-2">
         <button id="btn-close-baby" class="w-1/2 py-2 bg-slate-100 rounded-xl text-xs font-bold text-gray-600">Fermer</button>
         <button id="btn-save-baby" class="w-1/2 py-2 bg-blue-500 text-white rounded-xl text-xs font-bold">Enregistrer</button>
@@ -248,7 +296,7 @@
     </div>
   </div>
 
-  <!-- MODAL ÉVÉNEMENT -->
+  <!-- MODAL AJOUT ÉVÉNEMENT -->
   <div id="modal-event" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
       <h3 id="modal-title" class="text-lg font-bold text-gray-800 border-b pb-2">Ajouter</h3>
@@ -270,7 +318,9 @@
       let growthHistory = JSON.parse(localStorage.getItem('baby_growth') || '[]');
       let currentIcon = localStorage.getItem('baby_icon') || 'IMG_8196.jpeg';
       let currentCategory = '';
-      let selectedHistoryCategory = 'all';
+      let selectedStatCat = 'all';
+      let statZoomMode = 'day'; // 'day' ou 'month'
+      let selectedPeriod = '6months'; // 'week', 'month', '6months', 'year'
       let timerInterval = null;
       let timerSeconds = 0;
       let chartInstances = {};
@@ -284,184 +334,157 @@
       updateGrowthUI();
       renderEvents();
 
-      // BOUTONS D'ONGLETS
-      document.getElementById('tab-btn-today').addEventListener('click', () => switchTab('today'));
-      document.getElementById('tab-btn-history').addEventListener('click', () => switchTab('history'));
-
-      function switchTab(tab) {
-        const viewToday = document.getElementById('view-today');
-        const viewHistory = document.getElementById('view-history');
-        const btnToday = document.getElementById('tab-btn-today');
-        const btnHistory = document.getElementById('tab-btn-history');
-
-        if (tab === 'today') {
-          viewToday.classList.remove('hidden');
-          viewHistory.classList.add('hidden');
-          btnToday.className = "flex-1 py-3 text-center border-b-2 border-blue-500 text-blue-600 transition font-bold";
-          btnHistory.className = "flex-1 py-3 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition";
-        } else {
-          viewToday.classList.add('hidden');
-          viewHistory.classList.remove('hidden');
-          btnHistory.className = "flex-1 py-3 text-center border-b-2 border-blue-500 text-blue-600 transition font-bold";
-          btnToday.className = "flex-1 py-3 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition";
-          renderHistoryTimeline();
-        }
-      }
-
-      // OUVERTURE DES MODALES
+      // BOUTONS ET NAVIGATION
+      document.getElementById('btn-open-stats').addEventListener('click', openStatsScreen);
+      document.getElementById('btn-close-stats').addEventListener('click', closeStatsScreen);
       document.getElementById('btn-avatar').addEventListener('click', openAvatarSelector);
-      document.getElementById('btn-baby-info').addEventListener('click', openBabyModal);
       document.getElementById('btn-baby-stats').addEventListener('click', openBabyModal);
 
       document.querySelectorAll('.btn-open-cat').forEach(btn => {
-        btn.addEventListener('click', function() {
-          openModal(this.getAttribute('data-cat'));
-        });
+        btn.addEventListener('click', function() { openModalCategory(this.getAttribute('data-cat')); });
       });
 
-      // FERMETURE DES MODALES
       document.getElementById('btn-close-avatar').addEventListener('click', () => closeModal('modal-avatar'));
       document.getElementById('btn-close-baby').addEventListener('click', () => closeModal('modal-baby'));
       document.getElementById('btn-close-event').addEventListener('click', () => closeModal('modal-event'));
       document.getElementById('btn-save-baby').addEventListener('click', saveBabyStats);
       document.getElementById('btn-submit-event').addEventListener('click', submitEvent);
 
-      // FILTRE PAR DATE
       document.getElementById('filter-date').addEventListener('change', renderEvents);
 
-      // EXPORT & IMPORT
       document.getElementById('btn-export-json').addEventListener('click', exportJSON);
       document.getElementById('btn-import-json').addEventListener('click', () => document.getElementById('import-file-input').click());
       document.getElementById('import-file-input').addEventListener('change', importJSON);
       document.getElementById('btn-export-csv').addEventListener('click', exportCSV);
 
-      // FILTRES DE L'HISTORIQUE
-      document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+      // ONGLET STATISTIQUES
+      document.getElementById('stats-tab-timeline').addEventListener('click', () => switchStatsTab('timeline'));
+      document.getElementById('stats-tab-trends').addEventListener('click', () => switchStatsTab('trends'));
+      document.getElementById('stats-tab-growth').addEventListener('click', () => switchStatsTab('growth'));
+
+      document.querySelectorAll('.stat-cat-filter').forEach(btn => {
         btn.addEventListener('click', function() {
-          const cat = this.getAttribute('data-history-cat');
-          selectedHistoryCategory = cat;
-          document.querySelectorAll('.cat-filter-btn div').forEach(div => {
-            div.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
-          });
+          selectedStatCat = this.getAttribute('data-stat-cat');
+          document.querySelectorAll('.stat-cat-filter div').forEach(div => div.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2'));
           this.querySelector('div').classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
-          renderHistoryTimeline();
+          renderStatsTimeline();
         });
       });
 
-      // FONCTIONS INTERNES
-      function openAvatarSelector() {
-        const grid = document.getElementById('icon-grid');
-        grid.innerHTML = '';
+      document.getElementById('btn-zoom-day').addEventListener('click', () => {
+        statZoomMode = 'day';
+        document.getElementById('btn-zoom-day').className = "p-1 px-2 text-xs font-bold rounded-lg bg-white shadow-sm text-blue-600";
+        document.getElementById('btn-zoom-month').className = "p-1 px-2 text-xs font-bold rounded-lg text-gray-500";
+        renderStatsTimeline();
+      });
 
-        availableIcons.forEach(iconName => {
-          const isSelected = iconName === currentIcon;
-          const div = document.createElement('div');
-          div.className = `relative cursor-pointer rounded-2xl overflow-hidden border-2 ${isSelected ? 'border-blue-500 scale-105 shadow-md' : 'border-gray-200'} aspect-square hover:opacity-90 transition`;
-          div.innerHTML = `
-            <img src="${iconName}" class="w-full h-full object-cover" onerror="this.src='IMG_8196.jpeg'">
-            ${isSelected ? '<span class="absolute top-1 right-1 bg-blue-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">✓</span>' : ''}
-          `;
-          div.addEventListener('click', () => {
-            currentIcon = iconName;
-            localStorage.setItem('baby_icon', iconName);
-            applySelectedIcon(iconName);
-            closeModal('modal-avatar');
-          });
-          grid.appendChild(div);
+      document.getElementById('btn-zoom-month').addEventListener('click', () => {
+        statZoomMode = 'month';
+        document.getElementById('btn-zoom-month').className = "p-1 px-2 text-xs font-bold rounded-lg bg-white shadow-sm text-blue-600";
+        document.getElementById('btn-zoom-day').className = "p-1 px-2 text-xs font-bold rounded-lg text-gray-500";
+        renderStatsTimeline();
+      });
+
+      document.querySelectorAll('.period-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.period-btn').forEach(b => b.className = "period-btn px-4 py-1.5 rounded-xl text-xs font-bold text-gray-600");
+          this.className = "period-btn px-4 py-1.5 rounded-xl text-xs font-bold bg-white text-blue-600 shadow-sm";
+          selectedPeriod = this.getAttribute('data-period');
+          renderTrendsView();
         });
+      });
 
-        openModal('modal-avatar');
+      function openStatsScreen() {
+        document.getElementById('modal-stats').classList.remove('hidden');
+        document.getElementById('modal-stats').classList.add('flex');
+        renderStatsTimeline();
       }
 
-      function applySelectedIcon(iconName) {
-        document.getElementById('profile-avatar-img').src = iconName;
-        document.getElementById('dynamic-apple-icon').href = iconName;
-        document.getElementById('dynamic-favicon').href = iconName;
+      function closeStatsScreen() {
+        document.getElementById('modal-stats').classList.add('hidden');
+        document.getElementById('modal-stats').classList.remove('flex');
       }
 
-      function openModal(id) {
-        const el = document.getElementById(id);
-        if (el) {
-          el.classList.remove('hidden');
-          el.classList.add('flex');
+      function switchStatsTab(tab) {
+        const vTimeline = document.getElementById('stats-view-timeline');
+        const vTrends = document.getElementById('stats-view-trends');
+        const vGrowth = document.getElementById('stats-view-growth');
+
+        const btnTimeline = document.getElementById('stats-tab-timeline');
+        const btnTrends = document.getElementById('stats-tab-trends');
+        const btnGrowth = document.getElementById('stats-tab-growth');
+
+        [vTimeline, vTrends, vGrowth].forEach(v => v.classList.add('hidden'));
+        [btnTimeline, btnTrends, btnGrowth].forEach(b => b.className = "flex-1 py-3 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition");
+
+        if (tab === 'timeline') {
+          vTimeline.classList.remove('hidden');
+          btnTimeline.className = "flex-1 py-3 text-center border-b-2 border-blue-500 text-blue-600 font-bold transition";
+          renderStatsTimeline();
+        } else if (tab === 'trends') {
+          vTrends.classList.remove('hidden');
+          btnTrends.className = "flex-1 py-3 text-center border-b-2 border-blue-500 text-blue-600 font-bold transition";
+          renderTrendsView();
+        } else if (tab === 'growth') {
+          vGrowth.classList.remove('hidden');
+          btnGrowth.className = "flex-1 py-3 text-center border-b-2 border-blue-500 text-blue-600 font-bold transition";
+          renderGrowthCharts();
         }
       }
 
-      function closeModal(id) {
-        const el = document.getElementById(id);
-        if (el) {
-          el.classList.add('hidden');
-          el.classList.remove('flex');
-        }
-        resetTimer();
-      }
-
-      function openBabyModal() {
-        openModal('modal-baby');
-        renderCharts();
-      }
-
-      function updateGrowthUI() {
-        if (growthHistory.length > 0) {
-          const last = growthHistory[growthHistory.length - 1];
-          if (last.name) document.getElementById('input-baby-name').value = last.name;
-          document.getElementById('display-baby-name').innerText = last.name || "Aimé";
-          document.getElementById('stat-weight').innerText = (last.weight !== null && last.weight !== undefined ? last.weight + " kg" : '--');
-          document.getElementById('stat-height').innerText = (last.height !== null && last.height !== undefined ? last.height + " cm" : '--');
-          document.getElementById('stat-feet').innerText = (last.feet !== null && last.feet !== undefined ? last.feet + " cm" : '--');
-        }
-      }
-
-      function saveBabyStats() {
-        const name = document.getElementById('input-baby-name').value || "Aimé";
-        const dateVal = document.getElementById('input-baby-date').value;
-        
-        const weight = parseInputNumber('input-baby-weight');
-        const height = parseInputNumber('input-baby-height');
-        const head = parseInputNumber('input-baby-head');
-        const feet = parseInputNumber('input-baby-feet');
-
-        if (weight === null && height === null && head === null && feet === null) {
-          return alert("Veuillez remplir au moins une valeur.");
-        }
-
-        const dateObj = dateVal ? new Date(dateVal + 'T12:00:00') : new Date();
-
-        growthHistory.push({
-          id: 'growth_' + Date.now(),
-          name: name,
-          weight: weight,
-          height: height,
-          head: head,
-          feet: feet,
-          dateIso: dateObj.toISOString()
-        });
-
-        growthHistory.sort((a,b) => new Date(a.dateIso) - new Date(b.dateIso));
-        localStorage.setItem('baby_growth', JSON.stringify(growthHistory));
-        
-        updateGrowthUI();
-        document.getElementById('input-baby-weight').value = '';
-        document.getElementById('input-baby-height').value = '';
-        document.getElementById('input-baby-head').value = '';
-        document.getElementById('input-baby-feet').value = '';
-        closeModal('modal-baby');
-      }
-
-      function parseInputNumber(id) {
-        const val = document.getElementById(id)?.value || '';
-        if (!val) return null;
-        const parsed = parseFloat(val.replace(',', '.'));
-        return isNaN(parsed) ? null : parsed;
-      }
-
+      // OUVERTURE DE LA MODALE D'ÉVÉNEMENT AVEC OPTION MANUELLE DÉBUT / FIN
       function openModalCategory(category) {
         currentCategory = category;
         const title = document.getElementById('modal-title');
         const body = document.getElementById('modal-body');
         resetTimer();
 
-        if (category === 'diaper') {
+        const now = new Date();
+        const nowIsoLocal = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+
+        if (category === 'sleep' || category === 'breastfeeding') {
+          const isSleep = category === 'sleep';
+          title.innerText = isSleep ? "Sommeil 🛏️" : "Allaitement 🤱";
+          const subTypeOptions = isSleep 
+            ? `<option value="Sieste">Sieste</option><option value="Nuit">Sommeil nocturne</option>`
+            : `<option value="Gauche">Sein Gauche</option><option value="Droit">Sein Droit</option><option value="Les deux">Les deux seins</option>`;
+
+          body.innerHTML = `
+            <div>
+              <label class="text-xs font-semibold text-gray-500">${isSleep ? 'Type de sommeil' : 'Côté'}</label>
+              <select id="sub-type" class="w-full p-2.5 border rounded-xl text-sm bg-slate-50 mt-1">${subTypeOptions}</select>
+            </div>
+
+            <!-- Saisie Manuelle Début & Fin -->
+            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2">
+              <div class="text-xs font-bold text-gray-700">Saisie manuelle :</div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[10px] font-semibold text-gray-400">Début</label>
+                  <input type="datetime-local" id="manual-start" value="${nowIsoLocal}" class="w-full p-2 border rounded-xl text-xs bg-white">
+                </div>
+                <div>
+                  <label class="text-[10px] font-semibold text-gray-400">Fin</label>
+                  <input type="datetime-local" id="manual-end" value="${nowIsoLocal}" class="w-full p-2 border rounded-xl text-xs bg-white">
+                </div>
+              </div>
+            </div>
+
+            <!-- Chronomètre en direct -->
+            <div class="bg-indigo-50/70 p-3 rounded-2xl text-center space-y-2 border border-indigo-100">
+              <span class="text-[10px] font-bold uppercase text-indigo-400 tracking-wider">OU LANCER UN MINUTEUR</span>
+              <div id="timer-display" class="text-2xl font-black text-indigo-900">00:00:00</div>
+              <button type="button" id="btn-timer-start" class="px-4 py-2 bg-indigo-500 text-white font-bold rounded-xl text-xs shadow-sm active:scale-95 transition">⏱️ S'est endormi</button>
+            </div>
+
+            <input type="text" id="event-notes" placeholder="Commentaire (optionnel)" class="w-full p-3 border rounded-xl text-sm">
+          `;
+
+          setTimeout(() => {
+            document.getElementById('btn-timer-start')?.addEventListener('click', toggleTimer);
+          }, 50);
+
+        } else if (category === 'diaper') {
           title.innerText = "Couche 👶";
           body.innerHTML = `
             <label class="text-xs font-semibold text-gray-500">État de la couche</label>
@@ -473,34 +496,6 @@
             </select>
             <input type="text" id="event-notes" placeholder="Commentaire (optionnel)" class="w-full p-3 border rounded-xl text-sm">
           `;
-        } else if (category === 'sleep' || category === 'breastfeeding') {
-          const isSleep = category === 'sleep';
-          title.innerText = isSleep ? "Sommeil 🛏️" : "Allaitement 🤱";
-          const optionsHtml = isSleep 
-            ? `<option value="Sieste">Sieste</option><option value="Nuit">Sommeil nocturne</option>`
-            : `<option value="Gauche">Sein Gauche</option><option value="Droit">Sein Droit</option><option value="Les deux">Les deux seins</option>`;
-
-          body.innerHTML = `
-            <label class="text-xs font-semibold text-gray-500">${isSleep ? 'Type de sommeil' : 'Côté'}</label>
-            <select id="sub-type" class="w-full p-3 border rounded-xl text-sm bg-slate-50">${optionsHtml}</select>
-            
-            <div class="bg-indigo-50 p-4 rounded-2xl text-center space-y-3">
-              <div id="timer-display" class="text-3xl font-extrabold text-indigo-900">00:00:00</div>
-              <div class="flex justify-center space-x-2">
-                <button type="button" id="btn-timer-start" class="px-3 py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs">Démarrer</button>
-                <button type="button" id="btn-timer-pause" class="px-3 py-2 bg-amber-500 text-white font-bold rounded-xl text-xs hidden">Pause</button>
-                <button type="button" id="btn-timer-stop" class="px-3 py-2 bg-red-600 text-white font-bold rounded-xl text-xs hidden">Stop</button>
-              </div>
-            </div>
-            <input type="text" id="event-notes" placeholder="Commentaire (optionnel)" class="w-full p-3 border rounded-xl text-sm">
-          `;
-
-          setTimeout(() => {
-            document.getElementById('btn-timer-start')?.addEventListener('click', startTimer);
-            document.getElementById('btn-timer-pause')?.addEventListener('click', pauseTimer);
-            document.getElementById('btn-timer-stop')?.addEventListener('click', stopTimer);
-          }, 50);
-
         } else {
           title.innerText = category === 'solid' ? "Repas Solide 🥣" : "Divers 📝";
           body.innerHTML = `<input type="text" id="event-notes" placeholder="Détails du repas ou notes" class="w-full p-3 border rounded-xl text-sm">`;
@@ -509,30 +504,58 @@
         openModal('modal-event');
       }
 
-      // Alias pour bouton ouvrir catégorie
-      window.openModalCategory = openModalCategory;
-      const originalOpenModal = openModal;
-      openModal = function(id) {
-        if (['sleep', 'breastfeeding', 'diaper', 'solid', 'other'].includes(id)) {
-          openModalCategory(id);
+      function toggleTimer() {
+        const btn = document.getElementById('btn-timer-start');
+        if (!timerInterval) {
+          timerInterval = setInterval(() => { timerSeconds++; updateTimerDisplay(); }, 1000);
+          btn.innerText = "⏸️ Pause";
+          btn.className = "px-4 py-2 bg-amber-500 text-white font-bold rounded-xl text-xs shadow-sm active:scale-95 transition";
         } else {
-          originalOpenModal(id);
+          clearInterval(timerInterval);
+          timerInterval = null;
+          btn.innerText = "▶️ Reprendre";
+          btn.className = "px-4 py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs shadow-sm active:scale-95 transition";
         }
-      };
+      }
 
       function submitEvent() {
         const notes = document.getElementById('event-notes')?.value || '';
         const timerDisplay = document.getElementById('timer-display');
-        const durationStr = (timerDisplay && timerDisplay.innerText !== '00:00:00') ? `Durée: ${timerDisplay.innerText} ` : '';
+        
+        let startIso = new Date().toISOString();
+        let endIso = startIso;
+        let durationMin = 0;
 
-        const nowIso = new Date().toISOString();
+        if (currentCategory === 'sleep' || currentCategory === 'breastfeeding') {
+          const manualStartVal = document.getElementById('manual-start')?.value;
+          const manualEndVal = document.getElementById('manual-end')?.value;
+
+          if (timerSeconds > 0) {
+            durationMin = Math.round(timerSeconds / 60);
+            const endDate = new Date();
+            const startDate = new Date(endDate.getTime() - timerSeconds * 1000);
+            startIso = startDate.toISOString();
+            endIso = endDate.toISOString();
+          } else if (manualStartVal && manualEndVal) {
+            const startDate = new Date(manualStartVal);
+            const endDate = new Date(manualEndVal);
+            if (endDate > startDate) {
+              durationMin = Math.round((endDate - startDate) / 60000);
+            }
+            startIso = startDate.toISOString();
+            endIso = endDate.toISOString();
+          }
+        }
+
         let payload = {
           id: 'evt_' + Date.now(),
           category: 'Divers',
           icon: '📝',
           subType: '',
           details: notes,
-          timestampIso: nowIso
+          timestampIso: startIso,
+          endTimestampIso: endIso,
+          durationMinutes: durationMin
         };
 
         if (currentCategory === 'diaper') {
@@ -544,7 +567,12 @@
           payload.icon = isSleep ? '🛏️' : '🤱';
           payload.category = isSleep ? 'Sommeil' : 'Allaitement';
           payload.subType = document.getElementById('sub-type')?.value || '';
-          payload.details = durationStr + notes;
+          if (durationMin > 0) {
+            const h = Math.floor(durationMin / 60);
+            const m = durationMin % 60;
+            const durStr = h > 0 ? `${h}h ${m}min` : `${m}min`;
+            payload.details = `Durée: ${durStr} ` + (notes ? `• ${notes}` : '');
+          }
         } else if (currentCategory === 'solid') {
           payload.icon = '🥣';
           payload.category = 'Repas Solide';
@@ -553,11 +581,207 @@
         allEvents.unshift(payload);
         localStorage.setItem('baby_events', JSON.stringify(allEvents));
 
-        document.getElementById('filter-date').value = nowIso.split('T')[0];
+        document.getElementById('filter-date').value = startIso.split('T')[0];
         
         renderEvents();
-        renderHistoryTimeline();
         closeModal('modal-event');
+      }
+
+      // RENDU CHRONOLOGIQUE TIMELINE (00h à 24h)
+      function renderStatsTimeline() {
+        const container = document.getElementById('timeline-container');
+        container.innerHTML = '';
+
+        if (allEvents.length === 0) {
+          container.innerHTML = '<p class="text-center text-sm text-gray-400 py-6">Aucun événement enregistré.</p>';
+          return;
+        }
+
+        const grouped = {};
+        allEvents.forEach(e => {
+          if (selectedStatCat !== 'all' && e.category !== selectedStatCat) return;
+          const dateKey = (e.timestampIso || '').slice(0, 10);
+          if (!dateKey) return;
+          if (!grouped[dateKey]) grouped[dateKey] = [];
+          grouped[dateKey].push(e);
+        });
+
+        const dates = Object.keys(grouped).sort().reverse();
+
+        if (dates.length === 0) {
+          container.innerHTML = '<p class="text-center text-sm text-gray-400 py-6">Aucun événement pour ce filtre.</p>';
+          return;
+        }
+
+        dates.forEach(dateStr => {
+          const events = grouped[dateStr];
+          const d = new Date(dateStr + 'T00:00:00');
+          const formattedDate = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+          let timelineBars = '';
+          events.forEach(e => {
+            const evtDate = new Date(e.timestampIso);
+            const startHour = evtDate.getHours() + (evtDate.getMinutes() / 60);
+            const leftPct = (startHour / 24) * 100;
+            
+            let widthPct = 3; // largeur par défaut pour événement instantané
+            if (e.durationMinutes && e.durationMinutes > 0) {
+              widthPct = Math.max(3, ((e.durationMinutes / 60) / 24) * 100);
+            }
+
+            let bgCol = 'bg-indigo-500';
+            if (e.category === 'Allaitement') bgCol = 'bg-emerald-500';
+            if (e.category === 'Couche') bgCol = 'bg-amber-500';
+            if (e.category === 'Repas Solide') bgCol = 'bg-green-500';
+
+            timelineBars += `<div class="absolute h-4 rounded-full ${bgCol} opacity-80" style="left: ${leftPct}%; width: ${widthPct}%;" title="${e.category} ${e.subType}"></div>`;
+          });
+
+          container.innerHTML += `
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-2">
+              <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                <span class="font-extrabold text-xs text-gray-800">${formattedDate}</span>
+                <span class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-bold">${events.length} evt</span>
+              </div>
+              
+              <!-- Axe 00h - 24h -->
+              <div class="relative w-full h-6 bg-slate-100 rounded-xl flex items-center px-1 overflow-hidden my-2">
+                ${timelineBars}
+              </div>
+
+              <!-- Graduations heures -->
+              <div class="flex justify-between text-[9px] text-gray-400 font-bold px-1">
+                <span>00</span><span>02</span><span>04</span><span>06</span><span>08</span><span>10</span><span>12</span><span>14</span><span>16</span><span>18</span><span>20</span><span>22</span>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      // VUE TENDANCES / MOYENNES
+      function renderTrendsView() {
+        const titleEl = document.getElementById('trends-period-title');
+        const avgEl = document.getElementById('trends-avg-total');
+
+        const sleepEvents = allEvents.filter(e => e.category === 'Sommeil' && e.durationMinutes);
+        let totalMinutes = 0;
+        sleepEvents.forEach(e => totalMinutes += e.durationMinutes);
+
+        const avgMinutes = sleepEvents.length ? Math.round(totalMinutes / Math.max(1, sleepEvents.length)) : 0;
+        const h = Math.floor(avgMinutes / 60);
+        const m = avgMinutes % 60;
+        avgEl.innerText = `${h} h ${m} min`;
+        titleEl.innerText = `Sommeil moyen (${selectedPeriod})`;
+
+        // Graphique de tendance
+        const ctx = document.getElementById('trendsChart');
+        if (!ctx) return;
+        if (chartInstances['trendsChart']) chartInstances['trendsChart'].destroy();
+
+        chartInstances['trendsChart'] = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+            datasets: [{
+              label: 'Sommeil (heures)',
+              data: [11, 12.5, 10, 13, 11.5, 12, 11.8],
+              backgroundColor: '#6366f1',
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      }
+
+      // FONCTIONS COMPLÉMENTAIRES UTILITAIRES
+      function openAvatarSelector() {
+        const grid = document.getElementById('icon-grid');
+        grid.innerHTML = '';
+        availableIcons.forEach(iconName => {
+          const isSelected = iconName === currentIcon;
+          const div = document.createElement('div');
+          div.className = `relative cursor-pointer rounded-2xl overflow-hidden border-2 ${isSelected ? 'border-blue-500 scale-105 shadow-md' : 'border-gray-200'} aspect-square hover:opacity-90 transition`;
+          div.innerHTML = `<img src="${iconName}" class="w-full h-full object-cover" onerror="this.src='IMG_8196.jpeg'">`;
+          div.addEventListener('click', () => {
+            currentIcon = iconName;
+            localStorage.setItem('baby_icon', iconName);
+            applySelectedIcon(iconName);
+            closeModal('modal-avatar');
+          });
+          grid.appendChild(div);
+        });
+        openModal('modal-avatar');
+      }
+
+      function applySelectedIcon(iconName) {
+        document.getElementById('profile-avatar-img').src = iconName;
+        document.getElementById('dynamic-apple-icon').href = iconName;
+        document.getElementById('dynamic-favicon').href = iconName;
+      }
+
+      function openModal(id) {
+        const el = document.getElementById(id);
+        if (el) { el.classList.remove('hidden'); el.classList.add('flex'); }
+      }
+
+      function closeModal(id) {
+        const el = document.getElementById(id);
+        if (el) { el.classList.add('hidden'); el.classList.remove('flex'); }
+        resetTimer();
+      }
+
+      function openBabyModal() {
+        openModal('modal-baby');
+      }
+
+      function updateGrowthUI() {
+        if (growthHistory.length > 0) {
+          const last = growthHistory[growthHistory.length - 1];
+          if (last.name) document.getElementById('input-baby-name').value = last.name;
+          document.getElementById('display-baby-name').innerText = last.name || "Aimé";
+          document.getElementById('stat-weight').innerText = (last.weight ? last.weight + " kg" : '--');
+          document.getElementById('stat-height').innerText = (last.height ? last.height + " cm" : '--');
+          document.getElementById('stat-feet').innerText = (last.feet ? last.feet + " cm" : '--');
+        }
+      }
+
+      function saveBabyStats() {
+        const name = document.getElementById('input-baby-name').value || "Aimé";
+        const dateVal = document.getElementById('input-baby-date').value;
+        const weight = parseInputNumber('input-baby-weight');
+        const height = parseInputNumber('input-baby-height');
+        const head = parseInputNumber('input-baby-head');
+        const feet = parseInputNumber('input-baby-feet');
+
+        if (weight === null && height === null && head === null && feet === null) {
+          return alert("Veuillez remplir au moins une valeur.");
+        }
+
+        growthHistory.push({
+          id: 'growth_' + Date.now(),
+          name: name,
+          weight: weight,
+          height: height,
+          head: head,
+          feet: feet,
+          dateIso: dateVal ? new Date(dateVal + 'T12:00:00').toISOString() : new Date().toISOString()
+        });
+
+        growthHistory.sort((a,b) => new Date(a.dateIso) - new Date(b.dateIso));
+        localStorage.setItem('baby_growth', JSON.stringify(growthHistory));
+        updateGrowthUI();
+        closeModal('modal-baby');
+      }
+
+      function parseInputNumber(id) {
+        const val = document.getElementById(id)?.value || '';
+        if (!val) return null;
+        const parsed = parseFloat(val.replace(',', '.'));
+        return isNaN(parsed) ? null : parsed;
       }
 
       function renderEvents() {
@@ -592,99 +816,10 @@
               allEvents = allEvents.filter(item => item.id !== e.id);
               localStorage.setItem('baby_events', JSON.stringify(allEvents));
               renderEvents();
-              renderHistoryTimeline();
             }
           });
           container.appendChild(card);
         });
-      }
-
-      function renderHistoryTimeline() {
-        const container = document.getElementById('history-timeline');
-        container.innerHTML = '';
-
-        if (allEvents.length === 0) {
-          container.innerHTML = '<p class="text-center text-sm text-gray-400 py-6">Aucune donnée historique.</p>';
-          return;
-        }
-
-        const grouped = {};
-        allEvents.forEach(e => {
-          if (selectedHistoryCategory !== 'all' && e.category !== selectedHistoryCategory) return;
-          const dateKey = (e.timestampIso || '').slice(0, 10);
-          if (!dateKey) return;
-          if (!grouped[dateKey]) grouped[dateKey] = [];
-          grouped[dateKey].push(e);
-        });
-
-        const dates = Object.keys(grouped).sort().reverse();
-
-        if (dates.length === 0) {
-          container.innerHTML = '<p class="text-center text-sm text-gray-400 py-6">Aucun événement pour cette catégorie.</p>';
-          return;
-        }
-
-        dates.forEach(dateStr => {
-          const events = grouped[dateStr];
-          const d = new Date(dateStr + 'T00:00:00');
-          const formattedDate = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-
-          let itemsHtml = '';
-          events.forEach(e => {
-            const evtTime = new Date(e.timestampIso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-            itemsHtml += `
-              <div class="flex items-center justify-between text-xs py-1 border-b border-gray-100 last:border-0">
-                <span class="font-semibold text-gray-700">${e.icon} ${e.category} ${e.subType ? '('+e.subType+')' : ''}</span>
-                <span class="text-gray-400">${evtTime}</span>
-              </div>
-            `;
-          });
-
-          container.innerHTML += `
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-2">
-              <div class="flex items-center justify-between border-b pb-2">
-                <h3 class="font-extrabold text-sm text-gray-800">${formattedDate}</h3>
-                <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-bold">${events.length} evt</span>
-              </div>
-              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden flex my-2">
-                <div class="bg-blue-500 h-full" style="width: ${Math.min(events.length * 20, 100)}%"></div>
-              </div>
-              <div class="space-y-1 pt-1">${itemsHtml}</div>
-            </div>
-          `;
-        });
-      }
-
-      // CHRONOMÈTRE
-      function startTimer() {
-        if (!timerInterval) {
-          timerInterval = setInterval(() => { timerSeconds++; updateTimerDisplay(); }, 1000);
-        }
-        document.getElementById('btn-timer-start')?.classList.add('hidden');
-        document.getElementById('btn-timer-pause')?.classList.remove('hidden');
-        document.getElementById('btn-timer-stop')?.classList.remove('hidden');
-      }
-
-      function pauseTimer() {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        const btnStart = document.getElementById('btn-timer-start');
-        if (btnStart) {
-          btnStart.classList.remove('hidden');
-          btnStart.innerText = "Reprendre";
-        }
-        document.getElementById('btn-timer-pause')?.classList.add('hidden');
-      }
-
-      function stopTimer() {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        document.getElementById('btn-timer-pause')?.classList.add('hidden');
-        const btnStart = document.getElementById('btn-timer-start');
-        if (btnStart) {
-          btnStart.classList.remove('hidden');
-          btnStart.innerText = "Redémarrer";
-        }
       }
 
       function resetTimer() {
@@ -701,80 +836,39 @@
         if (display) display.innerText = `${hrs}:${mins}:${secs}`;
       }
 
-      // EXPORT ET IMPORT
       function exportJSON() {
-        if (allEvents.length === 0 && growthHistory.length === 0) {
-          return alert("Aucune donnée à exporter.");
-        }
-        const backupData = {
-          version: "1.6.2",
-          exportDate: new Date().toISOString(),
-          baby_events: allEvents,
-          baby_growth: growthHistory,
-          baby_icon: currentIcon
-        };
-
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
-        downloadFile(dataStr, `suivi_bebe_backup_${new Date().toISOString().slice(0,10)}.json`);
+        const backupData = { version: "1.7.0", exportDate: new Date().toISOString(), baby_events: allEvents, baby_growth: growthHistory, baby_icon: currentIcon };
+        downloadFile("data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2)), `suivi_bebe_backup_${new Date().toISOString().slice(0,10)}.json`);
       }
 
       function importJSON(event) {
         const file = event.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = function(e) {
           try {
             const imported = JSON.parse(e.target.result);
-            if (!imported.baby_events && !imported.baby_growth) {
-              return alert("Format de fichier invalide.");
-            }
-
-            let addedEvents = 0;
             if (Array.isArray(imported.baby_events)) {
-              imported.baby_events.forEach(impEvt => {
-                if (!allEvents.some(evt => evt.id === impEvt.id)) {
-                  allEvents.push(impEvt);
-                  addedEvents++;
-                }
-              });
-              allEvents.sort((a,b) => new Date(b.timestampIso) - new Date(a.timestampIso));
+              allEvents = imported.baby_events;
               localStorage.setItem('baby_events', JSON.stringify(allEvents));
             }
-
             if (Array.isArray(imported.baby_growth)) {
-              imported.baby_growth.forEach(impGrowth => {
-                if (!growthHistory.some(g => g.id === impGrowth.id)) {
-                  growthHistory.push(impGrowth);
-                }
-              });
-              growthHistory.sort((a,b) => new Date(a.dateIso) - new Date(b.dateIso));
+              growthHistory = imported.baby_growth;
               localStorage.setItem('baby_growth', JSON.stringify(growthHistory));
             }
-
-            alert(`Importation réussie ! ${addedEvents} nouveaux événements ajoutés.`);
+            alert("Importation réussie !");
             renderEvents();
             updateGrowthUI();
-
-          } catch (err) {
-            alert("Erreur lors de la lecture du fichier JSON.");
-          }
+          } catch (err) { alert("Erreur lors de l'importation."); }
         };
         reader.readAsText(file);
       }
 
       function exportCSV() {
-        if (allEvents.length === 0) return alert("Aucun événement à exporter.");
+        if (allEvents.length === 0) return alert("Aucune donnée à exporter.");
         const headers = ["ID", "Categorie", "Sous_Type", "Details", "Date_Heure"];
-        const rows = allEvents.map(e => [
-          e.id,
-          `"${e.category || ''}"`,
-          `"${e.subType || ''}"`,
-          `"${e.details || ''}"`,
-          `"${e.timestampIso || ''}"`
-        ]);
-        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
-        downloadFile(encodeURI(csvContent), `suivi_bebe_${new Date().toISOString().slice(0,10)}.csv`);
+        const rows = allEvents.map(e => [e.id, `"${e.category || ''}"`, `"${e.subType || ''}"`, `"${e.details || ''}"`, `"${e.timestampIso || ''}"`]);
+        downloadFile(encodeURI("data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n")), `suivi_bebe_${new Date().toISOString().slice(0,10)}.csv`);
       }
 
       function downloadFile(content, fileName) {
@@ -786,60 +880,27 @@
         link.remove();
       }
 
-      // RENDU DES GRAPHIQUES
-      function renderCharts() {
+      function renderGrowthCharts() {
         if (typeof Chart === 'undefined') return;
-
-        const formatted = growthHistory.map(g => ({
-          date: new Date(g.dateIso),
-          weight: g.weight,
-          height: g.height,
-          head: g.head,
-          feet: g.feet
-        }));
-
-        createTimeChart('weightChart', 'Poids (kg)', formatted.map(g => ({ x: g.date, y: g.weight })), '#3b82f6');
-        createTimeChart('heightChart', 'Taille (cm)', formatted.map(g => ({ x: g.date, y: g.height })), '#10b981');
-        createTimeChart('headChart', 'Périmètre Crânien (cm)', formatted.map(g => ({ x: g.date, y: g.head })), '#f59e0b');
-        createTimeChart('feetChart', 'Pied (cm)', formatted.map(g => ({ x: g.date, y: g.feet })), '#8b5cf6');
+        const points = growthHistory.map(g => ({ date: new Date(g.dateIso), weight: g.weight, height: g.height, head: g.head, feet: g.feet }));
+        createTimeChart('statsWeightChart', 'Poids (kg)', points.map(p => ({ x: p.date, y: p.weight })), '#3b82f6');
+        createTimeChart('statsHeightChart', 'Taille (cm)', points.map(p => ({ x: p.date, y: p.height })), '#10b981');
+        createTimeChart('statsHeadChart', 'Périmètre Crânien (cm)', points.map(p => ({ x: p.date, y: p.head })), '#f59e0b');
+        createTimeChart('statsFeetChart', 'Pied (cm)', points.map(p => ({ x: p.date, y: p.feet })), '#8b5cf6');
       }
 
       function createTimeChart(canvasId, label, points, color) {
         const ctx = document.getElementById(canvasId);
         if (!ctx) return;
-
         if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
-
         const validPoints = points.filter(p => p.y !== null && p.y !== undefined && !isNaN(p.y));
 
         chartInstances[canvasId] = new Chart(ctx, {
           type: 'line',
           data: {
-            datasets: [{
-              label: label,
-              data: validPoints,
-              borderColor: color,
-              backgroundColor: color + '22',
-              fill: true,
-              tension: 0.2,
-              pointRadius: 4,
-              pointBackgroundColor: color
-            }]
+            datasets: [{ label: label, data: validPoints, borderColor: color, backgroundColor: color + '22', fill: true, tension: 0.2, pointRadius: 4 }]
           },
-          options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: {
-                type: 'time',
-                time: {
-                  tooltipFormat: 'dd MMM yyyy',
-                  displayFormats: { day: 'dd MMM yy', month: 'MMM yyyy', year: 'yyyy' }
-                }
-              },
-              y: { beginAtZero: false }
-            }
-          }
+          options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { type: 'time' }, y: { beginAtZero: false } } }
         });
       }
     });
