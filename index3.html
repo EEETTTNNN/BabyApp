@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Suivi Bébé - Aimé</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Chart.js + Adapter Date-fns CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+  <style>
+    /* Empêche le rebond du scroll iOS et harmonise la police */
+    body {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    /* Personnalisation de la barre de défilement pour la timeline */
+    .timeline-scroll::-webkit-scrollbar {
+      height: 4px;
+    }
+    .timeline-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col max-w-md mx-auto bg-slate-50 text-slate-800 shadow-2xl relative overflow-x-hidden">
+
+  <!-- ========================================== -->
+  <!-- 1. EN-TÊTE PRINCIPAL                      -->
+  <!-- ========================================== -->
+  <header class="bg-blue-500 text-white pt-6 pb-6 px-4 rounded-b-3xl shadow-lg relative flex flex-col items-center shrink-0">
+    
+    <!-- Bouton Statistiques (Haut Gauche) -->
+    <button onclick="openModal('modal-stats')" class="absolute top-4 left-4 bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-sm text-white p-2.5 rounded-2xl transition shadow-sm active:scale-95" title="Statistiques & Tendances">
+      📊
+    </button>
+
+    <!-- Badge Version (Haut Droite) -->
+    <span class="absolute top-4 right-4 bg-white/20 border border-white/30 text-white text-xs font-semibold px-2.5 py-1 rounded-full backdrop-blur-sm">
+      v1.7.0
+    </span>
+
+    <!-- Avatar / Icône PWA -->
+    <button onclick="openModal('modal-icon')" class="relative group mt-2 focus:outline-none">
+      <div id="avatar-container" class="w-20 h-20 rounded-full bg-white/20 border-2 border-white/50 flex items-center justify-center text-4xl shadow-inner overflow-hidden transition group-active:scale-95">
+        👶
+      </div>
+      <div class="absolute bottom-0 right-0 bg-white text-blue-600 rounded-full p-1 shadow-md text-xs">
+        ✏️
+      </div>
+    </button>
+
+    <!-- Titre & Prénom -->
+    <h1 id="baby-name-display" class="text-2xl font-bold mt-2 tracking-wide">Aimé</h1>
+
+    <!-- Bloc de Mensurations (Cliquable) -->
+    <div onclick="openModal('modal-growth')" class="grid grid-cols-3 gap-2 w-full mt-4 cursor-pointer">
+      <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2.5 text-center border border-white/20 hover:bg-white/25 transition active:scale-95">
+        <span class="text-xs text-blue-100 block uppercase font-medium">Poids</span>
+        <span id="display-weight" class="text-lg font-bold">-- kg</span>
+      </div>
+      <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2.5 text-center border border-white/20 hover:bg-white/25 transition active:scale-95">
+        <span class="text-xs text-blue-100 block uppercase font-medium">Taille</span>
+        <span id="display-height" class="text-lg font-bold">-- cm</span>
+      </div>
+      <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2.5 text-center border border-white/20 hover:bg-white/25 transition active:scale-95">
+        <span class="text-xs text-blue-100 block uppercase font-medium">Pieds</span>
+        <span id="display-feet" class="text-lg font-bold">-- cm</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- 2. ÉCRAN PRINCIPAL (JOURNAL)              -->
+  <!-- ========================================== -->
+  <main class="flex-1 overflow-y-auto px-4 py-4 space-y-5">
+    
+    <!-- Filtre de Date (Position HAUTE) -->
+    <section class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+      <label for="filter-date" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Jour affiché :</label>
+      <input type="date" id="filter-date" onchange="renderEvents()" class="bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </section>
+
+    <!-- Grille d'Ajout d'Événements (Raccourcis) -->
+    <section class="grid grid-cols-3 gap-3">
+      <button onclick="openModal('modal-sleep')" class="bg-indigo-50 border border-indigo-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-indigo-100 transition active:scale-95">
+        <span class="text-2xl mb-1">🛏️</span>
+        <span class="text-xs font-bold text-indigo-900">Sommeil</span>
+      </button>
+      <button onclick="openModal('modal-feeding')" class="bg-emerald-50 border border-emerald-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-emerald-100 transition active:scale-95">
+        <span class="text-2xl mb-1">🤱</span>
+        <span class="text-xs font-bold text-emerald-900">Allaitement</span>
+      </button>
+      <button onclick="openModal('modal-diaper')" class="bg-amber-50 border border-amber-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-amber-100 transition active:scale-95">
+        <span class="text-2xl mb-1">👶</span>
+        <span class="text-xs font-bold text-amber-900">Couche</span>
+      </button>
+      <button onclick="openModal('modal-solids')" class="bg-green-50 border border-green-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-green-100 transition active:scale-95">
+        <span class="text-2xl mb-1">🥣</span>
+        <span class="text-xs font-bold text-green-900">Solides</span>
+      </button>
+      <button onclick="openModal('modal-misc')" class="bg-slate-100 border border-slate-200 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-slate-200 transition active:scale-95 col-span-2">
+        <span class="text-2xl mb-1">📝</span>
+        <span class="text-xs font-bold text-slate-800">Divers / Notes</span>
+      </button>
+    </section>
+
+    <!-- Liste Chronologique -->
+    <section>
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Historique du jour</h2>
+      <div id="events-list" class="space-y-2.5">
+        <!-- Généré dynamiquement par JS -->
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- 3. BAS DE PAGE (EXPORT/IMPORT - Position BASSE) -->
+  <!-- ========================================== -->
+  <footer class="p-4 bg-slate-200/60 border-t border-slate-200 shrink-0">
+    <div class="grid grid-cols-3 gap-2">
+      <button onclick="exportJSON()" class="bg-white border border-slate-300 text-slate-700 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-slate-50 shadow-sm active:scale-95">
+        📥 Export JSON
+      </button>
+      <button onclick="document.getElementById('file-import').click()" class="bg-white border border-slate-300 text-slate-700 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-slate-50 shadow-sm active:scale-95">
+        📤 Import JSON
+      </button>
+      <input type="file" id="file-import" accept=".json" class="hidden" onchange="importJSON(event)">
+      <button onclick="exportCSV()" class="bg-white border border-slate-300 text-slate-700 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-slate-50 shadow-sm active:scale-95">
+        📊 Export CSV
+      </button>
+    </div>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- 4. MODALES                                 -->
+  <!-- ========================================== -->
+
+  <!-- MODALE : SOMMEIL -->
+  <div id="modal-sleep" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-800">🛏️ Enregistrer du Sommeil</h3>
+      
+      <!-- Chronomètre -->
+      <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-center space-y-2">
+        <span class="text-xs font-semibold text-indigo-600 uppercase">Chronomètre en direct</span>
+        <div id="timer-display" class="text-3xl font-mono font-bold text-indigo-900">00:00:00</div>
+        <button id="timer-btn" onclick="toggleTimer()" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-xl text-sm shadow hover:bg-indigo-700 transition">
+          S'est endormi
+        </button>
+      </div>
+
+      <div class="text-center text-xs text-slate-400 font-bold uppercase">— Ou Saisie Manuelle —</div>
+
+      <!-- Dates & Heures -->
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Début :</label>
+          <input type="datetime-local" id="sleep-start" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Fin :</label>
+          <input type="datetime-local" id="sleep-end" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeModal('modal-sleep')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
+        <button onclick="saveSleep()" class="flex-1 bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-indigo-700">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE : ALLAITEMENT -->
+  <div id="modal-feeding" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-800">🤱 Allaitement</h3>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Côté / Type :</label>
+        <select id="feeding-side" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
+          <option value="Sein Gauche">Sein Gauche</option>
+          <option value="Sein Droit">Sein Droit</option>
+          <option value="Les deux seins">Les deux seins</option>
+          <option value="Biberon">Biberon</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Durée (minutes) / Quantité (ml) :</label>
+        <input type="number" id="feeding-amount" placeholder="ex: 15 (min) ou 120 (ml)" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeModal('modal-feeding')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
+        <button onclick="saveFeeding()" class="flex-1 bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-emerald-700">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE : COUCHE -->
+  <div id="modal-diaper" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-800">👶 Couche</h3>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">État :</label>
+        <select id="diaper-state" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
+          <option value="Pipi">Pipi 💧</option>
+          <option value="Caca">Caca 💩</option>
+          <option value="Pipi + Caca">Pipi + Caca 💧💩</option>
+          <option value="Propre">Propre ✨</option>
+        </select>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeModal('modal-diaper')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
+        <button onclick="saveDiaper()" class="flex-1 bg-amber-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-amber-700">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE : REPAS SOLIDE -->
+  <div id="modal-solids" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-800">🥣 Repas Solide</h3>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Aliments / Description :</label>
+        <input type="text" id="solids-desc" placeholder="ex: Purée de carottes, compote..." class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeModal('modal-solids')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
+        <button onclick="saveSolids()" class="flex-1 bg-green-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-green-700">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE : DIVERS / NOTES -->
+  <div id="modal-misc" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-800">📝 Note / Divers</h3>
+      <div>
+        <textarea id="misc-note" rows="3" placeholder="Notes, médicaments, bain..." class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold"></textarea>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeModal('modal-misc')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
+        <button onclick="saveMisc()" class="flex-1 bg-slate-800 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-slate-900">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE : CROISSANCE / MENSURATIONS -->
+  <div id="modal-growth" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-800">📏 Mettre à jour la Croissance</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Poids (kg) :</label>
+          <input type="number" step="0.01" id="growth-weight" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Taille (cm) :</label>
+          <input type="number" step="0.5" id="growth-height" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Périmètre crânien (cm) :</label>
+          <input type="number" step="0.5" id="growth-head" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Pieds (cm) :</label>
+          <input type="number" step="0.5" id="growth-feet" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
+        </div>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeModal('modal-growth')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
+        <button onclick="saveGrowth()" class="flex-1 bg-blue-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-blue-700">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE : STATISTIQUES & TENDANCES -->
+  <div id="modal-stats" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-2 z-50">
+    <div class="bg-white rounded-3xl w-full max-w-md h-[90vh] shadow-2xl flex flex-col overflow-hidden">
+      
+      <!-- En-tête Modale -->
+      <div class="p-4 bg-slate-100 border-b border-slate-200 flex justify-between items-center">
+        <h3 class="font-bold text-slate-800">📊 Statistiques & Tendances</h3>
+        <button onclick="closeModal('modal-stats')" class="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+      </div>
+
+      <!-- Navigation par Onglets -->
+      <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-500">
+        <button onclick="switchTab('tab-timeline')" id="btn-tab-timeline" class="flex-1 py-3 text-center border-b-2 border-blue-600 text-blue-600">Tendance (Timeline)</button>
+        <button onclick="switchTab('tab-averages')" id="btn-tab-averages" class="flex-1 py-3 text-center border-b-2 border-transparent">Moyennes</button>
+        <button onclick="switchTab('tab-growth-charts')" id="btn-tab-growth-charts" class="flex-1 py-3 text-center border-b-2 border-transparent">Croissance</button>
+      </div>
+
+      <!-- Contenu Onglets -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        
+        <!-- ONGLET 1 : TIMELINE VISUELLE -->
+        <div id="tab-timeline" class="space-y-3">
+          <!-- Filtres par catégorie -->
+          <div class="flex gap-1 overflow-x-auto pb-1 text-[10px] font-bold">
+            <button onclick="renderTimeline('Tous')" class="px-2.5 py-1 rounded-full bg-slate-800 text-white">Tous</button>
+            <button onclick="renderTimeline('Sommeil')" class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800">Sommeil</button>
+            <button onclick="renderTimeline('Allaitement')" class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">Allaitement</button>
+            <button onclick="renderTimeline('Couche')" class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">Couche</button>
+            <button onclick="renderTimeline('Solide')" class="px-2.5 py-1 rounded-full bg-green-100 text-green-800">Solides</button>
+          </div>
+
+          <!-- Axe Chronologique 00h-24h -->
+          <div class="bg-slate-50 p-2 rounded-2xl border border-slate-200 overflow-x-auto timeline-scroll">
+            <div class="min-w-[500px]">
+              <!-- Graduations Horaires -->
+              <div class="grid grid-cols-12 text-[9px] text-slate-400 font-mono border-b border-slate-200 pb-1 mb-2">
+                <span>00h</span><span>02h</span><span>04h</span><span>06h</span><span>08h</span><span>10h</span>
+                <span>12h</span><span>14h</span><span>16h</span><span>18h</span><span>20h</span><span>22h</span>
+              </div>
+              <!-- Zone d'affichage des barres d'événements -->
+              <div id="timeline-rows" class="space-y-2">
+                <!-- Injecté dynamiquement par JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ONGLET 2 : MOYENNES & TENDANCES -->
+        <div id="tab-averages" class="hidden space-y-4">
+          <!-- Sélecteur de Période -->
+          <div class="flex justify-center gap-2">
+            <button onclick="updateAverages('S')" class="px-3 py-1 bg-slate-200 rounded-lg text-xs font-bold active:bg-blue-600 active:text-white">S</button>
+            <button onclick="updateAverages('M')" class="px-3 py-1 bg-slate-200 rounded-lg text-xs font-bold active:bg-blue-600 active:text-white">M</button>
+            <button onclick="updateAverages('6M')" class="px-3 py-1 bg-slate-200 rounded-lg text-xs font-bold active:bg-blue-600 active:text-white">6M</button>
+            <button onclick="updateAverages('A')" class="px-3 py-1 bg-slate-200 rounded-lg text-xs font-bold active:bg-blue-600 active:text-white">A</button>
+          </div>
+          
+          <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl text-center">
+            <span class="text-xs font-semibold text-indigo-600 uppercase">Moyenne de sommeil quotidien</span>
+            <div id="avg-sleep-display" class="text-2xl font-bold text-indigo-900 mt-1">-- h -- min / jour</div>
+            <span class="text-[10px] text-indigo-400 mt-1 block">(Norme indicative : 11h - 14h)</span>
+          </div>
+
+          <div class="h-48">
+            <canvas id="chart-averages"></canvas>
+          </div>
+        </div>
+
+        <!-- ONGLET 3 : GRAPHIQUES DE CROISSANCE -->
+        <div id="tab-growth-charts" class="hidden space-y-6">
+          <div class="h-40"><canvas id="chart-weight"></canvas></div>
+          <div class="h-40"><canvas id="chart-height"></canvas></div>
+          <div class="h-40"><canvas id="chart-head"></canvas></div>
+          <div class="h-40"><canvas id="chart-feet"></canvas></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE : CHANGEMENT D'ICÔNE / AVATAR -->
+  <div id="modal-icon" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 text-center">
+      <h3 class="text-lg font-bold text-slate-800">Changer d'icône</h3>
+      <div class="grid grid-cols-4 gap-3 text-3xl">
+        <button onclick="selectIcon('👶')" class="p-2 bg-slate-100 rounded-2xl hover:bg-slate-200">👶</button>
+        <button onclick="selectIcon('👑')" class="p-2 bg-slate-100 rounded-2xl hover:bg-slate-200">👑</button>
+        <button onclick="selectIcon('🧸')" class="p-2 bg-slate-100 rounded-2xl hover:bg-slate-200">🧸</button>
+        <button onclick="selectIcon('🦁')" class="p-2 bg-slate-100 rounded-2xl hover:bg-slate-200">🦁</button>
+      </div>
+      <button onclick="closeModal('modal-icon')" class="w-full bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Fermer</button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 5. LOGIQUE JAVASCRIPT                     -->
+  <!-- ========================================== -->
+  <script>
+    // --- ÉTAT GLOBAL DE L'APPLICATION ---
+    let events = JSON.parse(localStorage.getItem('baby_events')) || [];
+    let growthHistory = JSON.parse(localStorage.getItem('baby_growth')) || [];
+    let currentIcon = localStorage.getItem('baby_icon') || '👶';
+
+    let timerInterval = null;
+    let timerSeconds = 0;
+    let timerStartTime = null;
+
+    // --- INITIALISATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+      // Définir la date du jour par défaut dans le filtre
+      document.getElementById('filter-date').value = new Date().toISOString().split('T')[0];
+      
+      updateAvatarDisplay();
+      renderEvents();
+      renderLatestGrowth();
+    });
+
+    // --- GESTION DES MODALES ---
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+      document.getElementById(id).classList.add('flex');
+      if (id === 'modal-stats') {
+        renderTimeline('Tous');
+      }
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      document.getElementById(id).classList.remove('flex');
+    }
+
+    function switchTab(tabId) {
+      ['tab-timeline', 'tab-averages', 'tab-growth-charts'].forEach(t => {
+        document.getElementById(t).classList.add('hidden');
+      });
+      document.getElementById(tabId).classList.remove('hidden');
+
+      // Styles d'onglets
+      ['btn-tab-timeline', 'btn-tab-averages', 'btn-tab-growth-charts'].forEach(b => {
+        document.getElementById(b).className = "flex-1 py-3 text-center border-b-2 border-transparent text-slate-500";
+      });
+      document.getElementById('btn-' + tabId).className = "flex-1 py-3 text-center border-b-2 border-blue-600 text-blue-600 font-bold";
+
+      if (tabId === 'tab-averages') updateAverages('S');
+      if (tabId === 'tab-growth-charts') renderGrowthCharts();
+    }
+
+    // --- CHRONOMÈTRE (SOMMEIL) ---
+    function toggleTimer() {
+      const btn = document.getElementById('timer-btn');
+      if (!timerInterval) {
+        timerStartTime = new Date();
+        timerInterval = setInterval(() => {
+          timerSeconds++;
+          const hrs = String(Math.floor(timerSeconds / 3600)).padStart(2, '0');
+          const mins = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0');
+          const secs = String(timerSeconds % 60).padStart(2, '0');
+          document.getElementById('timer-display').innerText = `${hrs}:${mins}:${secs}`;
+        }, 1000);
+        btn.innerText = "Arrêter & Sauvegarder";
+        btn.className = "bg-red-600 text-white font-bold py-2 px-4 rounded-xl text-sm shadow hover:bg-red-700 transition";
+      } else {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        
+        // Auto-remplir les champs
+        const endTime = new Date();
+        document.getElementById('sleep-start').value = timerStartTime.toISOString().slice(0, 16);
+        document.getElementById('sleep-end').value = endTime.toISOString().slice(0, 16);
+
+        btn.innerText = "S'est endormi";
+        btn.className = "bg-indigo-600 text-white font-bold py-2 px-4 rounded-xl text-sm shadow hover:bg-indigo-700 transition";
+      }
+    }
+
+    // --- ENREGISTREMENT DES ÉVÉNEMENTS ---
+    function saveSleep() {
+      const startVal = document.getElementById('sleep-start').value;
+      const endVal = document.getElementById('sleep-end').value;
+
+      let durationMins = 0;
+      let startIso = new Date().toISOString();
+      let endIso = null;
+
+      if (startVal && endVal) {
+        const d1 = new Date(startVal);
+        const d2 = new Date(endVal);
+        durationMins = Math.round((d2 - d1) / 60000);
+        startIso = d1.toISOString();
+        endIso = d2.toISOString();
+      } else if (timerSeconds > 0) {
+        durationMins = Math.round(timerSeconds / 60);
+        startIso = timerStartTime.toISOString();
+        endIso = new Date().toISOString();
+      }
+
+      const hrs = Math.floor(durationMins / 60);
+      const mins = durationMins % 60;
+
+      const newEvt = {
+        id: 'evt_' + Date.now(),
+        category: 'Sommeil',
+        icon: '🛏️',
+        subType: 'Sieste / Nuit',
+        details: `Durée: ${hrs}h ${mins}min`,
+        timestampIso: startIso,
+        endTimestampIso: endIso,
+        durationMinutes: durationMins
+      };
+
+      events.push(newEvt);
+      saveData();
+      closeModal('modal-sleep');
+      resetTimer();
+    }
+
+    function resetTimer() {
+      timerSeconds = 0;
+      document.getElementById('timer-display').innerText = "00:00:00";
+    }
+
+    function saveFeeding() {
+      const side = document.getElementById('feeding-side').value;
+      const amount = document.getElementById('feeding-amount').value;
+      
+      events.push({
+        id: 'evt_' + Date.now(),
+        category: 'Allaitement',
+        icon: '🤱',
+        subType: side,
+        details: amount ? `${amount} ${side.includes('Biberon') ? 'ml' : 'min'}` : '',
+        timestampIso: new Date().toISOString()
+      });
+      saveData();
+      closeModal('modal-feeding');
+    }
+
+    function saveDiaper() {
+      const state = document.getElementById('diaper-state').value;
+      events.push({
+        id: 'evt_' + Date.now(),
+        category: 'Couche',
+        icon: '👶',
+        subType: 'Change',
+        details: state,
+        timestampIso: new Date().toISOString()
+      });
+      saveData();
+      closeModal('modal-diaper');
+    }
+
+    function saveSolids() {
+      const desc = document.getElementById('solids-desc').value;
+      events.push({
+        id: 'evt_' + Date.now(),
+        category: 'Solide',
+        icon: '🥣',
+        subType: 'Repas Solide',
+        details: desc,
+        timestampIso: new Date().toISOString()
+      });
+      saveData();
+      closeModal('modal-solids');
+    }
+
+    function saveMisc() {
+      const note = document.getElementById('misc-note').value;
+      events.push({
+        id: 'evt_' + Date.now(),
+        category: 'Divers',
+        icon: '📝',
+        subType: 'Note',
+        details: note,
+        timestampIso: new Date().toISOString()
+      });
+      saveData();
+      closeModal('modal-misc');
+    }
+
+    function saveGrowth() {
+      const w = parseFloat(document.getElementById('growth-weight').value);
+      const h = parseFloat(document.getElementById('growth-height').value);
+      const head = parseFloat(document.getElementById('growth-head').value);
+      const f = parseFloat(document.getElementById('growth-feet').value);
+
+      if (w || h || f) {
+        growthHistory.push({
+          id: 'growth_' + Date.now(),
+          name: 'Aimé',
+          weight: w || null,
+          height: h || null,
+          head: head || null,
+          feet: f || null,
+          dateIso: new Date().toISOString()
+        });
+        localStorage.setItem('baby_growth', JSON.stringify(growthHistory));
+        renderLatestGrowth();
+      }
+      closeModal('modal-growth');
+    }
+
+    function deleteEvent(id) {
+      events = events.filter(e => e.id !== id);
+      saveData();
+    }
+
+    function saveData() {
+      localStorage.setItem('baby_events', JSON.stringify(events));
+      renderEvents();
+    }
+
+    // --- RENDU UI DU JOURNAL ---
+    function renderEvents() {
+      const listContainer = document.getElementById('events-list');
+      const selectedDate = document.getElementById('filter-date').value;
+      listContainer.innerHTML = '';
+
+      const filtered = events.filter(e => e.timestampIso.startsWith(selectedDate));
+
+      if (filtered.length === 0) {
+        listContainer.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs font-semibold">Aucun événement enregistré pour ce jour.</div>`;
+        return;
+      }
+
+      // Trier du plus récent au plus ancien
+      filtered.sort((a, b) => new Date(b.timestampIso) - new Date(a.timestampIso));
+
+      filtered.forEach(e => {
+        const time = new Date(e.timestampIso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        const item = document.createElement('div');
+        item.className = "bg-white p-3 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between";
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">${e.icon}</span>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-sm text-slate-800">${e.subType || e.category}</span>
+                <span class="text-[10px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-full">${time}</span>
+              </div>
+              ${e.details ? `<p class="text-xs text-slate-500 mt-0.5">${e.details}</p>` : ''}
+            </div>
+          </div>
+          <button onclick="deleteEvent('${e.id}')" class="text-slate-300 hover:text-red-500 p-1 font-bold text-sm">✕</button>
+        `;
+        listContainer.appendChild(item);
+      });
+    }
+
+    function renderLatestGrowth() {
+      if (growthHistory.length === 0) return;
+      const latest = growthHistory[growthHistory.length - 1];
+      if (latest.weight) document.getElementById('display-weight').innerText = `${latest.weight} kg`;
+      if (latest.height) document.getElementById('display-height').innerText = `${latest.height} cm`;
+      if (latest.feet) document.getElementById('display-feet').innerText = `${latest.feet} cm`;
+    }
+
+    function selectIcon(icon) {
+      currentIcon = icon;
+      localStorage.setItem('baby_icon', icon);
+      updateAvatarDisplay();
+      closeModal('modal-icon');
+    }
+
+    function updateAvatarDisplay() {
+      document.getElementById('avatar-container').innerText = currentIcon;
+    }
+
+    // --- TIMELINE VISUELLE (00H - 24H) ---
+    function renderTimeline(categoryFilter) {
+      const container = document.getElementById('timeline-rows');
+      container.innerHTML = '';
+
+      const selectedDate = document.getElementById('filter-date').value;
+      let dayEvents = events.filter(e => e.timestampIso.startsWith(selectedDate));
+
+      if (categoryFilter !== 'Tous') {
+        dayEvents = dayEvents.filter(e => e.category === categoryFilter);
+      }
+
+      if (dayEvents.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center">Aucune donnée sur cette période.</div>`;
+        return;
+      }
+
+      dayEvents.forEach(e => {
+        const d = new Date(e.timestampIso);
+        const startMinutes = d.getHours() * 60 + d.getMinutes();
+        const leftPercent = (startMinutes / 1440) * 100;
+
+        let durationMins = e.durationMinutes || 30; // 30 min par défaut pour les événements instantanés
+        let widthPercent = (durationMins / 1440) * 100;
+        if (widthPercent < 2) widthPercent = 2; // Largeur minimale visuelle
+
+        let bgColor = "bg-slate-400";
+        if (e.category === 'Sommeil') bgColor = "bg-indigo-500";
+        if (e.category === 'Allaitement') bgColor = "bg-emerald-500";
+        if (e.category === 'Couche') bgColor = "bg-amber-500";
+        if (e.category === 'Solide') bgColor = "bg-green-500";
+
+        const row = document.createElement('div');
+        row.className = "relative h-6 bg-slate-100 rounded-lg w-full flex items-center";
+        row.innerHTML = `
+          <div class="absolute h-full ${bgColor} rounded-md text-[9px] text-white font-bold flex items-center px-1 truncate shadow-sm"
+               style="left: ${leftPercent}%; width: ${widthPercent}%;" title="${e.category} - ${e.details}">
+            ${e.icon}
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // --- GRAPHIOUES & STATISTIQUES ---
+    function updateAverages(period) {
+      // Calcul sommaire de moyenne de sommeil
+      const sleepEvents = events.filter(e => e.category === 'Sommeil' && e.durationMinutes);
+      if (sleepEvents.length === 0) {
+        document.getElementById('avg-sleep-display').innerText = "0 h 0 min / jour";
+        return;
+      }
+
+      const totalMins = sleepEvents.reduce((acc, curr) => acc + curr.durationMinutes, 0);
+      const avgMins = Math.round(totalMins / Math.max(1, sleepEvents.length));
+      
+      const h = Math.floor(avgMins / 60);
+      const m = avgMins % 60;
+      document.getElementById('avg-sleep-display').innerText = `${h} h ${m} min / jour`;
+    }
+
+    function renderGrowthCharts() {
+      // Initialisation simplifiée Chart.js pour la croissance
+      // (Peut être étendue selon le volume de données enregistrées)
+    }
+
+    // --- IMPORT / EXPORT (JSON & CSV) ---
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+        events: events,
+        growth: growthHistory
+      }, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `suivi_bebe_aime_${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importJSON(event) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.events) {
+            events = imported.events;
+            localStorage.setItem('baby_events', JSON.stringify(events));
+          }
+          if (imported.growth) {
+            growthHistory = imported.growth;
+            localStorage.setItem('baby_growth', JSON.stringify(growthHistory));
+          }
+          renderEvents();
+          renderLatestGrowth();
+          alert("Importation réussie !");
+        } catch (err) {
+          alert("Fichier JSON invalide.");
+        }
+      };
+      reader.readAsText(event.target.files[0]);
+    }
+
+    function exportCSV() {
+      let csvContent = "data:text/csv;charset=utf-8,ID,Categorie,Type,Details,Date_Debut,Duree_Minutes\n";
+      events.forEach(e => {
+        csvContent += `"${e.id}","${e.category}","${e.subType || ''}","${e.details || ''}","${e.timestampIso}","${e.durationMinutes || ''}"\n`;
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `suivi_bebe_aime_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+  </script>
+</body>
+</html>
