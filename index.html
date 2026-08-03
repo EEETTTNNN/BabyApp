@@ -1,1119 +1,1182 @@
 <!DOCTYPE html>
-<html lang="fr" class="h-full bg-slate-100">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Suivi Bébé - Aimé</title>
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Chart.js + Adapter Date-fns CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi Bébé & Événements</title>
+    <style>
+        /* ================= VARIABLES & THEMES ================= */
+        :root {
+            --primary-color: #4a90e2;
+            --primary-light: rgba(74, 144, 226, 0.15);
+            --bg-color: #f7f9fc;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
 
-  <style>
-    body {
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    .timeline-scroll::-webkit-scrollbar {
-      height: 4px;
-    }
-    .timeline-scroll::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
-    }
+        [data-theme="dark"] {
+            --bg-color: #121824;
+            --card-bg: #1e2538;
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border-color: #2d3748;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.2);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+        }
 
-    /* Thème Sombre dynamique */
-    body.dark-theme {
-      background-color: #0f172a !important;
-      color: #f8fafc !important;
-    }
-    body.dark-theme main, 
-    body.dark-theme .bg-white {
-      background-color: #1e293b !important;
-      color: #f8fafc !important;
-      border-color: #334155 !important;
-    }
-    body.dark-theme footer {
-      background-color: #0f172a !important;
-      border-color: #334155 !important;
-    }
-    body.dark-theme .bg-slate-100, 
-    body.dark-theme .bg-slate-50,
-    body.dark-theme .bg-slate-200\/60 {
-      background-color: #334155 !important;
-      color: #f8fafc !important;
-    }
-  </style>
+        /* ================= STYLES GENERAUX ================= */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            flex: 1;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px 16px;
+        }
+
+        /* ================= EN-TETE & NAVIGATION ================= */
+        .app-header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .app-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .version-badge {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .version-badge:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .main-nav, .sub-nav {
+            display: flex;
+            gap: 8px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 16px;
+            overflow-x: auto;
+        }
+
+        .nav-tab, .sub-tab {
+            background: none;
+            border: none;
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .nav-tab.active, .sub-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        /* ================= VUES & PANNEAUX ================= */
+        .tab-panel, .subtab-panel {
+            display: none;
+        }
+
+        .tab-panel.active, .subtab-panel.active {
+            display: block;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ================= GRILLE DE CATEGORIES ================= */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin: 20px 0 30px 0;
+        }
+
+        .cat-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .cat-card:hover {
+            border-color: var(--cat-accent);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .cat-icon {
+            font-size: 2rem;
+        }
+
+        .cat-label {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        /* ================= FORMULAIRE D'ACCUEIL ================= */
+        .quick-growth-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            margin-bottom: 30px;
+        }
+
+        .quick-growth-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+        }
+
+        .form-group-inline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .form-group-inline input {
+            flex: 1;
+            min-width: 130px;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* ================= LISTES D'HISTORIQUE ================= */
+        .event-feed-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .event-card-item {
+            background-color: var(--card-bg);
+            border-left: 6px solid var(--item-color, #ccc);
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .event-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .event-title {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .event-timestamp {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ================= FILTRES & TENDANCES ================= */
+        .filters-container {
+            margin: 15px 0;
+        }
+
+        .filter-buttons-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .filter-chip, .period-chip {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .filter-chip.active, .period-chip.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .trend-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .trend-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+        }
+
+        .trend-card h4 {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .trend-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .chart-canvas-placeholder {
+            height: 180px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .chart-bar-mock {
+            width: 12%;
+            background-color: var(--bar-color, var(--primary-color));
+            border-radius: 4px 4px 0 0;
+        }
+
+        /* ================= TABLEAUX ================= */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--card-bg);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background-color: var(--bg-color);
+            font-weight: 600;
+        }
+
+        /* ================= CARTES SELECTION EN MODALE ================= */
+        .cards-interactive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 14px;
+        }
+
+        .selection-card {
+            background-color: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .selection-card:hover {
+            border-color: var(--primary-color);
+        }
+
+        .selection-card img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        /* ================= FOOTER DEFILANT ================= */
+        .app-footer {
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 24px 16px;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-footer {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-footer.danger {
+            color: #e74c3c;
+            border-color: #e74c3c;
+        }
+
+        /* ================= MODALES & SWITCHES ================= */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .modal-dialog {
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 450px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-md);
+        }
+
+        .modal-dialog.large {
+            max-width: 650px;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .setting-row.vertical {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .setting-label span {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .setting-divider {
+            border: 0;
+            border-top: 1px solid var(--border-color);
+            margin: 16px 0;
+        }
+
+        /* Interrupteur Mode Sombre */
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+        }
+
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px; width: 20px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider { background-color: var(--primary-color); }
+        input:checked + .toggle-slider:before { transform: translateX(22px); }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .color-picker-wrapper input[type="color"] {
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
 </head>
-<body id="app-body" class="h-full flex flex-col max-w-md mx-auto bg-slate-50 text-slate-800 shadow-2xl relative overflow-x-hidden transition-colors duration-200">
+<body>
 
-  <!-- ========================================== -->
-  <!-- DÉCORATION DYNAMIQUE ALEATOIRE            -->
-  <!-- ========================================== -->
-  <div id="random-decoration-container" class="hidden absolute top-2 right-12 z-20 pointer-events-none opacity-80">
-    <img id="random-decoration-img" src="" alt="Décoration" class="w-10 h-10 object-contain">
-  </div>
-
-  <!-- ========================================== -->
-  <!-- 1. EN-TÊTE PRINCIPAL                      -->
-  <!-- ========================================== -->
-  <header id="header-bg" class="bg-blue-500 text-white pt-6 pb-6 px-4 rounded-b-3xl shadow-lg relative flex flex-col items-center shrink-0 transition-colors duration-200">
-    
-    <!-- Bouton Statistiques SVG (Haut Gauche) -->
-    <button onclick="openModal('modal-stats')" class="absolute top-4 left-4 bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-sm text-white p-2.5 rounded-2xl transition shadow-sm active:scale-95 flex items-center justify-center" title="Statistiques & Tendances">
-      <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-      </svg>
-    </button>
-
-    <!-- Badge Version & Engrenage Réglages (Haut Droite) -->
-    <div class="absolute top-4 right-4 flex items-center gap-2">
-      <span class="bg-white/20 border border-white/30 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm">
-        v1.8.0
-      </span>
-      <button onclick="openModal('modal-settings')" class="bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-sm text-white p-1.5 rounded-full transition shadow-sm active:scale-95" title="Réglages & Thèmes">
-        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-          <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Avatar / Galerie étendue (21 photos) -->
-    <button onclick="openModal('modal-icon')" class="relative group mt-2 focus:outline-none">
-      <div id="avatar-container" class="w-20 h-20 rounded-full bg-white/20 border-2 border-white/50 flex items-center justify-center text-4xl shadow-inner overflow-hidden transition group-active:scale-95 bg-cover bg-center">
-        👶
-      </div>
-      <div class="absolute bottom-0 right-0 bg-white text-blue-600 rounded-full p-1 shadow-md text-xs">
-        ✏️
-      </div>
-    </button>
-
-    <!-- Titre & Prénom -->
-    <h1 id="baby-name-display" class="text-2xl font-bold mt-2 tracking-wide">Aimé</h1>
-
-    <!-- Bloc de Mensurations -->
-    <div onclick="openModal('modal-growth')" class="grid grid-cols-3 gap-2 w-full mt-4 cursor-pointer">
-      <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2.5 text-center border border-white/20 hover:bg-white/25 transition active:scale-95">
-        <span class="text-xs text-blue-100 block uppercase font-medium">Poids</span>
-        <span id="display-weight" class="text-lg font-bold">-- kg</span>
-      </div>
-      <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2.5 text-center border border-white/20 hover:bg-white/25 transition active:scale-95">
-        <span class="text-xs text-blue-100 block uppercase font-medium">Taille</span>
-        <span id="display-height" class="text-lg font-bold">-- cm</span>
-      </div>
-      <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2.5 text-center border border-white/20 hover:bg-white/25 transition active:scale-95">
-        <span class="text-xs text-blue-100 block uppercase font-medium">Pieds</span>
-        <span id="display-feet" class="text-lg font-bold">-- cm</span>
-      </div>
-    </div>
-  </header>
-
-  <!-- ========================================== -->
-  <!-- 2. ÉCRAN PRINCIPAL (JOURNAL)              -->
-  <!-- ========================================== -->
-  <main class="flex-1 overflow-y-auto px-4 py-4 space-y-5">
-    
-    <!-- Filtre de Date -->
-    <section class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
-      <label for="filter-date" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Jour affiché :</label>
-      <input type="date" id="filter-date" onchange="renderEvents()" class="bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-    </section>
-
-    <!-- Grille d'Ajout d'Événements -->
-    <section class="grid grid-cols-3 gap-3" id="quick-actions-grid">
-      <button onclick="openModal('modal-sleep')" class="bg-indigo-50 border border-indigo-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-indigo-100 transition active:scale-95">
-        <span class="text-2xl mb-1">🛏️</span>
-        <span class="text-xs font-bold text-indigo-900">Sommeil</span>
-      </button>
-      <button onclick="openModal('modal-feeding')" class="bg-emerald-50 border border-emerald-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-emerald-100 transition active:scale-95">
-        <span class="text-2xl mb-1">🤱</span>
-        <span class="text-xs font-bold text-emerald-900">Allaitement</span>
-      </button>
-      <button onclick="openModal('modal-diaper')" class="bg-amber-50 border border-amber-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-amber-100 transition active:scale-95">
-        <span class="text-2xl mb-1">👶</span>
-        <span class="text-xs font-bold text-amber-900">Couche</span>
-      </button>
-      <button onclick="openModal('modal-solids')" class="bg-green-50 border border-green-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-green-100 transition active:scale-95">
-        <span class="text-2xl mb-1">🥣</span>
-        <span class="text-xs font-bold text-green-900">Solides</span>
-      </button>
-      <button onclick="openModal('modal-misc')" class="bg-slate-100 border border-slate-200 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-slate-200 transition active:scale-95">
-        <span class="text-2xl mb-1">📝</span>
-        <span class="text-xs font-bold text-slate-800">Divers</span>
-      </button>
-      <button onclick="openModal('modal-custom-category')" class="bg-purple-50 border border-purple-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-purple-100 transition active:scale-95">
-        <span class="text-2xl mb-1">➕</span>
-        <span class="text-xs font-bold text-purple-900">Créer</span>
-      </button>
-    </section>
-
-    <!-- Liste Chronologique -->
-    <section>
-      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Historique du jour</h2>
-      <div id="events-list" class="space-y-2.5">
-        <!-- Généré dynamiquement -->
-      </div>
-    </section>
-  </main>
-
-  <!-- ========================================== -->
-  <!-- 3. BAS DE PAGE (EXPORT/IMPORT)             -->
-  <!-- ========================================== -->
-  <footer class="p-4 bg-slate-200/60 border-t border-slate-200 shrink-0">
-    <div class="grid grid-cols-3 gap-2">
-      <button onclick="exportJSON()" class="bg-white border border-slate-300 text-slate-700 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-slate-50 shadow-sm active:scale-95">
-        📥 Export JSON
-      </button>
-      <button onclick="document.getElementById('file-import').click()" class="bg-white border border-slate-300 text-slate-700 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-slate-50 shadow-sm active:scale-95">
-        📤 Import JSON
-      </button>
-      <input type="file" id="file-import" accept=".json" class="hidden" onchange="importJSON(event)">
-      <button onclick="exportCSV()" class="bg-white border border-slate-300 text-slate-700 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-slate-50 shadow-sm active:scale-95">
-        📊 Export CSV
-      </button>
-    </div>
-  </footer>
-
-  <!-- ========================================== -->
-  <!-- 4. MODALES                                 -->
-  <!-- ========================================== -->
-
-  <!-- MODALE : SOMMEIL -->
-  <div id="modal-sleep" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-800">🛏️ Sommeil</h3>
-      
-      <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-center space-y-2">
-        <span class="text-xs font-semibold text-indigo-600 uppercase">Chronomètre en direct</span>
-        <div id="timer-display" class="text-3xl font-mono font-bold text-indigo-900">00:00:00</div>
-        <button id="timer-btn" onclick="toggleTimer()" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-xl text-sm shadow hover:bg-indigo-700 transition">
-          S'est endormi
-        </button>
-      </div>
-
-      <div class="text-center text-xs text-slate-400 font-bold uppercase">— Ou Saisie Manuelle —</div>
-
-      <div class="space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Début :</label>
-          <input type="datetime-local" id="sleep-start" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Fin :</label>
-          <input type="datetime-local" id="sleep-end" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-        </div>
-      </div>
-
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-sleep')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
-        <button onclick="saveSleep()" class="flex-1 bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-indigo-700">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : ALLAITEMENT -->
-  <div id="modal-feeding" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-800">🤱 Allaitement</h3>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Date & Heure :</label>
-        <input type="datetime-local" id="feeding-datetime" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Côté / Type :</label>
-        <select id="feeding-side" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-          <option value="Sein Gauche">Sein Gauche</option>
-          <option value="Sein Droit">Sein Droit</option>
-          <option value="Les deux seins">Les deux seins</option>
-          <option value="Biberon">Biberon</option>
-        </select>
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Durée (min) / Quantité (ml) :</label>
-        <input type="number" id="feeding-amount" placeholder="ex: 15 (min) ou 120 (ml)" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      </div>
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-feeding')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
-        <button onclick="saveFeeding()" class="flex-1 bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-emerald-700">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : COUCHE -->
-  <div id="modal-diaper" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-800">👶 Couche</h3>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Date & Heure :</label>
-        <input type="datetime-local" id="diaper-datetime" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">État :</label>
-        <select id="diaper-state" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-          <option value="Propre">Propre ✨</option>
-          <option value="Mouillée">Mouillée (Pipi) 💧</option>
-          <option value="Sale">Sale (Caca) 💩</option>
-          <option value="Les deux">Les deux (Pipi + Caca) 💧💩</option>
-          <option value="Diarrhée">Diarrhée ⚠️</option>
-        </select>
-      </div>
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-diaper')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
-        <button onclick="saveDiaper()" class="flex-1 bg-amber-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-amber-700">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : REPAS SOLIDE -->
-  <div id="modal-solids" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-800">🥣 Repas Solide</h3>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Date & Heure :</label>
-        <input type="datetime-local" id="solids-datetime" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Aliments / Description :</label>
-        <input type="text" id="solids-desc" placeholder="ex: Purée de carottes, compote..." class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      </div>
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-solids')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
-        <button onclick="saveSolids()" class="flex-1 bg-green-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-green-700">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : DIVERS -->
-  <div id="modal-misc" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-800">📝 Note / Divers</h3>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Date & Heure :</label>
-        <input type="datetime-local" id="misc-datetime" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      </div>
-      <div>
-        <textarea id="misc-note" rows="3" placeholder="Notes, médicaments, bain..." class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold"></textarea>
-      </div>
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-misc')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
-        <button onclick="saveMisc()" class="flex-1 bg-slate-800 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-slate-900">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : CATÉGORIE PERSONNALISÉE -->
-  <div id="modal-custom-category" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-800">✨ Créer une Catégorie</h3>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Nom :</label>
-        <input type="text" id="custom-cat-name" placeholder="ex: Bain, Jeux, Médicament" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Icône (Emoji) :</label>
-        <input type="text" id="custom-cat-icon" placeholder="ex: 🛁, 🧸, 💊" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      </div>
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-custom-category')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
-        <button onclick="createCustomCategory()" class="flex-1 bg-purple-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-purple-700">Créer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : CROISSANCE / MENSURATIONS -->
-  <div id="modal-growth" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-800">📏 Mesures de Croissance</h3>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Poids (kg) :</label>
-          <input type="number" step="0.01" id="growth-weight" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Taille (cm) :</label>
-          <input type="number" step="0.5" id="growth-height" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Périmètre crânien :</label>
-          <input type="number" step="0.5" id="growth-head" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Pieds (cm) :</label>
-          <input type="number" step="0.5" id="growth-feet" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-        </div>
-      </div>
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-growth')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
-        <button onclick="saveGrowth()" class="flex-1 bg-blue-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-blue-700">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : STATISTIQUES & TENDANCES -->
-  <div id="modal-stats" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-2 z-50">
-    <div class="bg-white rounded-3xl w-full max-w-md h-[90vh] shadow-2xl flex flex-col overflow-hidden">
-      
-      <!-- En-tête Modale avec Icône SVG -->
-      <div class="p-4 bg-slate-100 border-b border-slate-200 flex justify-between items-center">
-        <div class="flex items-center gap-2">
-          <svg class="w-5 h-5 text-blue-600 fill-current" viewBox="0 0 24 24">
-            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-          </svg>
-          <h3 class="font-bold text-slate-800">Statistiques & Tendances</h3>
-        </div>
-        <button onclick="closeModal('modal-stats')" class="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
-      </div>
-
-      <!-- Navigation par Onglets avec SVG -->
-      <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-500">
-        <button onclick="switchTab('tab-timeline')" id="btn-tab-timeline" class="flex-1 py-3 text-center border-b-2 border-blue-600 text-blue-600 flex items-center justify-center gap-1">
-          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 15.69z"/></svg>
-          <span>Tendance</span>
-        </button>
-        <button onclick="switchTab('tab-averages')" id="btn-tab-averages" class="flex-1 py-3 text-center border-b-2 border-transparent flex items-center justify-center gap-1">
-          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-          <span>Moyennes</span>
-        </button>
-        <button onclick="switchTab('tab-growth-charts')" id="btn-tab-growth-charts" class="flex-1 py-3 text-center border-b-2 border-transparent flex items-center justify-center gap-1">
-          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
-          <span>Croissance</span>
-        </button>
-      </div>
-
-      <!-- Barre de Filtre des Catégories (S'affiche ou se masque selon l'onglet) -->
-      <div id="stats-category-filter-bar" class="p-2 bg-slate-100 border-b border-slate-200 flex gap-1 overflow-x-auto text-[10px] font-bold">
-        <button onclick="setStatsCategoryFilter('Tous')" class="px-2.5 py-1 rounded-full bg-slate-800 text-white">Tous</button>
-        <button onclick="setStatsCategoryFilter('Sommeil')" class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800">Sommeil</button>
-        <button onclick="setStatsCategoryFilter('Allaitement')" class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">Allaitement</button>
-        <button onclick="setStatsCategoryFilter('Couche')" class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">Couche</button>
-        <button onclick="setStatsCategoryFilter('Solide')" class="px-2.5 py-1 rounded-full bg-green-100 text-green-800">Solides</button>
-      </div>
-
-      <!-- Contenu Onglets -->
-      <div class="flex-1 overflow-y-auto p-4 space-y-4">
-        
-        <!-- ONGLET 1 : TIMELINE -->
-        <div id="tab-timeline" class="space-y-3">
-          <div class="bg-slate-50 p-2 rounded-2xl border border-slate-200 overflow-x-auto timeline-scroll">
-            <div class="min-w-[500px]">
-              <div class="grid grid-cols-12 text-[9px] text-slate-400 font-mono border-b border-slate-200 pb-1 mb-2">
-                <span>00h</span><span>02h</span><span>04h</span><span>06h</span><span>08h</span><span>10h</span>
-                <span>12h</span><span>14h</span><span>16h</span><span>18h</span><span>20h</span><span>22h</span>
-              </div>
-              <div id="timeline-rows" class="space-y-2"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ONGLET 2 : MOYENNES RÉELLES -->
-        <div id="tab-averages" class="hidden space-y-4">
-          <div class="flex justify-center gap-2">
-            <button onclick="setAveragesPeriod('S')" id="btn-period-S" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold">S</button>
-            <button onclick="setAveragesPeriod('M')" id="btn-period-M" class="px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">M</button>
-            <button onclick="setAveragesPeriod('6M')" id="btn-period-6M" class="px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">6M</button>
-            <button onclick="setAveragesPeriod('A')" id="btn-period-A" class="px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">A</button>
-          </div>
-          
-          <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl text-center">
-            <span class="text-xs font-semibold text-indigo-600 uppercase">Moyenne de sommeil réel</span>
-            <div id="avg-sleep-display" class="text-2xl font-bold text-indigo-900 mt-1">-- h -- min / jour</div>
-          </div>
-
-          <div class="h-48">
-            <canvas id="chart-averages"></canvas>
-          </div>
-        </div>
-
-        <!-- ONGLET 3 : CROISSANCE + BOUTON RAPIDE (+) -->
-        <div id="tab-growth-charts" class="hidden space-y-4 relative">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-xs font-bold uppercase text-slate-400">Courbes de croissance</span>
-            <!-- Bouton rapide (+) -->
-            <button onclick="openModal('modal-growth')" class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 shadow-md hover:bg-blue-700">
-              <span>+</span>
-              <span>Ajouter une mesure</span>
+    <!-- En-tête de l'application -->
+    <header class="app-header">
+        <div class="header-main">
+            <h1 class="app-title">Suivi Bébé</h1>
+            <!-- Bouton Réglages via la version -->
+            <button id="version-trigger" class="version-badge" onclick="openModal('settings-modal')" title="Ouvrir les réglages">
+                v1.8.2
             </button>
-          </div>
-          <div class="h-40"><canvas id="chart-weight"></canvas></div>
-          <div class="h-40"><canvas id="chart-height"></canvas></div>
-          <div class="h-40"><canvas id="chart-head"></canvas></div>
-          <div class="h-40"><canvas id="chart-feet"></canvas></div>
         </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : REGLAGES & THÈMES -->
-  <div id="modal-settings" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-800">⚙️ Réglages & Personnalisation</h3>
-      
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-2">Mode Visuel :</label>
-        <button onclick="toggleDarkMode()" id="dark-mode-btn" class="w-full bg-slate-100 border border-slate-300 font-bold py-2 px-4 rounded-xl text-xs text-slate-700 flex items-center justify-between">
-          <span>Sombre / Clair</span>
-          <span id="dark-mode-status">Clair ☀️</span>
-        </button>
-      </div>
-
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-2">Couleur d'accentuation :</label>
-        <div class="grid grid-cols-4 gap-2">
-          <button onclick="setThemeColor('bg-blue-500')" class="h-8 rounded-xl bg-blue-500 border-2 border-white shadow"></button>
-          <button onclick="setThemeColor('bg-purple-600')" class="h-8 rounded-xl bg-purple-600 border-2 border-white shadow"></button>
-          <button onclick="setThemeColor('bg-emerald-600')" class="h-8 rounded-xl bg-emerald-600 border-2 border-white shadow"></button>
-          <button onclick="setThemeColor('bg-rose-500')" class="h-8 rounded-xl bg-rose-500 border-2 border-white shadow"></button>
-        </div>
-      </div>
-
-      <div class="pt-2">
-        <button onclick="closeModal('modal-settings')" class="w-full bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Fermer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : GALERIE AVATAR EXTENDUE (21 PHOTOS) -->
-  <div id="modal-icon" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-5 w-full max-w-sm shadow-2xl space-y-3 max-h-[85vh] flex flex-col">
-      <h3 class="text-lg font-bold text-slate-800 text-center shrink-0">Choisir une photo (1 à 21)</h3>
-      
-      <!-- Grille 7 rangées x 3 colonnes -->
-      <div id="avatar-grid" class="grid grid-cols-3 gap-2 overflow-y-auto p-1 flex-1">
-        <!-- Généré dynamiquement JS -->
-      </div>
-
-      <button onclick="closeModal('modal-icon')" class="w-full bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm shrink-0">Fermer</button>
-    </div>
-  </div>
-
-  <!-- ========================================== -->
-  <!-- 5. LOGIQUE JAVASCRIPT                     -->
-  <!-- ========================================== -->
-  <script>
-    // --- ÉTAT GLOBAL ---
-    let events = JSON.parse(localStorage.getItem('baby_events')) || [];
-    let growthHistory = JSON.parse(localStorage.getItem('baby_growth')) || [];
-    let customCategories = JSON.parse(localStorage.getItem('baby_custom_cats')) || [];
-    let selectedAvatar = localStorage.getItem('baby_avatar') || '👶';
-    let currentThemeColor = localStorage.getItem('baby_theme_color') || 'bg-blue-500';
-    let isDarkMode = localStorage.getItem('baby_dark_mode') === 'true';
-
-    let timerInterval = null;
-    let timerSeconds = 0;
-    let timerStartTime = null;
-
-    let activeStatsFilter = 'Tous';
-    let activeAveragesPeriod = 'S';
-    let averagesChartInstance = null;
-
-    // --- INITIALISATION ---
-    document.addEventListener('DOMContentLoaded', () => {
-      // Date par défaut (Aujourd'hui)
-      const todayIso = new Date().toISOString().split('T')[0];
-      document.getElementById('filter-date').value = todayIso;
-      
-      // Pré-remplir les champs datetime-local avec la date/heure actuelle
-      setInputsDefaultDateTime();
-
-      // Appliquer les préférences de thème
-      applyTheme();
-      
-      // Décorations dynamiques aléatoires
-      setupRandomDecoration();
-
-      // Charger l'avatar & la grille
-      renderAvatarGrid();
-      updateAvatarDisplay();
-
-      // Rendu des catégories custom
-      renderCustomCategoryButtons();
-
-      renderEvents();
-      renderLatestGrowth();
-    });
-
-    function setInputsDefaultDateTime() {
-      const now = new Date();
-      const localIso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-      
-      ['feeding-datetime', 'diaper-datetime', 'solids-datetime', 'misc-datetime'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = localIso;
-      });
-    }
-
-    // --- DECORATIONS DYNAMIQUES ALEATOIRES ---
-    function setupRandomDecoration() {
-      // 50% de chance d'afficher une décoration
-      if (Math.random() > 0.5) {
-        const randomIndex = Math.floor(Math.random() * 5) + 1; // deco1.jpg à deco5.jpg
-        const imgEl = document.getElementById('random-decoration-img');
-        const container = document.getElementById('random-decoration-container');
-        imgEl.src = `./decorations/deco${randomIndex}.jpg`;
-        // Masquer silencieusement si le fichier n'existe pas
-        imgEl.onerror = () => container.classList.add('hidden');
-        container.classList.remove('hidden');
-      }
-    }
-
-    // --- GESTION DU THÈME & DES RÉGLAGES ---
-    function applyTheme() {
-      const header = document.getElementById('header-bg');
-      header.className = `${currentThemeColor} text-white pt-6 pb-6 px-4 rounded-b-3xl shadow-lg relative flex flex-col items-center shrink-0 transition-colors duration-200`;
-
-      if (isDarkMode) {
-        document.body.classList.add('dark-theme');
-        document.getElementById('dark-mode-status').innerText = 'Sombre 🌙';
-      } else {
-        document.body.classList.remove('dark-theme');
-        document.getElementById('dark-mode-status').innerText = 'Clair ☀️';
-      }
-    }
-
-    function setThemeColor(colorClass) {
-      currentThemeColor = colorClass;
-      localStorage.setItem('baby_theme_color', colorClass);
-      applyTheme();
-    }
-
-    function toggleDarkMode() {
-      isDarkMode = !isDarkMode;
-      localStorage.setItem('baby_dark_mode', isDarkMode);
-      applyTheme();
-    }
-
-    // --- GALERIE EXTENDUE AVATAR (21 PHOTOS) ---
-    function renderAvatarGrid() {
-      const grid = document.getElementById('avatar-grid');
-      grid.innerHTML = '';
-      
-      for (let i = 1; i <= 21; i++) {
-        const btn = document.createElement('button');
-        btn.className = "w-full aspect-square rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden relative active:scale-95 transition shadow-sm";
-        btn.onclick = () => selectAvatar(`icon${i}.jpeg`);
         
-        const img = document.createElement('img');
-        img.src = `icon${i}.jpeg`;
-        img.className = "w-full h-full object-cover";
-        img.onerror = () => {
-          // Fallback visuel si l'image n'existe pas encore localement
-          btn.innerHTML = `<span class="text-xs text-slate-400 font-bold">Icon ${i}</span>`;
+        <!-- Navigation Principale -->
+        <nav class="main-nav">
+            <button class="nav-tab active" data-tab="home" onclick="switchMainTab('home')">Accueil</button>
+            <button class="nav-tab" data-tab="stats" onclick="switchMainTab('stats')">Tendances & Statistiques</button>
+        </nav>
+    </header>
+
+    <!-- Conteneur Principal -->
+    <main class="container">
+
+        <!-- ================= VUE ACCUEIL ================= -->
+        <section id="tab-home" class="tab-panel active">
+            <h2>Saisie Rapide</h2>
+            
+            <!-- Grille de catégories principales -->
+            <div class="category-grid">
+                <button class="cat-card" style="--cat-accent: #8a2be2;" onclick="openCategoryModal('sommeil')">
+                    <span class="cat-icon">🌙</span>
+                    <span class="cat-label">Sommeil</span>
+                </button>
+                <button class="cat-card" style="--cat-accent: #ff4500;" onclick="openCategoryModal('repas')">
+                    <span class="cat-icon">🍼</span>
+                    <span class="cat-label">Repas</span>
+                </button>
+                <button class="cat-card" style="--cat-accent: #e6b800;" onclick="openCategoryModal('couche')">
+                    <span class="cat-icon">🪢</span>
+                    <span class="cat-label">Couches</span>
+                </button>
+                <button class="cat-card" style="--cat-accent: #1e90ff;" onclick="openCategoryModal('activite')">
+                    <span class="cat-icon">🎨</span>
+                    <span class="cat-label">Activités & Balades</span>
+                </button>
+            </div>
+
+            <!-- Formulaire rapide de mensurations directes sur la page d'accueil -->
+            <section class="quick-growth-section">
+                <h3>Ajouter une mensuration</h3>
+                <form id="quick-growth-form" onsubmit="handleQuickGrowthSubmit(event)">
+                    <div class="form-group-inline">
+                        <input type="date" id="home-growth-date" required>
+                        <input type="number" id="home-growth-weight" step="0.01" placeholder="Poids (kg)">
+                        <input type="number" id="home-growth-height" step="0.1" placeholder="Taille (cm)">
+                        <button type="submit" class="btn-submit">Enregistrer</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Derniers événements récents -->
+            <section class="recent-section">
+                <h3>Derniers événements enregistrés</h3>
+                <ul id="home-recent-list" class="event-feed-list">
+                    <!-- Rempli en JS -->
+                </ul>
+            </section>
+        </section>
+
+        <!-- ================= VUE STATISTIQUES & TENDANCES ================= -->
+        <section id="tab-stats" class="tab-panel">
+            <!-- Navigation sous-onglets -->
+            <nav class="sub-nav">
+                <button class="sub-tab active" data-subtab="historique" onclick="switchSubTab('historique')">Historique</button>
+                <button class="sub-tab" data-subtab="tendances" onclick="switchSubTab('tendances')">Tendances</button>
+                <button class="sub-tab" data-subtab="croissance" onclick="switchSubTab('croissance')">Croissance</button>
+            </nav>
+
+            <!-- 1. SOUS-ONGLET HISTORIQUE -->
+            <div id="subtab-historique" class="subtab-panel active">
+                <div class="filters-container">
+                    <span class="filter-label">Filtrer par type :</span>
+                    <div class="filter-buttons-scroll" id="history-filter-bar">
+                        <button class="filter-chip active" onclick="applyHistoryFilter('all')">Tous</button>
+                        <button class="filter-chip" onclick="applyHistoryFilter('sommeil')">Sommeil</button>
+                        <button class="filter-chip" onclick="applyHistoryFilter('repas')">Repas</button>
+                        <button class="filter-chip" onclick="applyHistoryFilter('couche')">Couches</button>
+                        <button class="filter-chip" onclick="applyHistoryFilter('balade')">Balades</button>
+                        <button class="filter-chip" onclick="applyHistoryFilter('activite_manuelle')">Activités Manu.</button>
+                    </div>
+                </div>
+
+                <!-- Liste complète chronologique -->
+                <ul id="full-history-list" class="event-feed-list detailed">
+                    <!-- Rempli dynamiquement -->
+                </ul>
+            </div>
+
+            <!-- 2. SOUS-ONGLET TENDANCES -->
+            <div id="subtab-tendances" class="subtab-panel">
+                <div class="period-selector">
+                    <button class="period-chip active" onclick="setTrendPeriod('1w')">1 Semaine</button>
+                    <button class="period-chip" onclick="setTrendPeriod('1m')">1 Mois</button>
+                    <button class="period-chip" onclick="setTrendPeriod('6m')">6 Mois</button>
+                    <button class="period-chip" onclick="setTrendPeriod('1y')">1 An</button>
+                </div>
+
+                <div class="trend-cards-grid">
+                    <div class="trend-card">
+                        <h4>Moyenne de Sommeil Quotidien</h4>
+                        <div class="trend-value" id="trend-sleep-avg">-- h / jour</div>
+                        <div class="trend-indicator positive" id="trend-sleep-status">↑ +5% cette période</div>
+                    </div>
+                    <div class="trend-card">
+                        <h4>Fréquence des Couches</h4>
+                        <div class="trend-value" id="trend-diaper-avg">-- / jour</div>
+                        <div class="trend-indicator neutral" id="trend-diaper-status">= Stable</div>
+                    </div>
+                    <div class="trend-card">
+                        <h4>Activités & Sorties</h4>
+                        <div class="trend-value" id="trend-activity-count">-- effectuées</div>
+                        <div class="trend-indicator positive" id="trend-activity-status">En hausse</div>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <h3>Évolution des événements dans le temps</h3>
+                    <div id="mock-chart-container" class="chart-canvas-placeholder">
+                        <div class="chart-bar-mock" style="height: 60%; --bar-color: #8a2be2;"></div>
+                        <div class="chart-bar-mock" style="height: 85%; --bar-color: #8a2be2;"></div>
+                        <div class="chart-bar-mock" style="height: 40%; --bar-color: #8a2be2;"></div>
+                        <div class="chart-bar-mock" style="height: 75%; --bar-color: #8a2be2;"></div>
+                        <div class="chart-bar-mock" style="height: 90%; --bar-color: #8a2be2;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. SOUS-ONGLET CROISSANCE (TABLEURS DE MENSURATION) -->
+            <div id="subtab-croissance" class="subtab-panel">
+                <div class="table-section">
+                    <h3>Historique des Mensurations (Poids / Taille)</h3>
+                    <p class="section-desc">Retrouvez ici toutes les données saisies depuis la page d'accueil ou ce formulaire.</p>
+                    
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Poids (kg)</th>
+                                    <th>Taille (cm)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="growth-table-body">
+                                <!-- Données dynamiques -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Pied de page défilant avec le contenu principal -->
+    <footer class="app-footer">
+        <div class="footer-content">
+            <p class="footer-title">Données & Sauvegarde</p>
+            <div class="export-actions">
+                <button class="btn-footer" onclick="exportData('json')">Exporter vers JSON</button>
+                <button class="btn-footer" onclick="exportData('csv')">Exporter vers CSV</button>
+                <button class="btn-footer danger" onclick="clearAllData()">Réinitialiser</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= MODALES & POP-UPS ================= -->
+
+    <!-- 1. MODALE RÉGLAGES -->
+    <div id="settings-modal" class="modal-backdrop" onclick="handleOutsideClick(event, 'settings-modal')">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h2>Réglages de l'application</h2>
+                <button class="close-btn" onclick="closeModal('settings-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <strong>Thème Sombre</strong>
+                        <span>Basculer l'interface en mode nuit</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="dark-theme-toggle" onchange="handleThemeToggle()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <hr class="setting-divider">
+
+                <div class="setting-row vertical">
+                    <div class="setting-label">
+                        <strong>Couleur Principale d'Accentuation</strong>
+                        <span>Choisissez la teinte globale de l'interface</span>
+                    </div>
+                    <div class="color-picker-wrapper">
+                        <input type="color" id="app-accent-color" value="#4a90e2" onchange="handleAccentColorChange(this.value)">
+                        <span id="color-hex-display">#4a90e2</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MODALE SÉLECTION / CARTES D'ÉVÉNEMENTS -->
+    <div id="category-modal" class="modal-backdrop" onclick="handleOutsideClick(event, 'category-modal')">
+        <div class="modal-dialog large">
+            <div class="modal-header">
+                <h2 id="modal-category-title">Sélectionner un type</h2>
+                <button class="close-btn" onclick="closeModal('category-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-cards-grid" class="cards-interactive-grid">
+                    <!-- Injection JS des cartes -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        /**
+         * Application de suivi complète
+         */
+
+        // Configuration GitHub pour les actifs multimédias
+        const GITHUB_REPO_IMAGE_BASE = "https://raw.githubusercontent.com/etienne-bouvry/floradex/main/assets/images/";
+
+        // Modèle de données global
+        let appState = {
+            settings: {
+                darkMode: false,
+                accentColor: "#4a90e2"
+            },
+            events: [],
+            growth: [],
+            customWalks: [
+                { id: 'walk_parc', name: 'Parc Municipal', img: 'parc.png' },
+                { id: 'walk_foret', name: 'Balade en Forêt', img: 'foret.png' }
+            ],
+            customManuals: [
+                { id: 'manual_paint', name: 'Peinture à l\'eau', img: 'peinture.png' },
+                { id: 'manual_clay', name: 'Pâte à modeler', img: 'pate.png' }
+            ]
         };
 
-        btn.appendChild(img);
-        grid.appendChild(btn);
-      }
-    }
+        // Configuration fixe des catégories et options de cartes
+        const CATEGORY_MAP = {
+            sommeil: {
+                title: "Sommeil",
+                items: [
+                    { id: 'sieste', label: 'Sieste', color: '#b19ffb' },
+                    { id: 'nuit', label: 'Nuit', color: '#4b0082' }
+                ]
+            },
+            repas: {
+                title: "Repas",
+                items: [
+                    { id: 'tetee', label: 'Tétée', color: '#ff4500' },
+                    { id: 'biberon', label: 'Biberon', color: '#ff4500' },
+                    { id: 'solide', label: 'Repas Solide', color: '#ff4500' }
+                ]
+            },
+            couche: {
+                title: "Change / Couches",
+                items: [
+                    { id: 'pipi', label: 'Pipi', color: '#ffff00' },
+                    { id: 'caca', label: 'Caca', color: '#8b4513' },
+                    { id: 'diarrhee', label: 'Diarrhée', color: '#008000' }
+                ]
+            },
+            activite: {
+                title: "Activités & Balades",
+                items: [
+                    { id: 'piscine', label: 'Piscine', color: '#00bfff' },
+                    { id: 'nav_balade', label: 'Balades (Choix)', color: '#ffa500', isSubNav: true },
+                    { id: 'nav_manuelle', label: 'Activités Manu. (Choix)', color: '#1e90ff', isSubNav: true }
+                ]
+            }
+        };
 
-    function selectAvatar(avatarPath) {
-      selectedAvatar = avatarPath;
-      localStorage.setItem('baby_avatar', avatarPath);
-      updateAvatarDisplay();
-      closeModal('modal-icon');
-    }
+        // Camaïeux de couleurs pour sous-sélections
+        const SHADE_PALETTES = {
+            balade: ['#e67e22', '#d35400', '#f39c12', '#f1c40f', '#ff9f43'],
+            activite_manuelle: ['#2980b9', '#3498db', '#1abc9c', '#16a085', '#0abde3']
+        };
 
-    function updateAvatarDisplay() {
-      const container = document.getElementById('avatar-container');
-      if (selectedAvatar.includes('icon')) {
-        container.innerText = '';
-        container.style.backgroundImage = `url('${selectedAvatar}')`;
-      } else {
-        container.style.backgroundImage = 'none';
-        container.innerText = selectedAvatar;
-      }
-    }
-
-    // --- MODALES & ONGLETS STATS ---
-    function openModal(id) {
-      document.getElementById(id).classList.remove('hidden');
-      document.getElementById(id).classList.add('flex');
-      if (id === 'modal-stats') {
-        renderTimeline();
-      }
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.add('hidden');
-      document.getElementById(id).classList.remove('flex');
-    }
-
-    function switchTab(tabId) {
-      ['tab-timeline', 'tab-averages', 'tab-growth-charts'].forEach(t => {
-        document.getElementById(t).classList.add('hidden');
-      });
-      document.getElementById(tabId).classList.remove('hidden');
-
-      // Masquage de la barre de filtres pour l'onglet Croissance
-      const filterBar = document.getElementById('stats-category-filter-bar');
-      if (tabId === 'tab-growth-charts') {
-        filterBar.classList.add('hidden');
-      } else {
-        filterBar.classList.remove('hidden');
-      }
-
-      // Styles d'onglets
-      ['btn-tab-timeline', 'btn-tab-averages', 'btn-tab-growth-charts'].forEach(b => {
-        document.getElementById(b).className = "flex-1 py-3 text-center border-b-2 border-transparent text-slate-500 flex items-center justify-center gap-1";
-      });
-      document.getElementById('btn-' + tabId).className = "flex-1 py-3 text-center border-b-2 border-blue-600 text-blue-600 font-bold flex items-center justify-center gap-1";
-
-      if (tabId === 'tab-averages') updateAverages(activeAveragesPeriod);
-      if (tabId === 'tab-growth-charts') renderGrowthCharts();
-    }
-
-    function setStatsCategoryFilter(cat) {
-      activeStatsFilter = cat;
-      renderTimeline();
-      if (!document.getElementById('tab-averages').classList.contains('hidden')) {
-        updateAverages(activeAveragesPeriod);
-      }
-    }
-
-    // --- CHRONOMÈTRE (SOMMEIL) ---
-    function toggleTimer() {
-      const btn = document.getElementById('timer-btn');
-      if (!timerInterval) {
-        timerStartTime = new Date();
-        timerInterval = setInterval(() => {
-          timerSeconds++;
-          const hrs = String(Math.floor(timerSeconds / 3600)).padStart(2, '0');
-          const mins = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0');
-          const secs = String(timerSeconds % 60).padStart(2, '0');
-          document.getElementById('timer-display').innerText = `${hrs}:${mins}:${secs}`;
-        }, 1000);
-        btn.innerText = "Arrêter & Sauvegarder";
-        btn.className = "bg-red-600 text-white font-bold py-2 px-4 rounded-xl text-sm shadow hover:bg-red-700 transition";
-      } else {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        
-        const endTime = new Date();
-        document.getElementById('sleep-start').value = timerStartTime.toISOString().slice(0, 16);
-        document.getElementById('sleep-end').value = endTime.toISOString().slice(0, 16);
-
-        btn.innerText = "S'est endormi";
-        btn.className = "bg-indigo-600 text-white font-bold py-2 px-4 rounded-xl text-sm shadow hover:bg-indigo-700 transition";
-      }
-    }
-
-    // --- SAISIES DE DONNÉES ---
-    function saveSleep() {
-      const startVal = document.getElementById('sleep-start').value;
-      const endVal = document.getElementById('sleep-end').value;
-
-      let durationMins = 0;
-      let startIso = new Date().toISOString();
-      let endIso = null;
-
-      if (startVal && endVal) {
-        const d1 = new Date(startVal);
-        const d2 = new Date(endVal);
-        durationMins = Math.round((d2 - d1) / 60000);
-        startIso = d1.toISOString();
-        endIso = d2.toISOString();
-      } else if (timerSeconds > 0) {
-        durationMins = Math.round(timerSeconds / 60);
-        startIso = timerStartTime.toISOString();
-        endIso = new Date().toISOString();
-      }
-
-      const hrs = Math.floor(durationMins / 60);
-      const mins = durationMins % 60;
-
-      events.push({
-        id: 'evt_' + Date.now(),
-        category: 'Sommeil',
-        icon: '🛏️',
-        subType: 'Sieste / Nuit',
-        details: `Durée: ${hrs}h ${mins}min`,
-        timestampIso: startIso,
-        endTimestampIso: endIso,
-        durationMinutes: durationMins
-      });
-
-      saveData();
-      closeModal('modal-sleep');
-      timerSeconds = 0;
-      document.getElementById('timer-display').innerText = "00:00:00";
-    }
-
-    function saveFeeding() {
-      const dtVal = document.getElementById('feeding-datetime').value;
-      const side = document.getElementById('feeding-side').value;
-      const amount = document.getElementById('feeding-amount').value;
-      
-      events.push({
-        id: 'evt_' + Date.now(),
-        category: 'Allaitement',
-        icon: '🤱',
-        subType: side,
-        details: amount ? `${amount} ${side.includes('Biberon') ? 'ml' : 'min'}` : '',
-        timestampIso: dtVal ? new Date(dtVal).toISOString() : new Date().toISOString()
-      });
-      saveData();
-      closeModal('modal-feeding');
-    }
-
-    function saveDiaper() {
-      const dtVal = document.getElementById('diaper-datetime').value;
-      const state = document.getElementById('diaper-state').value;
-      events.push({
-        id: 'evt_' + Date.now(),
-        category: 'Couche',
-        icon: '👶',
-        subType: 'Change',
-        details: state,
-        timestampIso: dtVal ? new Date(dtVal).toISOString() : new Date().toISOString()
-      });
-      saveData();
-      closeModal('modal-diaper');
-    }
-
-    function saveSolids() {
-      const dtVal = document.getElementById('solids-datetime').value;
-      const desc = document.getElementById('solids-desc').value;
-      events.push({
-        id: 'evt_' + Date.now(),
-        category: 'Solide',
-        icon: '🥣',
-        subType: 'Repas Solide',
-        details: desc,
-        timestampIso: dtVal ? new Date(dtVal).toISOString() : new Date().toISOString()
-      });
-      saveData();
-      closeModal('modal-solids');
-    }
-
-    function saveMisc() {
-      const dtVal = document.getElementById('misc-datetime').value;
-      const note = document.getElementById('misc-note').value;
-      events.push({
-        id: 'evt_' + Date.now(),
-        category: 'Divers',
-        icon: '📝',
-        subType: 'Note',
-        details: note,
-        timestampIso: dtVal ? new Date(dtVal).toISOString() : new Date().toISOString()
-      });
-      saveData();
-      closeModal('modal-misc');
-    }
-
-    // --- CATÉGORIES PERSONNALISÉES ---
-    function createCustomCategory() {
-      const name = document.getElementById('custom-cat-name').value.trim();
-      const icon = document.getElementById('custom-cat-icon').value.trim() || '✨';
-
-      if (!name) return;
-
-      const newCat = { id: 'cat_' + Date.now(), name, icon };
-      customCategories.push(newCat);
-      localStorage.setItem('baby_custom_cats', JSON.stringify(customCategories));
-
-      renderCustomCategoryButtons();
-      closeModal('modal-custom-category');
-      
-      document.getElementById('custom-cat-name').value = '';
-      document.getElementById('custom-cat-icon').value = '';
-    }
-
-    function renderCustomCategoryButtons() {
-      const grid = document.getElementById('quick-actions-grid');
-      // Supprimer d'anciens boutons customisés s'il y en a
-      document.querySelectorAll('.custom-cat-btn').forEach(b => b.remove());
-
-      customCategories.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.className = "custom-cat-btn bg-purple-50 border border-purple-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-purple-100 transition active:scale-95";
-        btn.onclick = () => recordCustomEvent(cat);
-        btn.innerHTML = `
-          <span class="text-2xl mb-1">${cat.icon}</span>
-          <span class="text-xs font-bold text-purple-900">${cat.name}</span>
-        `;
-        grid.insertBefore(btn, grid.lastElementChild);
-      });
-    }
-
-    function recordCustomEvent(cat) {
-      events.push({
-        id: 'evt_' + Date.now(),
-        category: cat.name,
-        icon: cat.icon,
-        subType: cat.name,
-        details: '',
-        timestampIso: new Date().toISOString()
-      });
-      saveData();
-    }
-
-    function saveGrowth() {
-      const w = parseFloat(document.getElementById('growth-weight').value);
-      const h = parseFloat(document.getElementById('growth-height').value);
-      const head = parseFloat(document.getElementById('growth-head').value);
-      const f = parseFloat(document.getElementById('growth-feet').value);
-
-      if (w || h || head || f) {
-        growthHistory.push({
-          id: 'growth_' + Date.now(),
-          name: 'Aimé',
-          weight: w || null,
-          height: h || null,
-          head: head || null,
-          feet: f || null,
-          dateIso: new Date().toISOString()
+        // Initialisation globale
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPersistedData();
+            applySettingsToDOM();
+            renderHomeFeed();
+            renderFullHistory('all');
+            renderGrowthTable();
+            setDefaultDates();
         });
-        localStorage.setItem('baby_growth', JSON.stringify(growthHistory));
-        renderLatestGrowth();
-      }
-      closeModal('modal-growth');
-    }
 
-    function deleteEvent(id) {
-      events = events.filter(e => e.id !== id);
-      saveData();
-    }
-
-    function saveData() {
-      localStorage.setItem('baby_events', JSON.stringify(events));
-      renderEvents();
-      setInputsDefaultDateTime();
-    }
-
-    // --- RENDU UI DU JOURNAL ---
-    function renderEvents() {
-      const listContainer = document.getElementById('events-list');
-      const selectedDate = document.getElementById('filter-date').value;
-      listContainer.innerHTML = '';
-
-      const filtered = events.filter(e => e.timestampIso.startsWith(selectedDate));
-
-      if (filtered.length === 0) {
-        listContainer.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs font-semibold">Aucun événement enregistré pour ce jour.</div>`;
-        return;
-      }
-
-      filtered.sort((a, b) => new Date(b.timestampIso) - new Date(a.timestampIso));
-
-      filtered.forEach(e => {
-        const time = new Date(e.timestampIso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        const item = document.createElement('div');
-        item.className = "bg-white p-3 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between";
-        item.innerHTML = `
-          <div class="flex items-center gap-3">
-            <span class="text-2xl">${e.icon}</span>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="font-bold text-sm text-slate-800">${e.subType || e.category}</span>
-                <span class="text-[10px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-full">${time}</span>
-              </div>
-              ${e.details ? `<p class="text-xs text-slate-500 mt-0.5">${e.details}</p>` : ''}
-            </div>
-          </div>
-          <button onclick="deleteEvent('${e.id}')" class="text-slate-300 hover:text-red-500 p-1 font-bold text-sm">✕</button>
-        `;
-        listContainer.appendChild(item);
-      });
-    }
-
-    function renderLatestGrowth() {
-      if (growthHistory.length === 0) return;
-      const latest = growthHistory[growthHistory.length - 1];
-      if (latest.weight) document.getElementById('display-weight').innerText = `${latest.weight} kg`;
-      if (latest.height) document.getElementById('display-height').innerText = `${latest.height} cm`;
-      if (latest.feet) document.getElementById('display-feet').innerText = `${latest.feet} cm`;
-    }
-
-    // --- TIMELINE VISUELLE ---
-    function renderTimeline() {
-      const container = document.getElementById('timeline-rows');
-      container.innerHTML = '';
-
-      const selectedDate = document.getElementById('filter-date').value;
-      let dayEvents = events.filter(e => e.timestampIso.startsWith(selectedDate));
-
-      if (activeStatsFilter !== 'Tous') {
-        dayEvents = dayEvents.filter(e => e.category === activeStatsFilter);
-      }
-
-      if (dayEvents.length === 0) {
-        container.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center">Aucune donnée sur cette période.</div>`;
-        return;
-      }
-
-      dayEvents.forEach(e => {
-        const d = new Date(e.timestampIso);
-        const startMinutes = d.getHours() * 60 + d.getMinutes();
-        const leftPercent = (startMinutes / 1440) * 100;
-
-        let durationMins = e.durationMinutes || 30;
-        let widthPercent = (durationMins / 1440) * 100;
-        if (widthPercent < 2) widthPercent = 2;
-
-        let bgColor = "bg-slate-400";
-        if (e.category === 'Sommeil') bgColor = "bg-indigo-500";
-        if (e.category === 'Allaitement') bgColor = "bg-emerald-500";
-        if (e.category === 'Couche') bgColor = "bg-amber-500";
-        if (e.category === 'Solide') bgColor = "bg-green-500";
-
-        const row = document.createElement('div');
-        row.className = "relative h-6 bg-slate-100 rounded-lg w-full flex items-center";
-        row.innerHTML = `
-          <div class="absolute h-full ${bgColor} rounded-md text-[9px] text-white font-bold flex items-center px-1 truncate shadow-sm"
-               style="left: ${leftPercent}%; width: ${widthPercent}%;" title="${e.category} - ${e.details}">
-            ${e.icon}
-          </div>
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    // --- MOYENNES RÉELLES & STATISTIQUES ---
-    function setAveragesPeriod(period) {
-      activeAveragesPeriod = period;
-      ['S', 'M', '6M', 'A'].forEach(p => {
-        const btn = document.getElementById('btn-period-' + p);
-        if (p === period) {
-          btn.className = "px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold";
-        } else {
-          btn.className = "px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold";
+        function setDefaultDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('home-growth-date').value = today;
         }
-      });
-      updateAverages(period);
-    }
 
-    function updateAverages(period) {
-      const now = new Date();
-      let daysBack = 7;
-      if (period === 'M') daysBack = 30;
-      if (period === '6M') daysBack = 180;
-      if (period === 'A') daysBack = 365;
-
-      const startDate = new Date();
-      startDate.setDate(now.getDate() - daysBack);
-
-      // Filtrer les événements réels de sommeil sur la période
-      const periodEvents = events.filter(e => {
-        const d = new Date(e.timestampIso);
-        return d >= startDate && e.category === 'Sommeil' && e.durationMinutes;
-      });
-
-      if (periodEvents.length === 0) {
-        document.getElementById('avg-sleep-display').innerText = "0 h 0 min / jour";
-        renderAveragesChart([], []);
-        return;
-      }
-
-      // Groupement par jour réel
-      const dailyTotals = {};
-      periodEvents.forEach(e => {
-        const dayKey = e.timestampIso.split('T')[0];
-        dailyTotals[dayKey] = (dailyTotals[dayKey] || 0) + e.durationMinutes;
-      });
-
-      const totalMinutes = Object.values(dailyTotals).reduce((a, b) => a + b, 0);
-      const daysCount = Object.keys(dailyTotals).length;
-      const avgMinutes = Math.round(totalMinutes / daysCount);
-
-      const h = Math.floor(avgMinutes / 60);
-      const m = avgMinutes % 60;
-      document.getElementById('avg-sleep-display').innerText = `${h} h ${m} min / jour`;
-
-      // Préparation du graphique réel
-      const labels = Object.keys(dailyTotals).sort();
-      const dataValues = labels.map(k => (dailyTotals[k] / 60).toFixed(1));
-
-      renderAveragesChart(labels, dataValues);
-    }
-
-    function renderAveragesChart(labels, dataValues) {
-      const ctx = document.getElementById('chart-averages').getContext('2d');
-      if (averagesChartInstance) averagesChartInstance.destroy();
-
-      averagesChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Heures de sommeil / jour',
-            data: dataValues,
-            backgroundColor: '#6366f1',
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: { beginAtZero: true, title: { display: true, text: 'Heures' } }
-          }
+        /* ================= PERSISTANCE DES DONNÉES ================= */
+        function saveState() {
+            localStorage.setItem('babyTracker_fullState', JSON.stringify(appState));
         }
-      });
-    }
 
-    function renderGrowthCharts() {
-      // Structure prête pour Chart.js avec données réelles
-    }
-
-    // --- EXPORT / IMPORT ---
-    function exportJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
-        events, growth: growthHistory, customCategories
-      }, null, 2));
-      const a = document.createElement('a');
-      a.href = dataStr;
-      a.download = `suivi_bebe_aime_${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    }
-
-    function importJSON(event) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          if (imported.events) {
-            events = imported.events;
-            localStorage.setItem('baby_events', JSON.stringify(events));
-          }
-          if (imported.growth) {
-            growthHistory = imported.growth;
-            localStorage.setItem('baby_growth', JSON.stringify(growthHistory));
-          }
-          if (imported.customCategories) {
-            customCategories = imported.customCategories;
-            localStorage.setItem('baby_custom_cats', JSON.stringify(customCategories));
-          }
-          renderCustomCategoryButtons();
-          renderEvents();
-          renderLatestGrowth();
-          alert("Importation réussie !");
-        } catch (err) {
-          alert("Fichier JSON invalide.");
+        function loadPersistedData() {
+            const data = localStorage.getItem('babyTracker_fullState');
+            if (data) {
+                try {
+                    appState = Object.assign({}, appState, JSON.parse(data));
+                } catch (e) {
+                    console.error("Erreur de lecture du stockage local", e);
+                }
+            }
         }
-      };
-      reader.readAsText(event.target.files[0]);
-    }
 
-    function exportCSV() {
-      let csvContent = "data:text/csv;charset=utf-8,ID,Categorie,Type,Details,Date_Debut,Duree_Minutes\n";
-      events.forEach(e => {
-        csvContent += `"${e.id}","${e.category}","${e.subType || ''}","${e.details || ''}","${e.timestampIso}","${e.durationMinutes || ''}"\n`;
-      });
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement('a');
-      link.href = encodedUri;
-      link.download = `suivi_bebe_aime_${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    }
-  </script>
+        /* ================= NAVIGATION ================= */
+        function switchMainTab(tabKey) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabKey}`).classList.add('active');
+            document.querySelector(`.nav-tab[data-tab="${tabKey}"]`).classList.add('active');
+        }
+
+        function switchSubTab(subTabKey) {
+            document.querySelectorAll('.subtab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(`subtab-${subTabKey}`).classList.add('active');
+            document.querySelector(`.sub-tab[data-subtab="${subTabKey}"]`).classList.add('active');
+        }
+
+        /* ================= GESTION DES MODALES ================= */
+        function openModal(id) {
+            document.getElementById(id).classList.add('open');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+        }
+
+        function handleOutsideClick(event, modalId) {
+            if (event.target.id === modalId) {
+                closeModal(modalId);
+            }
+        }
+
+        /* ================= REGLAGES & THEMES ================= */
+        function handleThemeToggle() {
+            appState.settings.darkMode = document.getElementById('dark-theme-toggle').checked;
+            applySettingsToDOM();
+            saveState();
+        }
+
+        function handleAccentColorChange(colorHex) {
+            appState.settings.accentColor = colorHex;
+            document.getElementById('color-hex-display').innerText = colorHex;
+            applySettingsToDOM();
+            saveState();
+        }
+
+        function applySettingsToDOM() {
+            document.body.setAttribute('data-theme', appState.settings.darkMode ? 'dark' : 'light');
+            document.getElementById('dark-theme-toggle').checked = appState.settings.darkMode;
+            
+            document.documentElement.style.setProperty('--primary-color', appState.settings.accentColor);
+            document.getElementById('app-accent-color').value = appState.settings.accentColor;
+            document.getElementById('color-hex-display').innerText = appState.settings.accentColor;
+        }
+
+        /* ================= GESTION DES CATEGORIES & CARTES ================= */
+        function openCategoryModal(catKey) {
+            const config = CATEGORY_MAP[catKey];
+            if (!config) return;
+
+            document.getElementById('modal-category-title').innerText = config.title;
+            const grid = document.getElementById('modal-cards-grid');
+            grid.innerHTML = '';
+
+            config.items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'selection-card';
+                card.style.borderColor = item.color;
+                card.innerHTML = `<span style="font-weight:600;">${item.label}</span>`;
+
+                card.onclick = () => {
+                    if (item.id === 'nav_balade') {
+                        renderSubChoiceCards('balade');
+                    } else if (item.id === 'nav_manuelle') {
+                        renderSubChoiceCards('activite_manuelle');
+                    } else {
+                        recordEvent(catKey, item.id, item.label, item.color);
+                        closeModal('category-modal');
+                    }
+                };
+                grid.appendChild(card);
+            });
+
+            openModal('category-modal');
+        }
+
+        // Sub-cartes personnalisées (Balades & Activités avec Images GitHub)
+        function renderSubChoiceCards(type) {
+            document.getElementById('modal-category-title').innerText = type === 'balade' ? 'Choisir la Balade' : 'Choisir l\'Activité';
+            const grid = document.getElementById('modal-cards-grid');
+            grid.innerHTML = '';
+
+            const items = type === 'balade' ? appState.customWalks : appState.customManuals;
+            const palette = SHADE_PALETTES[type];
+
+            items.forEach((item, index) => {
+                const color = palette[index % palette.length];
+                const card = document.createElement('div');
+                card.className = 'selection-card';
+                card.style.borderColor = color;
+
+                const imgUrl = item.img.startsWith('http') ? item.img : GITHUB_REPO_IMAGE_BASE + item.img;
+
+                card.innerHTML = `
+                    <img src="${imgUrl}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60?text=Icon'">
+                    <span>${item.name}</span>
+                `;
+
+                card.onclick = () => {
+                    recordEvent(type, item.id, item.name, color);
+                    closeModal('category-modal');
+                };
+
+                grid.appendChild(card);
+            });
+
+            // Carte d'ajout d'élément personnalisé
+            const addCard = document.createElement('div');
+            addCard.className = 'selection-card';
+            addCard.innerHTML = `<span style="font-size:1.5rem;">+</span><span>Ajouter Nouveau</span>`;
+            addCard.onclick = () => createCustomCardEntry(type);
+            grid.appendChild(addCard);
+        }
+
+        function createCustomCardEntry(type) {
+            const name = prompt("Nom de l'élément :");
+            if (!name) return;
+            const img = prompt("Nom du fichier image dans le GitHub (ex: parc.png) :");
+
+            const newItem = {
+                id: `${type}_${Date.now()}`,
+                name: name,
+                img: img || 'default.png'
+            };
+
+            if (type === 'balade') {
+                appState.customWalks.push(newItem);
+            } else {
+                appState.customManuals.push(newItem);
+            }
+
+            saveState();
+            renderSubChoiceCards(type);
+        }
+
+        /* ================= ENREGISTREMENT & RENDU DE L'HISTORIQUE ================= */
+        function recordEvent(category, subType, label, color) {
+            const newEvent = {
+                id: Date.now(),
+                category: category,
+                subType: subType,
+                label: label,
+                color: color,
+                timestamp: new Date().toISOString()
+            };
+
+            appState.events.unshift(newEvent);
+            saveState();
+            renderHomeFeed();
+            renderFullHistory('all');
+        }
+
+        function renderHomeFeed() {
+            const list = document.getElementById('home-recent-list');
+            list.innerHTML = '';
+
+            const recent = appState.events.slice(0, 5);
+            if (recent.length === 0) {
+                list.innerHTML = '<li class="event-card-item"><em>Aucun événement récent enregistré.</em></li>';
+                return;
+            }
+
+            recent.forEach(evt => {
+                list.appendChild(createEventDOMElement(evt));
+            });
+        }
+
+        function renderFullHistory(filterKey) {
+            const list = document.getElementById('full-history-list');
+            list.innerHTML = '';
+
+            let filtered = appState.events;
+            if (filterKey !== 'all') {
+                filtered = appState.events.filter(e => e.category === filterKey || e.subType === filterKey);
+            }
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<li class="event-card-item"><em>Aucun historique disponible pour ce filtre.</em></li>';
+                return;
+            }
+
+            filtered.forEach(evt => {
+                list.appendChild(createEventDOMElement(evt));
+            });
+        }
+
+        function createEventDOMElement(evt) {
+            const li = document.createElement('li');
+            li.className = 'event-card-item';
+            li.style.setProperty('--item-color', evt.color);
+
+            const timeFormatted = new Date(evt.timestamp).toLocaleString('fr-FR', {
+                day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+            });
+
+            li.innerHTML = `
+                <div class="event-details">
+                    <span class="event-title">${evt.label}</span>
+                    <span class="event-timestamp">${timeFormatted}</span>
+                </div>
+            `;
+            return li;
+        }
+
+        function applyHistoryFilter(filterKey) {
+            document.querySelectorAll('#history-filter-bar .filter-chip').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderFullHistory(filterKey);
+        }
+
+        /* ================= CROISSANCE / MENSURATIONS ================= */
+        function handleQuickGrowthSubmit(event) {
+            event.preventDefault();
+            const date = document.getElementById('home-growth-date').value;
+            const weight = document.getElementById('home-growth-weight').value;
+            const height = document.getElementById('home-growth-height').value;
+
+            if (!date || (!weight && !height)) return;
+
+            appState.growth.unshift({
+                id: Date.now(),
+                date: date,
+                weight: weight ? parseFloat(weight) : null,
+                height: height ? parseFloat(height) : null
+            });
+
+            saveState();
+            renderGrowthTable();
+            
+            document.getElementById('home-growth-weight').value = '';
+            document.getElementById('home-growth-height').value = '';
+            alert('Mensuration enregistrée avec succès !');
+        }
+
+        function renderGrowthTable() {
+            const tbody = document.getElementById('growth-table-body');
+            tbody.innerHTML = '';
+
+            if (appState.growth.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Aucune mensuration saisie.</td></tr>';
+                return;
+            }
+
+            appState.growth.forEach(entry => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${entry.date}</td>
+                    <td>${entry.weight ? entry.weight + ' kg' : '-'}</td>
+                    <td>${entry.height ? entry.height + ' cm' : '-'}</td>
+                    <td><button class="btn-footer danger" onclick="deleteGrowthEntry(${entry.id})">Supprimer</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteGrowthEntry(id) {
+            appState.growth = appState.growth.filter(g => g.id !== id);
+            saveState();
+            renderGrowthTable();
+        }
+
+        /* ================= TENDANCES ================= */
+        function setTrendPeriod(periodKey) {
+            document.querySelectorAll('.period-chip').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        /* ================= EXPORTATION & REINITIALISATION ================= */
+        function exportData(format) {
+            let mimeType = 'text/json';
+            let filename = `export_suivi_bebe_${Date.now()}.${format}`;
+            let content = '';
+
+            if (format === 'json') {
+                content = JSON.stringify(appState, null, 2);
+            } else if (format === 'csv') {
+                mimeType = 'text/csv';
+                content = "Date,Categorie,Description,Couleur\n";
+                appState.events.forEach(e => {
+                    content += `"${e.timestamp}","${e.category}","${e.label}","${e.color}"\n`;
+                });
+            }
+
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function clearAllData() {
+            if (confirm("Attention, voulez-vous vraiment effacer toutes les données enregistrées ?")) {
+                localStorage.removeItem('babyTracker_fullState');
+                location.reload();
+            }
+        }
+    </script>
 </body>
 </html>
