@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Suivi Bébé - Aimé</title>
   
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Chart.js + Adapter Date-fns CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 
@@ -18,649 +15,711 @@
       -webkit-tap-highlight-color: transparent;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
-    .timeline-scroll::-webkit-scrollbar {
-      height: 4px;
+    
+    /* Scrollbar invisible pour le carrousel horizontal */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
     }
-    .timeline-scroll::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
 
-    /* Thème Sombre dynamique */
+    /* Thème Sombre dynamique complet */
     body.dark-theme {
       background-color: #0f172a !important;
       color: #f8fafc !important;
     }
     body.dark-theme main, 
-    body.dark-theme .bg-white {
+    body.dark-theme .bg-white,
+    body.dark-theme .modal-content {
       background-color: #1e293b !important;
       color: #f8fafc !important;
       border-color: #334155 !important;
     }
-    body.dark-theme footer {
-      background-color: #0f172a !important;
-      border-color: #334155 !important;
-    }
-    body.dark-theme .bg-slate-100, 
     body.dark-theme .bg-slate-50,
+    body.dark-theme .bg-slate-100,
     body.dark-theme .bg-slate-200\/60 {
       background-color: #334155 !important;
       color: #f8fafc !important;
     }
-
-    /* Styles spécifiques aux cartes de choix */
-    .card-option {
-      transition: all 0.15s ease-in-out;
-    }
-    .card-option.selected {
-      border-color: var(--accent-color, #3b82f6);
-      background-color: rgba(59, 130, 246, 0.1);
-      transform: scale(1.02);
+    body.dark-theme .text-slate-800,
+    body.dark-theme .text-slate-700,
+    body.dark-theme .text-slate-600 {
+      color: #f1f5f9 !important;
     }
   </style>
 </head>
 <body id="app-body" class="min-h-full flex flex-col max-w-md mx-auto bg-slate-50 text-slate-800 shadow-2xl relative overflow-x-hidden transition-colors duration-200">
 
-  <!-- DÉCORATION DYNAMIQUE ALEATOIRE -->
-  <div id="random-decoration-container" class="hidden absolute top-2 right-12 z-20 pointer-events-none opacity-80">
-    <img id="random-decoration-img" src="" alt="Décoration" class="w-10 h-10 object-contain">
+  <!-- DÉCORATION ALEATOIRE DECOR/ (1 à 10 ou rien) -->
+  <div id="decor-container-top" class="hidden absolute top-2 right-4 z-20 pointer-events-none opacity-80">
+    <img id="decor-img-top" src="" alt="" class="w-12 h-12 object-contain">
+  </div>
+  <div id="decor-container-bottom" class="hidden fixed bottom-4 left-4 z-20 pointer-events-none opacity-80">
+    <img id="decor-img-bottom" src="" alt="" class="w-12 h-12 object-contain">
   </div>
 
   <!-- ========================================== -->
   <!-- 1. EN-TÊTE PRINCIPAL                      -->
   <!-- ========================================== -->
-  <header id="header-bg" class="bg-blue-500 text-white pt-6 pb-6 px-4 rounded-b-3xl shadow-lg relative flex flex-col items-center shrink-0 transition-colors duration-200">
+  <header id="header-bg" class="bg-sky-400 text-white pt-6 pb-8 px-4 rounded-b-[2.5rem] shadow-lg relative flex flex-col items-center shrink-0 transition-colors duration-200">
     
     <!-- Bouton Statistiques SVG (Haut Gauche) -->
-    <button onclick="openModal('modal-stats')" class="absolute top-4 left-4 bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-sm text-white p-2.5 rounded-2xl transition shadow-sm active:scale-95 flex items-center justify-center" title="Statistiques & Tendances">
+    <button onclick="openModal('modal-stats')" class="absolute top-4 left-4 bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-sm text-white p-2.5 rounded-2xl transition shadow-sm active:scale-95 flex items-center justify-center">
       <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
         <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
       </svg>
     </button>
 
     <!-- Badge Version Cliquable pour Réglages (Haut Droite) -->
-    <div class="absolute top-4 right-4 flex items-center gap-2">
-      <button onclick="openModal('modal-settings')" class="bg-white/20 hover:bg-white/30 border border-white/30 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur-sm shadow-sm active:scale-95 flex items-center gap-1 transition">
-        <span>⚙️ v1.8.0</span>
-      </button>
-    </div>
+    <button onclick="openModal('modal-settings')" class="absolute top-4 right-4 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur-sm shadow-sm active:scale-95 transition">
+      v1.8.0
+    </button>
 
-    <!-- Avatar / Galerie étendue -->
-    <button onclick="openModal('modal-icon')" class="relative group mt-2 focus:outline-none">
-      <div id="avatar-container" class="w-20 h-20 rounded-full bg-white/20 border-2 border-white/50 flex items-center justify-center text-4xl shadow-inner overflow-hidden transition group-active:scale-95 bg-cover bg-center">
+    <!-- Photo de Profil / Avatar (Clic direct sans crayon) -->
+    <button onclick="openModal('modal-icon')" class="mt-2 focus:outline-none">
+      <div id="avatar-container" class="w-20 h-20 rounded-full bg-white/30 border-2 border-white/60 flex items-center justify-center text-4xl shadow-md overflow-hidden transition active:scale-95 bg-cover bg-center">
         👶
-      </div>
-      <div class="absolute bottom-0 right-0 bg-white text-blue-600 rounded-full p-1 shadow-md text-xs">
-        ✏️
       </div>
     </button>
 
-    <!-- Titre & Prénom -->
+    <!-- Prénom -->
     <h1 id="baby-name-display" class="text-2xl font-bold mt-2 tracking-wide">Aimé</h1>
 
-    <!-- Bloc de Mensurations -->
-    <div onclick="openModal('modal-growth')" class="grid grid-cols-3 gap-2 w-full mt-4 cursor-pointer">
-      <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2.5 text-center border border-white/20 hover:bg-white/25 transition active:scale-95">
-        <span class="text-xs text-blue-100 block uppercase font-medium">Poids</span>
-        <span id="display-weight" class="text-lg font-bold">-- kg</span>
+    <!-- Bloc Mensurations -->
+    <div onclick="openModal('modal-growth')" class="flex justify-around w-full mt-4 cursor-pointer text-center">
+      <div>
+        <span id="display-height" class="text-base font-bold block">-- cm</span>
+        <span class="text-[10px] uppercase opacity-80 font-semibold">Taille</span>
       </div>
-      <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2.5 text-center border border-white/20 hover:bg-white/25 transition active:scale-95">
-        <span class="text-xs text-blue-100 block uppercase font-medium">Taille</span>
-        <span id="display-height" class="text-lg font-bold">-- cm</span>
-      </div>
-      <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2.5 text-center border border-white/20 hover:bg-white/25 transition active:scale-95">
-        <span class="text-xs text-blue-100 block uppercase font-medium">Pieds</span>
-        <span id="display-feet" class="text-lg font-bold">-- cm</span>
+      <div>
+        <span id="display-weight" class="text-base font-bold block">-- kg</span>
+        <span class="text-[10px] uppercase opacity-80 font-semibold">Poids</span>
       </div>
     </div>
   </header>
 
   <!-- ========================================== -->
-  <!-- 2. ÉCRAN PRINCIPAL (JOURNAL)              -->
+  <!-- 2. CARROUSEL DE CARTES (Style UI fourni)   -->
   <!-- ========================================== -->
-  <main class="flex-1 overflow-y-auto px-4 py-4 space-y-5">
-    
-    <!-- Filtre de Date -->
-    <section class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
-      <label for="filter-date" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Jour affiché :</label>
-      <input type="date" id="filter-date" onchange="renderEvents()" class="bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-    </section>
+  <div class="-mt-6 px-2 z-10">
+    <div id="cards-carousel" class="flex gap-3 overflow-x-auto no-scrollbar py-2 px-2">
+      <!-- Les cartes d'événements sont générées en JavaScript -->
+    </div>
+  </div>
 
-    <!-- Grille d'Ajout d'Événements -->
-    <section class="grid grid-cols-3 gap-3" id="quick-actions-grid">
-      <button onclick="openModal('modal-sleep')" class="bg-indigo-50 border border-indigo-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-indigo-100 transition active:scale-95">
-        <span class="text-2xl mb-1">🛏️</span>
-        <span class="text-xs font-bold text-indigo-900">Sommeil</span>
-      </button>
-      <button onclick="openModal('modal-feeding')" class="bg-emerald-50 border border-emerald-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-emerald-100 transition active:scale-95">
-        <span class="text-2xl mb-1">🤱</span>
-        <span class="text-xs font-bold text-emerald-900">Repas</span>
-      </button>
-      <button onclick="openModal('modal-diaper')" class="bg-amber-50 border border-amber-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-amber-100 transition active:scale-95">
-        <span class="text-2xl mb-1">👶</span>
-        <span class="text-xs font-bold text-amber-900">Couche</span>
-      </button>
-      <button onclick="openModal('modal-activities')" class="bg-sky-50 border border-sky-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-sky-100 transition active:scale-95">
-        <span class="text-2xl mb-1">🎡</span>
-        <span class="text-xs font-bold text-sky-900">Activités</span>
-      </button>
-      <button onclick="openModal('modal-misc')" class="bg-slate-100 border border-slate-200 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-slate-200 transition active:scale-95">
-        <span class="text-2xl mb-1">📝</span>
-        <span class="text-xs font-bold text-slate-800">Divers</span>
-      </button>
-      <button onclick="openModal('modal-custom-category')" class="bg-purple-50 border border-purple-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-purple-100 transition active:scale-95">
-        <span class="text-2xl mb-1">➕</span>
-        <span class="text-xs font-bold text-purple-900">Créer</span>
-      </button>
-    </section>
+  <!-- ========================================== -->
+  <!-- 3. ACCUEIL : HISTORIQUE CHRONOLOGIQUE GLOBAL-->
+  <!-- ========================================== -->
+  <main class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-bold text-slate-700">Journal global des événements</h2>
+      <span class="text-xs text-slate-400 font-semibold">Fil continu</span>
+    </div>
 
-    <!-- Liste Chronologique -->
-    <section>
-      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Historique du jour</h2>
-      <div id="events-list" class="space-y-2.5">
-        <!-- Généré dynamiquement -->
-      </div>
-    </section>
+    <!-- Liste globale continue -->
+    <div id="global-timeline" class="space-y-2.5 pb-6">
+      <!-- Les événements sont injectés par JS de haut en bas -->
+    </div>
 
-    <!-- ========================================== -->
-    <!-- 3. PIED DE PAGE DÉFILANT (EXPORT/IMPORT)   -->
-    <!-- ========================================== -->
-    <footer class="pt-4 pb-2 border-t border-slate-200 mt-6">
+    <!-- Pied de page défilant -->
+    <footer class="pt-4 pb-4 border-t border-slate-200">
       <div class="grid grid-cols-3 gap-2">
-        <button onclick="exportJSON()" class="bg-white border border-slate-300 text-slate-700 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-slate-50 shadow-sm active:scale-95">
-          📥 Export JSON
-        </button>
-        <button onclick="document.getElementById('file-import').click()" class="bg-white border border-slate-300 text-slate-700 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-slate-50 shadow-sm active:scale-95">
-          📤 Import JSON
-        </button>
+        <button onclick="exportJSON()" class="bg-white border border-slate-300 text-slate-700 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-slate-50 shadow-sm">📥 Export JSON</button>
+        <button onclick="document.getElementById('file-import').click()" class="bg-white border border-slate-300 text-slate-700 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-slate-50 shadow-sm">📤 Import JSON</button>
         <input type="file" id="file-import" accept=".json" class="hidden" onchange="importJSON(event)">
-        <button onclick="exportCSV()" class="bg-white border border-slate-300 text-slate-700 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-slate-50 shadow-sm active:scale-95">
-          📊 Export CSV
-        </button>
+        <button onclick="exportCSV()" class="bg-white border border-slate-300 text-slate-700 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-slate-50 shadow-sm">📊 Export CSV</button>
       </div>
     </footer>
   </main>
 
   <!-- ========================================== -->
-  <!-- 4. MODALES                                 -->
+  <!-- 4. MODALES D'AJOUT ET HISTORIQUE PAR CATÉGORIE -->
   <!-- ========================================== -->
+
+  <!-- MODALE : HISTORIQUE D'UNE CATÉGORIE SPECIFIQUE -->
+  <div id="modal-cat-history" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="modal-content bg-white rounded-3xl p-5 w-full max-w-sm shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 id="cat-history-title" class="font-bold text-lg text-slate-800">Historique</h3>
+        <button onclick="closeModal('modal-cat-history')" class="text-slate-400 font-bold text-lg">✕</button>
+      </div>
+      <div id="cat-history-list" class="flex-1 overflow-y-auto space-y-2">
+        <!-- Rempli en JS -->
+      </div>
+      <button onclick="closeModal('modal-cat-history')" class="w-full bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Fermer</button>
+    </div>
+  </div>
 
   <!-- MODALE : SOMMEIL -->
   <div id="modal-sleep" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+    <div class="modal-content bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
       <h3 class="text-lg font-bold text-slate-800">🛏️ Sommeil</h3>
-      
-      <!-- Cartes de choix Type : Sieste / Nuit -->
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Type de sommeil :</label>
-        <div class="grid grid-cols-2 gap-2" id="sleep-type-cards">
-          <button onclick="selectCardOption('sleep-type-cards', 'Sieste')" class="card-option selected border-2 border-slate-200 rounded-2xl p-3 text-center bg-slate-50 flex flex-col items-center">
-            <span class="text-xl mb-1">😴</span>
-            <span class="text-xs font-bold text-slate-700">Sieste</span>
-          </button>
-          <button onclick="selectCardOption('sleep-type-cards', 'Nuit')" class="card-option border-2 border-slate-200 rounded-2xl p-3 text-center bg-slate-50 flex flex-col items-center">
-            <span class="text-xl mb-1">🌙</span>
-            <span class="text-xs font-bold text-slate-700">Nuit</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-center space-y-2">
-        <span class="text-xs font-semibold text-indigo-600 uppercase">Chronomètre en direct</span>
-        <div id="timer-display" class="text-3xl font-mono font-bold text-indigo-900">00:00:00</div>
-        <button id="timer-btn" onclick="toggleTimer()" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-xl text-sm shadow hover:bg-indigo-700 transition">
-          S'est endormi
+      <div class="grid grid-cols-2 gap-2" id="sleep-type-cards">
+        <button onclick="selectCardOption('sleep-type-cards', 'Sieste')" class="card-option selected border-2 border-slate-200 rounded-2xl p-3 text-center bg-slate-50">
+          <span class="text-xl block mb-1">😴</span>
+          <span class="text-xs font-bold text-slate-700">Sieste</span>
+        </button>
+        <button onclick="selectCardOption('sleep-type-cards', 'Nuit')" class="card-option border-2 border-slate-200 rounded-2xl p-3 text-center bg-slate-50">
+          <span class="text-xl block mb-1">🌙</span>
+          <span class="text-xs font-bold text-slate-700">Nuit</span>
         </button>
       </div>
-
-      <div class="text-center text-xs text-slate-400 font-bold uppercase">— Ou Saisie Manuelle —</div>
-
-      <div class="space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Début :</label>
-          <input type="datetime-local" id="sleep-start" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Fin :</label>
-          <input type="datetime-local" id="sleep-end" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-        </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Début :</label>
+        <input type="datetime-local" id="sleep-start" class="w-full bg-slate-100 border rounded-xl p-2.5 text-sm font-semibold">
       </div>
-
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-sleep')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
-        <button onclick="saveSleep()" class="flex-1 bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-indigo-700">Enregistrer</button>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Fin :</label>
+        <input type="datetime-local" id="sleep-end" class="w-full bg-slate-100 border rounded-xl p-2.5 text-sm font-semibold">
+      </div>
+      <div class="flex gap-2">
+        <button onclick="closeModal('modal-sleep')" class="flex-1 bg-slate-100 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
+        <button onclick="saveSleep()" class="flex-1 bg-blue-600 text-white font-bold py-2.5 rounded-xl text-sm shadow">Enregistrer</button>
       </div>
     </div>
   </div>
 
-  <!-- MODALE : REPAS (Allaitement & Solides) -->
-  <div id="modal-feeding" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-800">🤱 Repas</h3>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Date & Heure :</label>
-        <input type="datetime-local" id="feeding-datetime" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Type de repas :</label>
-        <div class="grid grid-cols-2 gap-2" id="feeding-side-cards">
-          <button onclick="selectCardOption('feeding-side-cards', 'Sein Gauche')" class="card-option selected border-2 border-slate-200 rounded-2xl p-2.5 text-center bg-slate-50">
-            <span class="text-xs font-bold text-slate-700">Sein Gauche 👈</span>
-          </button>
-          <button onclick="selectCardOption('feeding-side-cards', 'Sein Droit')" class="card-option border-2 border-slate-200 rounded-2xl p-2.5 text-center bg-slate-50">
-            <span class="text-xs font-bold text-slate-700">Sein Droit 👉</span>
-          </button>
-          <button onclick="selectCardOption('feeding-side-cards', 'Les deux seins')" class="card-option border-2 border-slate-200 rounded-2xl p-2.5 text-center bg-slate-50">
-            <span class="text-xs font-bold text-slate-700">Les deux 🤲</span>
-          </button>
-          <button onclick="selectCardOption('feeding-side-cards', 'Biberon')" class="card-option border-2 border-slate-200 rounded-2xl p-2.5 text-center bg-slate-50">
-            <span class="text-xs font-bold text-slate-700">Biberon 🍼</span>
-          </button>
-          <button onclick="selectCardOption('feeding-side-cards', 'Solides')" class="card-option col-span-2 border-2 border-slate-200 rounded-2xl p-2.5 text-center bg-slate-50">
-            <span class="text-xs font-bold text-slate-700">Repas Solide 🥣</span>
-          </button>
-        </div>
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Durée (min) / Quantité (ml) / Description :</label>
-        <input type="text" id="feeding-amount" placeholder="ex: 15 min, 120 ml, Purée..." class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      </div>
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-feeding')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
-        <button onclick="saveFeeding()" class="flex-1 bg-rose-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-rose-700">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : COUCHE -->
+  <!-- MODALE : COUCHES -->
   <div id="modal-diaper" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-800">👶 Couche</h3>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Date & Heure :</label>
-        <input type="datetime-local" id="diaper-datetime" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
+    <div class="modal-content bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-800">👶 Couches</h3>
+      <div class="grid grid-cols-3 gap-2" id="diaper-type-cards">
+        <button onclick="selectCardOption('diaper-type-cards', 'Pipi')" class="card-option selected border-2 border-slate-200 rounded-2xl p-2.5 text-center bg-yellow-50">
+          <span class="text-xs font-bold text-yellow-800">Pipi 💧</span>
+        </button>
+        <button onclick="selectCardOption('diaper-type-cards', 'Caca')" class="card-option border-2 border-slate-200 rounded-2xl p-2.5 text-center bg-amber-900/10">
+          <span class="text-xs font-bold text-amber-900">Caca 💩</span>
+        </button>
+        <button onclick="selectCardOption('diaper-type-cards', 'Diarrhée')" class="card-option border-2 border-slate-200 rounded-2xl p-2.5 text-center bg-lime-100">
+          <span class="text-xs font-bold text-lime-900">Diarrhée ⚠️</span>
+        </button>
       </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1.5">État :</label>
-        <div class="grid grid-cols-2 gap-2" id="diaper-state-cards">
-          <button onclick="selectCardOption('diaper-state-cards', 'Propre')" class="card-option selected border-2 border-slate-200 rounded-2xl p-2.5 text-center bg-slate-50">
-            <span class="text-xs font-bold text-slate-700">Propre ✨</span>
-          </button>
-          <button onclick="selectCardOption('diaper-state-cards', 'Mouillée')" class="card-option border-2 border-slate-200 rounded-2xl p-2.5 text-center bg-yellow-50 border-yellow-200">
-            <span class="text-xs font-bold text-yellow-800">Mouillée (Pipi) 💧</span>
-          </button>
-          <button onclick="selectCardOption('diaper-state-cards', 'Sale')" class="card-option border-2 border-slate-200 rounded-2xl p-2.5 text-center bg-amber-900/10 border-amber-800/30">
-            <span class="text-xs font-bold text-amber-900">Sale (Caca) 💩</span>
-          </button>
-          <button onclick="selectCardOption('diaper-state-cards', 'Les deux')" class="card-option border-2 border-slate-200 rounded-2xl p-2.5 text-center bg-amber-100">
-            <span class="text-xs font-bold text-amber-900">Les deux 💧💩</span>
-          </button>
-          <button onclick="selectCardOption('diaper-state-cards', 'Diarrhée')" class="card-option col-span-2 border-2 border-slate-200 rounded-2xl p-2.5 text-center bg-emerald-50 border-emerald-300">
-            <span class="text-xs font-bold text-emerald-800">Diarrhée ⚠️</span>
-          </button>
-        </div>
-      </div>
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-diaper')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
-        <button onclick="saveDiaper()" class="flex-1 bg-amber-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-amber-700">Enregistrer</button>
+      <div class="flex gap-2">
+        <button onclick="closeModal('modal-diaper')" class="flex-1 bg-slate-100 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
+        <button onclick="saveDiaper()" class="flex-1 bg-amber-600 text-white font-bold py-2.5 rounded-xl text-sm shadow">Enregistrer</button>
       </div>
     </div>
   </div>
 
-  <!-- MODALE : ACTIVITÉS (Balades & Activités Manuelles) -->
+  <!-- MODALE : ALLAITEMENT ET REPAS -->
+  <div id="modal-feeding" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="modal-content bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+      <h3 id="feeding-modal-title" class="text-lg font-bold text-slate-800">Repas</h3>
+      <input type="text" id="feeding-details" placeholder="Détails (ex: Sein gauche, 120ml, Purée...)" class="w-full bg-slate-100 border rounded-xl p-2.5 text-sm font-semibold">
+      <div class="flex gap-2">
+        <button onclick="closeModal('modal-feeding')" class="flex-1 bg-slate-100 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
+        <button onclick="saveFeeding()" class="flex-1 bg-rose-600 text-white font-bold py-2.5 rounded-xl text-sm shadow">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE : ACTIVITÉS (Camaïeu Vert) -->
   <div id="modal-activities" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
-      <h3 class="text-lg font-bold text-slate-800 shrink-0">🎡 Choix de l'Activité</h3>
-      
-      <!-- Onglets Balade vs Activité Manuelle -->
-      <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-bold shrink-0">
-        <button onclick="switchActivityTab('tab-balades')" id="btn-tab-balades" class="flex-1 py-2.5 text-center border-b-2 border-sky-600 text-sky-600 font-bold">🥾 Balades</button>
-        <button onclick="switchActivityTab('tab-manuelles')" id="btn-tab-manuelles" class="flex-1 py-2.5 text-center border-b-2 border-transparent text-slate-500">🎨 Activités Manuelles</button>
+    <div class="modal-content bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+      <h3 class="text-lg font-bold text-slate-800">🎨 Activités</h3>
+      <div id="activities-list-grid" class="grid grid-cols-2 gap-2 flex-1 overflow-y-auto">
+        <!-- Sous-catégories générées en JS -->
       </div>
-
-      <div class="flex-1 overflow-y-auto space-y-4 p-1">
-        <!-- ONGLET BALADES -->
-        <div id="tab-balades" class="space-y-3">
-          <div id="balades-grid" class="grid grid-cols-2 gap-2">
-            <!-- Généré en JS -->
-          </div>
-          <button onclick="openModal('modal-add-item-balade')" class="w-full py-2 bg-sky-50 border border-sky-200 text-sky-800 font-bold rounded-2xl text-xs flex items-center justify-center gap-1">
-            <span>➕</span> <span>Ajouter une Balade</span>
-          </button>
-        </div>
-
-        <!-- ONGLET ACTIVITÉS MANUELLES -->
-        <div id="tab-manuelles" class="hidden space-y-3">
-          <div id="manuelles-grid" class="grid grid-cols-2 gap-2">
-            <!-- Généré en JS -->
-          </div>
-          <button onclick="openModal('modal-add-item-manuelle')" class="w-full py-2 bg-blue-50 border border-blue-200 text-blue-800 font-bold rounded-2xl text-xs flex items-center justify-center gap-1">
-            <span>➕</span> <span>Ajouter une Activité</span>
-          </button>
-        </div>
+      <div class="border-t pt-3 space-y-2">
+        <span class="text-xs font-bold text-slate-500">Ajouter une activité :</span>
+        <input type="text" id="new-act-name" placeholder="Nom de l'activité" class="w-full bg-slate-100 border rounded-xl p-2 text-xs">
+        <input type="text" id="new-act-icon" placeholder="Emoji ou Lien Image" class="w-full bg-slate-100 border rounded-xl p-2 text-xs">
+        <button onclick="addCustomSubCat('Activité')" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-xl text-xs">Ajouter</button>
       </div>
+      <button onclick="closeModal('modal-activities')" class="w-full bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Fermer</button>
+    </div>
+  </div>
 
-      <div class="pt-2 shrink-0">
-        <button onclick="closeModal('modal-activities')" class="w-full bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Fermer</button>
+  <!-- MODALE : SORTIES (Camaïeu Violet) -->
+  <div id="modal-sorties" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="modal-content bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+      <h3 class="text-lg font-bold text-slate-800">🏞️ Sorties</h3>
+      <div id="sorties-list-grid" class="grid grid-cols-2 gap-2 flex-1 overflow-y-auto">
+        <!-- Sous-catégories générées en JS -->
+      </div>
+      <div class="border-t pt-3 space-y-2">
+        <span class="text-xs font-bold text-slate-500">Ajouter une sortie :</span>
+        <input type="text" id="new-sortie-name" placeholder="Nom de la destination" class="w-full bg-slate-100 border rounded-xl p-2 text-xs">
+        <input type="text" id="new-sortie-icon" placeholder="Emoji ou Lien Image" class="w-full bg-slate-100 border rounded-xl p-2 text-xs">
+        <button onclick="addCustomSubCat('Sorties')" class="w-full bg-purple-600 text-white font-bold py-2 rounded-xl text-xs">Ajouter</button>
+      </div>
+      <button onclick="closeModal('modal-sorties')" class="w-full bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Fermer</button>
+    </div>
+  </div>
+
+  <!-- MODALE : AUTRES -->
+  <div id="modal-autres" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="modal-content bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-800">📝 Autres Événements</h3>
+      <input type="text" id="autre-title" placeholder="Titre (ex: Bain, Médicament...)" class="w-full bg-slate-100 border rounded-xl p-2.5 text-sm font-semibold">
+      <input type="text" id="autre-icon" placeholder="Emoji ou Lien Image" class="w-full bg-slate-100 border rounded-xl p-2.5 text-sm font-semibold">
+      <div class="flex gap-2">
+        <button onclick="closeModal('modal-autres')" class="flex-1 bg-slate-100 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
+        <button onclick="saveAutre()" class="flex-1 bg-slate-800 text-white font-bold py-2.5 rounded-xl text-sm shadow">Enregistrer</button>
       </div>
     </div>
   </div>
 
-  <!-- MODALE : AJOUT BALADE -->
-  <div id="modal-add-item-balade" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-3">
-      <h3 class="text-md font-bold text-slate-800">🥾 Nouvelle Balade</h3>
-      <input type="text" id="new-balade-name" placeholder="Nom de la balade (ex: Parc, Forêt...)" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      <input type="text" id="new-balade-photo" placeholder="Lien photo / Image (optionnel)" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-add-item-balade')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2 rounded-xl text-xs">Annuler</button>
-        <button onclick="addNewBaladeItem()" class="flex-1 bg-sky-600 text-white font-bold py-2 rounded-xl text-xs shadow">Créer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : AJOUT ACTIVITÉ MANUELLE -->
-  <div id="modal-add-item-manuelle" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-3">
-      <h3 class="text-md font-bold text-slate-800">🎨 Nouvelle Activité Manuelle</h3>
-      <input type="text" id="new-manuelle-name" placeholder="Nom (ex: Peinture, Pâte à modeler...)" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      <input type="text" id="new-manuelle-photo" placeholder="Lien photo / Image (optionnel)" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-add-item-manuelle')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2 rounded-xl text-xs">Annuler</button>
-        <button onclick="addNewManuelleItem()" class="flex-1 bg-blue-600 text-white font-bold py-2 rounded-xl text-xs shadow">Créer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : DIVERS -->
-  <div id="modal-misc" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-800">📝 Note / Divers</h3>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Date & Heure :</label>
-        <input type="datetime-local" id="misc-datetime" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      </div>
-      <div>
-        <textarea id="misc-note" rows="3" placeholder="Notes, médicaments, bain..." class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold"></textarea>
-      </div>
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-misc')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
-        <button onclick="saveMisc()" class="flex-1 bg-slate-800 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-slate-900">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : CATÉGORIE PERSONNALISÉE -->
-  <div id="modal-custom-category" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-800">✨ Créer une Catégorie</h3>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Nom :</label>
-        <input type="text" id="custom-cat-name" placeholder="ex: Bain, Jeux, Médicament" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Icône (Emoji) :</label>
-        <input type="text" id="custom-cat-icon" placeholder="ex: 🛁, 🧸, 💊" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-      </div>
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-custom-category')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
-        <button onclick="createCustomCategory()" class="flex-1 bg-purple-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-purple-700">Créer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : CROISSANCE / MENSURATIONS -->
-  <div id="modal-growth" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-800">📏 Mesures de Croissance</h3>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Poids (kg) :</label>
-          <input type="number" step="0.01" id="growth-weight" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Taille (cm) :</label>
-          <input type="number" step="0.5" id="growth-height" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Périmètre crânien :</label>
-          <input type="number" step="0.5" id="growth-head" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Pieds (cm) :</label>
-          <input type="number" step="0.5" id="growth-feet" class="w-full bg-slate-100 border border-slate-300 rounded-xl p-2.5 text-sm font-semibold">
-        </div>
-      </div>
-      <div class="flex gap-2 pt-2">
-        <button onclick="closeModal('modal-growth')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
-        <button onclick="saveGrowth()" class="flex-1 bg-blue-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-blue-700">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE : STATISTIQUES & TENDANCES -->
+  <!-- MODALE : STATISTIQUES ET TENDANCES TEMPORELLES -->
   <div id="modal-stats" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-2 z-50">
-    <div class="bg-white rounded-3xl w-full max-w-md h-[90vh] shadow-2xl flex flex-col overflow-hidden">
-      
-      <!-- En-tête Modale avec Icône SVG -->
-      <div class="p-4 bg-slate-100 border-b border-slate-200 flex justify-between items-center">
-        <div class="flex items-center gap-2">
-          <svg class="w-5 h-5 text-blue-600 fill-current" viewBox="0 0 24 24">
-            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-          </svg>
-          <h3 class="font-bold text-slate-800">Statistiques & Tendances</h3>
-        </div>
-        <button onclick="closeModal('modal-stats')" class="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+    <div class="modal-content bg-white rounded-3xl w-full max-w-md h-[90vh] shadow-2xl flex flex-col overflow-hidden">
+      <div class="p-4 bg-slate-100 border-b flex justify-between items-center">
+        <h3 class="font-bold text-slate-800">Statistiques & Tendances</h3>
+        <button onclick="closeModal('modal-stats')" class="text-slate-400 font-bold text-lg">✕</button>
       </div>
 
-      <!-- Navigation par Onglets -->
-      <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-500">
-        <button onclick="switchTab('tab-timeline')" id="btn-tab-timeline" class="flex-1 py-3 text-center border-b-2 border-blue-600 text-blue-600 flex items-center justify-center gap-1">
-          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 15.69z"/></svg>
-          <span>Tendance</span>
-        </button>
-        <button onclick="switchTab('tab-averages')" id="btn-tab-averages" class="flex-1 py-3 text-center border-b-2 border-transparent flex items-center justify-center gap-1">
-          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-          <span>Moyennes</span>
-        </button>
-        <button onclick="switchTab('tab-growth-charts')" id="btn-tab-growth-charts" class="flex-1 py-3 text-center border-b-2 border-transparent flex items-center justify-center gap-1">
-          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
-          <span>Croissance</span>
-        </button>
+      <!-- Filtres Périodes (S, M, 6M, A) -->
+      <div class="flex justify-around bg-slate-50 p-2 border-b">
+        <button onclick="setStatsPeriod('S')" id="period-S" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold">Semaine</button>
+        <button onclick="setStatsPeriod('M')" id="period-M" class="px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">Mois</button>
+        <button onclick="setStatsPeriod('6M')" id="period-6M" class="px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">6 Mois</button>
+        <button onclick="setStatsPeriod('A')" id="period-A" class="px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">Année</button>
       </div>
 
-      <!-- Barre de Filtre des Catégories -->
-      <div id="stats-category-filter-bar" class="p-2 bg-slate-100 border-b border-slate-200 flex gap-1 overflow-x-auto text-[10px] font-bold">
-        <button onclick="setStatsCategoryFilter('Tous')" class="px-2.5 py-1 rounded-full bg-slate-800 text-white">Tous</button>
-        <button onclick="setStatsCategoryFilter('Sommeil')" class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800">Sommeil</button>
-        <button onclick="setStatsCategoryFilter('Repas')" class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800">Repas</button>
-        <button onclick="setStatsCategoryFilter('Couche')" class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">Couche</button>
-        <button onclick="setStatsCategoryFilter('Activités')" class="px-2.5 py-1 rounded-full bg-sky-100 text-sky-800">Activités</button>
-      </div>
-
-      <!-- Contenu Onglets -->
       <div class="flex-1 overflow-y-auto p-4 space-y-4">
-        
-        <!-- ONGLET 1 : TIMELINE -->
-        <div id="tab-timeline" class="space-y-3">
-          <div class="bg-slate-50 p-2 rounded-2xl border border-slate-200 overflow-x-auto timeline-scroll">
-            <div class="min-w-[500px]">
-              <div class="grid grid-cols-12 text-[9px] text-slate-400 font-mono border-b border-slate-200 pb-1 mb-2">
-                <span>00h</span><span>02h</span><span>04h</span><span>06h</span><span>08h</span><span>10h</span>
-                <span>12h</span><span>14h</span><span>16h</span><span>18h</span><span>20h</span><span>22h</span>
-              </div>
-              <div id="timeline-rows" class="space-y-2"></div>
-            </div>
-          </div>
+        <div class="h-64">
+          <canvas id="chart-stats-events"></canvas>
         </div>
-
-        <!-- ONGLET 2 : MOYENNES -->
-        <div id="tab-averages" class="hidden space-y-4">
-          <div class="flex justify-center gap-2">
-            <button onclick="setAveragesPeriod('S')" id="btn-period-S" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold">S</button>
-            <button onclick="setAveragesPeriod('M')" id="btn-period-M" class="px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">M</button>
-            <button onclick="setAveragesPeriod('6M')" id="btn-period-6M" class="px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">6M</button>
-            <button onclick="setAveragesPeriod('A')" id="btn-period-A" class="px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">A</button>
-          </div>
-          
-          <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl text-center">
-            <span class="text-xs font-semibold text-indigo-600 uppercase">Moyenne quotidienne</span>
-            <div id="avg-sleep-display" class="text-2xl font-bold text-indigo-900 mt-1">--</div>
-          </div>
-
-          <div class="h-48">
-            <canvas id="chart-averages"></canvas>
-          </div>
-        </div>
-
-        <!-- ONGLET 3 : CROISSANCE -->
-        <div id="tab-growth-charts" class="hidden space-y-4 relative">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-xs font-bold uppercase text-slate-400">Courbes de croissance</span>
-            <button onclick="openModal('modal-growth')" class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 shadow-md hover:bg-blue-700">
-              <span>+</span> <span>Ajouter une mesure</span>
-            </button>
-          </div>
-          <div class="h-40"><canvas id="chart-weight"></canvas></div>
-          <div class="h-40"><canvas id="chart-height"></canvas></div>
-          <div class="h-40"><canvas id="chart-head"></canvas></div>
-          <div class="h-40"><canvas id="chart-feet"></canvas></div>
-        </div>
-
       </div>
     </div>
   </div>
 
-  <!-- MODALE : RÉGLAGES, THÈME SOMBRE ET ROUE CHROMATIQUE -->
+  <!-- MODALE : RÉGLAGES, THÈME & COULEURS -->
   <div id="modal-settings" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-800">⚙️ Réglages & Personnalisation</h3>
-      
-      <!-- Interrupteur Thème Sombre -->
+    <div class="modal-content bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-800">⚙️ Personnalisation</h3>
       <div class="flex items-center justify-between p-3 bg-slate-100 rounded-2xl">
         <span class="text-xs font-bold text-slate-700">Mode Sombre</span>
-        <label class="relative inline-flex items-center cursor-pointer">
-          <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()" class="sr-only peer">
-          <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-        </label>
+        <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()" class="w-5 h-5">
       </div>
-
-      <!-- Roue Chromatique / Sélecteur dynamique -->
       <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-2">Couleur d'accentuation :</label>
-        <div class="flex items-center gap-3 bg-slate-100 p-3 rounded-2xl">
-          <input type="color" id="theme-color-picker" onchange="setCustomThemeColor(this.value)" class="w-10 h-10 rounded-xl cursor-pointer border-0 bg-transparent">
-          <span class="text-xs font-bold text-slate-700">Choisir une couleur sur-mesure</span>
-        </div>
+        <label class="block text-xs font-semibold text-slate-600 mb-2">Couleur principale :</label>
+        <input type="color" id="theme-color-picker" onchange="setCustomThemeColor(this.value)" class="w-full h-10 rounded-xl cursor-pointer">
       </div>
-
-      <div class="pt-2">
-        <button onclick="closeModal('modal-settings')" class="w-full bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Fermer</button>
-      </div>
+      <button onclick="closeModal('modal-settings')" class="w-full bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Fermer</button>
     </div>
   </div>
 
-  <!-- MODALE : GALERIE AVATAR EXTENDUE -->
+  <!-- MODALE : ICONES (1 à 21) -->
   <div id="modal-icon" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-5 w-full max-w-sm shadow-2xl space-y-3 max-h-[85vh] flex flex-col">
-      <h3 class="text-lg font-bold text-slate-800 text-center shrink-0">Choisir une photo (1 à 21)</h3>
-      <div id="avatar-grid" class="grid grid-cols-3 gap-2 overflow-y-auto p-1 flex-1">
-        <!-- Généré en JS -->
-      </div>
-      <button onclick="closeModal('modal-icon')" class="w-full bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm shrink-0">Fermer</button>
+    <div class="modal-content bg-white rounded-3xl p-5 w-full max-w-sm shadow-2xl space-y-3 max-h-[85vh] flex flex-col">
+      <h3 class="text-lg font-bold text-slate-800 text-center">Choisir une photo</h3>
+      <div id="avatar-grid" class="grid grid-cols-3 gap-2 overflow-y-auto p-1 flex-1"></div>
+      <button onclick="closeModal('modal-icon')" class="w-full bg-slate-100 font-bold py-2.5 rounded-xl text-sm">Fermer</button>
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- 5. LOGIQUE JAVASCRIPT                     -->
-  <!-- ========================================== -->
+  <!-- MODALE : CROISSANCE -->
+  <div id="modal-growth" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="modal-content bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-800">📏 Mesures de Croissance</h3>
+      <input type="number" step="0.01" id="growth-weight" placeholder="Poids (kg)" class="w-full bg-slate-100 border rounded-xl p-2.5 text-sm font-semibold">
+      <input type="number" step="0.5" id="growth-height" placeholder="Taille (cm)" class="w-full bg-slate-100 border rounded-xl p-2.5 text-sm font-semibold">
+      <div class="flex gap-2">
+        <button onclick="closeModal('modal-growth')" class="flex-1 bg-slate-100 font-bold py-2.5 rounded-xl text-sm">Annuler</button>
+        <button onclick="saveGrowth()" class="flex-1 bg-blue-600 text-white font-bold py-2.5 rounded-xl text-sm shadow">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // --- ÉTAT GLOBAL ---
+    // --- ÉTAT GLOBAL ET DONNÉES ---
     let events = JSON.parse(localStorage.getItem('baby_events')) || [];
     let growthHistory = JSON.parse(localStorage.getItem('baby_growth')) || [];
-    let customCategories = JSON.parse(localStorage.getItem('baby_custom_cats')) || [];
-    let selectedAvatar = localStorage.getItem('baby_avatar') || '👶';
-    let customHexColor = localStorage.getItem('baby_custom_hex') || '#3b82f6';
     let isDarkMode = localStorage.getItem('baby_dark_mode') === 'true';
+    let themeColor = localStorage.getItem('baby_theme_color') || '#38bdf8';
+    let selectedAvatar = localStorage.getItem('baby_avatar') || '👶';
 
-    // Listes d'activités
-    let baladesList = JSON.parse(localStorage.getItem('baby_balades_list')) || [
-      { id: 'b1', name: 'Parc du château', photo: '' },
-      { id: 'b2', name: 'Bord du lac', photo: '' }
+    // Sous-catégories dynamiques avec support Emojis ou Photos
+    let subCats = JSON.parse(localStorage.getItem('baby_subcats')) || {
+      'Activité': [
+        { name: 'Pâte à modeler', icon: '🎨' },
+        { name: 'Peinture', icon: '🖌️' }
+      ],
+      'Sorties': [
+        { name: 'Villar', icon: '🌲' },
+        { name: 'Clarée', icon: '🏔️' },
+        { name: 'Guisane', icon: '🏞️' },
+        { name: 'Piscine', icon: '🏊' }
+      ]
+    };
+
+    const mainCategories = [
+      { id: 'Sommeil', name: 'Sommeil', icon: '🛏️', modal: 'modal-sleep' },
+      { id: 'Couche', name: 'Couche', icon: '👶', modal: 'modal-diaper' },
+      { id: 'Allaitement', name: 'Allaitement', icon: '🤱', modal: 'modal-feeding' },
+      { id: 'Repas', name: 'Repas', icon: '🥣', modal: 'modal-feeding' },
+      { id: 'Activité', name: 'Activité', icon: '🎨', modal: 'modal-activities' },
+      { id: 'Sorties', name: 'Sorties', icon: '🏞️', modal: 'modal-sorties' },
+      { id: 'Autres', name: 'Autres', icon: '📝', modal: 'modal-autres' }
     ];
-    let manuellesList = JSON.parse(localStorage.getItem('baby_manuelles_list')) || [
-      { id: 'm1', name: 'Peinture au doigt', photo: '' },
-      { id: 'm2', name: 'Pâte à modeler', photo: '' }
-    ];
 
-    let timerInterval = null;
-    let timerSeconds = 0;
-    let timerStartTime = null;
+    let currentStatsPeriod = 'S';
+    let statsChartInstance = null;
+    let activeFeedingCategory = 'Allaitement';
 
-    let activeStatsFilter = 'Tous';
-    let activeAveragesPeriod = 'S';
-    let averagesChartInstance = null;
-    let growthChartsInstances = {};
-
-    // --- INITIALISATION ---
     document.addEventListener('DOMContentLoaded', () => {
-      const todayIso = new Date().toISOString().split('T')[0];
-      document.getElementById('filter-date').value = todayIso;
-      
-      setInputsDefaultDateTime();
       applyTheme();
-      setupRandomDecoration();
-
+      loadDecorations();
+      renderCarouselCards();
+      renderGlobalTimeline();
       renderAvatarGrid();
       updateAvatarDisplay();
-      renderCustomCategoryButtons();
-
-      renderActivitiesGrid();
-      renderEvents();
       renderLatestGrowth();
+      renderSubCategoriesUI();
     });
 
-    function setInputsDefaultDateTime() {
-      const now = new Date();
-      const localIso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-      ['feeding-datetime', 'diaper-datetime', 'misc-datetime'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = localIso;
+    // --- DÉCORS SÉLECTIONNÉS ALEATOIREMENT ---
+    function loadDecorations() {
+      // Choisir aléatoirement si on affiche des décors (ex: 70% de chance)
+      if (Math.random() < 0.7) {
+        const index1 = Math.floor(Math.random() * 10) + 1;
+        const imgTop = document.getElementById('decor-img-top');
+        imgTop.src = `./DECOR/DECOR${index1}.jpeg`;
+        imgTop.onerror = () => document.getElementById('decor-container-top').classList.add('hidden');
+        document.getElementById('decor-container-top').classList.remove('hidden');
+
+        const index2 = Math.floor(Math.random() * 10) + 1;
+        const imgBottom = document.getElementById('decor-img-bottom');
+        imgBottom.src = `./DECOR/DECOR${index2}.jpeg`;
+        imgBottom.onerror = () => document.getElementById('decor-container-bottom').classList.add('hidden');
+        document.getElementById('decor-container-bottom').classList.remove('hidden');
+      }
+    }
+
+    // --- RENDER CARROUSEL ---
+    function renderCarouselCards() {
+      const carousel = document.getElementById('cards-carousel');
+      carousel.innerHTML = '';
+
+      mainCategories.forEach(cat => {
+        // Obtenir le dernier événement de cette catégorie
+        const catEvts = events.filter(e => e.category === cat.id);
+        let timeAgo = "Aucun";
+        if (catEvts.length > 0) {
+          const lastEvt = catEvts[catEvts.length - 1];
+          timeAgo = getTimeAgo(new Date(lastEvt.timestampIso));
+        }
+
+        const card = document.createElement('div');
+        card.className = "min-w-[100px] bg-white rounded-3xl p-3 shadow-md border border-slate-100 flex flex-col items-center justify-between shrink-0 relative transition active:scale-95";
+        card.innerHTML = `
+          <div onclick="openCategoryHistory('${cat.id}')" class="flex flex-col items-center w-full cursor-pointer">
+            <span class="text-3xl mb-1">${cat.icon}</span>
+            <span class="text-xs font-bold text-slate-800">${cat.name}</span>
+            <span class="text-[10px] text-slate-400 font-semibold mt-1">${timeAgo}</span>
+          </div>
+          <button onclick="openAddModal('${cat.id}', '${cat.modal}')" class="mt-3 w-7 h-7 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-base shadow hover:bg-emerald-600 transition">
+            +
+          </button>
+        `;
+        carousel.appendChild(card);
       });
     }
 
-    function setupRandomDecoration() {
-      if (Math.random() > 0.5) {
-        const randomIndex = Math.floor(Math.random() * 5) + 1;
-        const imgEl = document.getElementById('random-decoration-img');
-        const container = document.getElementById('random-decoration-container');
-        imgEl.src = `./decorations/deco${randomIndex}.jpg`;
-        imgEl.onerror = () => container.classList.add('hidden');
-        container.classList.remove('hidden');
-      }
+    function getTimeAgo(date) {
+      const diffMins = Math.floor((new Date() - date) / 60000);
+      if (diffMins < 60) return `il y a ${diffMins}m`;
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return `il y a ${diffHours}h`;
+      return `il y a ${Math.floor(diffHours / 24)}j`;
     }
 
-    // --- GESTION DU THÈME & COULEURS ---
-    function applyTheme() {
-      const header = document.getElementById('header-bg');
-      header.style.backgroundColor = customHexColor;
-      document.documentElement.style.setProperty('--accent-color', customHexColor);
-      document.getElementById('theme-color-picker').value = customHexColor;
+    function openCategoryHistory(catId) {
+      const title = document.getElementById('cat-history-title');
+      const list = document.getElementById('cat-history-list');
+      title.innerText = `Historique : ${catId}`;
+      list.innerHTML = '';
 
-      const toggle = document.getElementById('dark-mode-toggle');
-      if (toggle) toggle.checked = isDarkMode;
-
-      if (isDarkMode) {
-        document.body.classList.add('dark-theme');
+      const filtered = events.filter(e => e.category === catId).sort((a,b) => new Date(b.timestampIso) - new Date(a.timestampIso));
+      if (filtered.length === 0) {
+        list.innerHTML = `<p class="text-center text-xs text-slate-400 py-4">Aucun événement enregistré.</p>`;
       } else {
-        document.body.classList.remove('dark-theme');
+        filtered.forEach(e => {
+          const dateStr = new Date(e.timestampIso).toLocaleString([], { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+          const item = document.createElement('div');
+          item.className = "p-3 rounded-2xl bg-slate-50 border flex justify-between items-center text-xs";
+          item.innerHTML = `
+            <div>
+              <span class="font-bold">${e.subType || e.category}</span>
+              <p class="text-[10px] text-slate-400">${dateStr} ${e.details ? '- ' + e.details : ''}</p>
+            </div>
+            <button onclick="deleteEvent('${e.id}')" class="text-red-400 font-bold">✕</button>
+          `;
+          list.appendChild(item);
+        });
+      }
+      openModal('modal-cat-history');
+    }
+
+    function openAddModal(catId, modalId) {
+      if (catId === 'Allaitement' || catId === 'Repas') {
+        activeFeedingCategory = catId;
+        document.getElementById('feeding-modal-title').innerText = catId;
+      }
+      openModal(modalId);
+    }
+
+    // --- RENDU EN FIL CONTINU GLOBAL ---
+    function renderGlobalTimeline() {
+      const list = document.getElementById('global-timeline');
+      list.innerHTML = '';
+
+      if (events.length === 0) {
+        list.innerHTML = `<p class="text-center text-xs text-slate-400 py-8">Aucun événement dans le journal.</p>`;
+        return;
+      }
+
+      const sorted = [...events].sort((a,b) => new Date(b.timestampIso) - new Date(a.timestampIso));
+
+      sorted.forEach(e => {
+        const dt = new Date(e.timestampIso);
+        const dateStr = dt.toLocaleDateString([], { day:'numeric', month:'long' });
+        const timeStr = dt.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+
+        const item = document.createElement('div');
+        item.className = "bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between";
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">${renderIconOrImage(e.icon)}</span>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-sm text-slate-800">${e.subType || e.category}</span>
+                <span class="text-[10px] bg-slate-100 font-semibold text-slate-500 px-2 py-0.5 rounded-full">${dateStr} à ${timeStr}</span>
+              </div>
+              ${e.details ? `<p class="text-xs text-slate-500 mt-0.5">${e.details}</p>` : ''}
+            </div>
+          </div>
+          <button onclick="deleteEvent('${e.id}')" class="text-slate-300 hover:text-red-500 font-bold p-1">✕</button>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function renderIconOrImage(val) {
+      if (val && (val.startsWith('http') || val.startsWith('./'))) {
+        return `<img src="${val}" class="w-7 h-7 object-cover rounded-full">`;
+      }
+      return val || '📝';
+    }
+
+    // --- SAISIES & SOUS-CATÉGORIES ---
+    function saveSleep() {
+      const sleepType = getSelectedCardValue('sleep-type-cards', 'Sieste');
+      const start = document.getElementById('sleep-start').value || new Date().toISOString();
+      events.push({
+        id: 'evt_' + Date.now(),
+        category: 'Sommeil',
+        icon: sleepType === 'Nuit' ? '🌙' : '😴',
+        subType: sleepType,
+        details: '',
+        timestampIso: new Date(start).toISOString()
+      });
+      saveData();
+      closeModal('modal-sleep');
+    }
+
+    function saveDiaper() {
+      const state = getSelectedCardValue('diaper-type-cards', 'Pipi');
+      events.push({
+        id: 'evt_' + Date.now(),
+        category: 'Couche',
+        icon: '👶',
+        subType: state,
+        details: '',
+        timestampIso: new Date().toISOString()
+      });
+      saveData();
+      closeModal('modal-diaper');
+    }
+
+    function saveFeeding() {
+      const details = document.getElementById('feeding-details').value;
+      events.push({
+        id: 'evt_' + Date.now(),
+        category: activeFeedingCategory,
+        icon: activeFeedingCategory === 'Allaitement' ? '🤱' : '🥣',
+        subType: activeFeedingCategory,
+        details: details,
+        timestampIso: new Date().toISOString()
+      });
+      saveData();
+      closeModal('modal-feeding');
+      document.getElementById('feeding-details').value = '';
+    }
+
+    function saveAutre() {
+      const title = document.getElementById('autre-title').value.trim();
+      const icon = document.getElementById('autre-icon').value.trim() || '📝';
+      if (!title) return;
+
+      events.push({
+        id: 'evt_' + Date.now(),
+        category: 'Autres',
+        icon: icon,
+        subType: title,
+        details: '',
+        timestampIso: new Date().toISOString()
+      });
+      saveData();
+      closeModal('modal-autres');
+      document.getElementById('autre-title').value = '';
+      document.getElementById('autre-icon').value = '';
+    }
+
+    function renderSubCategoriesUI() {
+      ['Activité', 'Sorties'].forEach(cat => {
+        const grid = document.getElementById(cat === 'Activité' ? 'activities-list-grid' : 'sorties-list-grid');
+        grid.innerHTML = '';
+        subCats[cat].forEach(sub => {
+          const btn = document.createElement('button');
+          btn.className = "border rounded-2xl p-3 text-center flex flex-col items-center bg-slate-50 hover:bg-slate-100 transition active:scale-95";
+          btn.onclick = () => {
+            events.push({
+              id: 'evt_' + Date.now(),
+              category: cat,
+              icon: sub.icon,
+              subType: sub.name,
+              details: '',
+              timestampIso: new Date().toISOString()
+            });
+            saveData();
+            closeModal(cat === 'Activité' ? 'modal-activities' : 'modal-sorties');
+          };
+          btn.innerHTML = `
+            <span class="text-2xl mb-1">${renderIconOrImage(sub.icon)}</span>
+            <span class="text-xs font-bold text-slate-800">${sub.name}</span>
+          `;
+          grid.appendChild(btn);
+        });
+      });
+    }
+
+    function addCustomSubCat(cat) {
+      const nameEl = document.getElementById(cat === 'Activité' ? 'new-act-name' : 'new-sortie-name');
+      const iconEl = document.getElementById(cat === 'Activité' ? 'new-act-icon' : 'new-sortie-icon');
+      const name = nameEl.value.trim();
+      const icon = iconEl.value.trim() || (cat === 'Activité' ? '🎨' : '🏞️');
+
+      if (name) {
+        subCats[cat].push({ name, icon });
+        localStorage.setItem('baby_subcats', JSON.stringify(subCats));
+        renderSubCategoriesUI();
+        nameEl.value = '';
+        iconEl.value = '';
       }
     }
 
-    function setCustomThemeColor(hexValue) {
-      customHexColor = hexValue;
-      localStorage.setItem('baby_custom_hex', hexValue);
-      applyTheme();
+    // --- COULEURS ET STATISTIQUES TEMPORELLES ---
+    function setStatsPeriod(period) {
+      currentStatsPeriod = period;
+      ['S', 'M', '6M', 'A'].forEach(p => {
+        document.getElementById('period-' + p).className = p === period ? "px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold" : "px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold";
+      });
+      renderStatsChart();
+    }
+
+    function getEventExactColor(evt) {
+      // Sommeil : Bleu (#0D55D1 nuit, #3879EB sieste)
+      if (evt.category === 'Sommeil') return evt.subType === 'Nuit' ? '#0D55D1' : '#3879EB';
+      
+      // Couches : Pipi=jaune, Caca=marron, Diarrhee=kaki
+      if (evt.category === 'Couche') {
+        if (evt.subType === 'Pipi') return '#f59e0b';
+        if (evt.subType === 'Caca') return '#78350f';
+        if (evt.subType === 'Diarrhée') return '#70e000';
+      }
+
+      // Repas = Rouge, Allaitement = Rose
+      if (evt.category === 'Repas') return '#ef4444';
+      if (evt.category === 'Allaitement') return '#ec4899';
+
+      // Activités = Camaïeu de vert
+      if (evt.category === 'Activité') {
+        const greenShades = ['#10b981', '#059669', '#047857', '#34d399', '#6ee7b7'];
+        const index = Math.abs(hashCode(evt.subType || 'act')) % greenShades.length;
+        return greenShades[index];
+      }
+
+      // Sorties = Camaïeu de violet
+      if (evt.category === 'Sorties') {
+        const purpleShades = ['#8b5cf6', '#7c3aed', '#6d28d9', '#a78bfa', '#c084fc'];
+        const index = Math.abs(hashCode(evt.subType || 'sor')) % purpleShades.length;
+        return purpleShades[index];
+      }
+
+      return '#94a3b8';
+    }
+
+    function hashCode(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      return hash;
+    }
+
+    function renderStatsChart() {
+      const ctx = document.getElementById('chart-stats-events').getContext('2d');
+      if (statsChartInstance) statsChartInstance.destroy();
+
+      // Regroupement des événements par type pour la période
+      const counts = {};
+      events.forEach(e => {
+        const key = e.subType || e.category;
+        counts[key] = (counts[key] || 0) + 1;
+      });
+
+      const labels = Object.keys(counts);
+      const data = Object.values(counts);
+      const bgColors = labels.map(l => {
+        const sampleEvt = events.find(e => (e.subType || e.category) === l) || { category: l };
+        return getEventExactColor(sampleEvt);
+      });
+
+      statsChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{ data: data, backgroundColor: bgColors }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+
+    // --- FONCTIONS LOGISTIQUES DU SITE ---
+    function deleteEvent(id) {
+      events = events.filter(e => e.id !== id);
+      saveData();
+    }
+
+    function saveData() {
+      localStorage.setItem('baby_events', JSON.stringify(events));
+      renderCarouselCards();
+      renderGlobalTimeline();
+    }
+
+    function selectCardOption(containerId, value) {
+      const container = document.getElementById(containerId);
+      container.querySelectorAll('.card-option').forEach(c => c.classList.remove('selected'));
+      event.currentTarget.classList.add('selected');
+      container.dataset.selectedValue = value;
+    }
+
+    function getSelectedCardValue(containerId, fallback) {
+      return document.getElementById(containerId).dataset.selectedValue || fallback;
+    }
+
+    function applyTheme() {
+      document.getElementById('header-bg').style.backgroundColor = themeColor;
+      if (isDarkMode) document.body.classList.add('dark-theme');
+      else document.body.classList.remove('dark-theme');
+      document.getElementById('dark-mode-toggle').checked = isDarkMode;
+      document.getElementById('theme-color-picker').value = themeColor;
     }
 
     function toggleDarkMode() {
@@ -669,62 +728,63 @@
       applyTheme();
     }
 
-    // --- GESTION DES CARTES DE CHOIX DANS LES MODALES ---
-    function selectCardOption(containerId, value) {
-      const container = document.getElementById(containerId);
-      const cards = container.querySelectorAll('.card-option');
-      cards.forEach(card => card.classList.remove('selected'));
-      event.currentTarget.classList.add('selected');
-      container.dataset.selectedValue = value;
+    function setCustomThemeColor(hex) {
+      themeColor = hex;
+      localStorage.setItem('baby_theme_color', hex);
+      applyTheme();
     }
 
-    function getSelectedCardValue(containerId, fallback) {
-      const container = document.getElementById(containerId);
-      return container.dataset.selectedValue || fallback;
-    }
-
-    // --- GALERIE AVATAR EXTENDUE ---
     function renderAvatarGrid() {
       const grid = document.getElementById('avatar-grid');
       grid.innerHTML = '';
       for (let i = 1; i <= 21; i++) {
         const btn = document.createElement('button');
-        btn.className = "w-full aspect-square rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden relative active:scale-95 transition shadow-sm";
-        btn.onclick = () => selectAvatar(`icon${i}.jpeg`);
-        const img = document.createElement('img');
-        img.src = `icon${i}.jpeg`;
-        img.className = "w-full h-full object-cover";
-        img.onerror = () => {
-          btn.innerHTML = `<span class="text-xs text-slate-400 font-bold">Icon ${i}</span>`;
+        btn.className = "aspect-square rounded-2xl bg-slate-100 overflow-hidden border border-slate-200 active:scale-95 transition";
+        btn.onclick = () => {
+          selectedAvatar = `icon${i}.jpeg`;
+          localStorage.setItem('baby_avatar', selectedAvatar);
+          updateAvatarDisplay();
+          closeModal('modal-icon');
         };
-        btn.appendChild(img);
+        btn.innerHTML = `<img src="icon${i}.jpeg" class="w-full h-full object-cover" onerror="this.parentElement.innerText='${i}'">`;
         grid.appendChild(btn);
       }
     }
 
-    function selectAvatar(avatarPath) {
-      selectedAvatar = avatarPath;
-      localStorage.setItem('baby_avatar', avatarPath);
-      updateAvatarDisplay();
-      closeModal('modal-icon');
-    }
-
     function updateAvatarDisplay() {
-      const container = document.getElementById('avatar-container');
+      const el = document.getElementById('avatar-container');
       if (selectedAvatar.includes('icon')) {
-        container.innerText = '';
-        container.style.backgroundImage = `url('${selectedAvatar}')`;
+        el.innerText = '';
+        el.style.backgroundImage = `url('${selectedAvatar}')`;
       } else {
-        container.style.backgroundImage = 'none';
-        container.innerText = selectedAvatar;
+        el.style.backgroundImage = 'none';
+        el.innerText = selectedAvatar;
       }
     }
 
-    // --- MODALES & ONGLETS ---
+    function saveGrowth() {
+      const w = parseFloat(document.getElementById('growth-weight').value);
+      const h = parseFloat(document.getElementById('growth-height').value);
+      if (w || h) {
+        growthHistory.push({ weight: w, height: h, date: new Date().toISOString() });
+        localStorage.setItem('baby_growth', JSON.stringify(growthHistory));
+        renderLatestGrowth();
+      }
+      closeModal('modal-growth');
+    }
+
+    function renderLatestGrowth() {
+      if (growthHistory.length > 0) {
+        const last = growthHistory[growthHistory.length - 1];
+        if (last.weight) document.getElementById('display-weight').innerText = `${last.weight} kg`;
+        if (last.height) document.getElementById('display-height').innerText = `${last.height} cm`;
+      }
+    }
+
     function openModal(id) {
       document.getElementById(id).classList.remove('hidden');
       document.getElementById(id).classList.add('flex');
-      if (id === 'modal-stats') renderTimeline();
+      if (id === 'modal-stats') renderStatsChart();
     }
 
     function closeModal(id) {
@@ -732,606 +792,29 @@
       document.getElementById(id).classList.remove('flex');
     }
 
-    function switchTab(tabId) {
-      ['tab-timeline', 'tab-averages', 'tab-growth-charts'].forEach(t => {
-        document.getElementById(t).classList.add('hidden');
-      });
-      document.getElementById(tabId).classList.remove('hidden');
-
-      const filterBar = document.getElementById('stats-category-filter-bar');
-      if (tabId === 'tab-growth-charts') {
-        filterBar.classList.add('hidden');
-      } else {
-        filterBar.classList.remove('hidden');
-      }
-
-      ['btn-tab-timeline', 'btn-tab-averages', 'btn-tab-growth-charts'].forEach(b => {
-        document.getElementById(b).className = "flex-1 py-3 text-center border-b-2 border-transparent text-slate-500 flex items-center justify-center gap-1";
-      });
-      document.getElementById('btn-' + tabId).className = "flex-1 py-3 text-center border-b-2 border-blue-600 text-blue-600 font-bold flex items-center justify-center gap-1";
-
-      if (tabId === 'tab-averages') updateAverages(activeAveragesPeriod);
-      if (tabId === 'tab-growth-charts') renderGrowthCharts();
-    }
-
-    function setStatsCategoryFilter(cat) {
-      activeStatsFilter = cat;
-      renderTimeline();
-      if (!document.getElementById('tab-averages').classList.contains('hidden')) {
-        updateAverages(activeAveragesPeriod);
-      }
-    }
-
-    // --- ACTIVITÉS : BALADES & MANUELLES ---
-    function switchActivityTab(tabId) {
-      document.getElementById('tab-balades').classList.add('hidden');
-      document.getElementById('tab-manuelles').classList.add('hidden');
-      document.getElementById(tabId).classList.remove('hidden');
-
-      document.getElementById('btn-tab-balades').className = "flex-1 py-2.5 text-center border-b-2 border-transparent text-slate-500";
-      document.getElementById('btn-tab-manuelles').className = "flex-1 py-2.5 text-center border-b-2 border-transparent text-slate-500";
-
-      if (tabId === 'tab-balades') {
-        document.getElementById('btn-tab-balades').className = "flex-1 py-2.5 text-center border-b-2 border-sky-600 text-sky-600 font-bold";
-      } else {
-        document.getElementById('btn-tab-manuelles').className = "flex-1 py-2.5 text-center border-b-2 border-blue-600 text-blue-600 font-bold";
-      }
-    }
-
-    function renderActivitiesGrid() {
-      const bGrid = document.getElementById('balades-grid');
-      bGrid.innerHTML = '';
-      baladesList.forEach(b => {
-        const btn = document.createElement('button');
-        btn.className = "border border-sky-200 bg-sky-50 rounded-2xl p-2.5 text-center flex flex-col items-center hover:bg-sky-100 transition active:scale-95";
-        btn.onclick = () => saveActivity('Balade', b.name);
-        btn.innerHTML = `
-          ${b.photo ? `<img src="${b.photo}" class="w-12 h-12 object-cover rounded-xl mb-1">` : `<span class="text-2xl mb-1">🥾</span>`}
-          <span class="text-xs font-bold text-sky-900">${b.name}</span>
-        `;
-        bGrid.appendChild(btn);
-      });
-
-      const mGrid = document.getElementById('manuelles-grid');
-      mGrid.innerHTML = '';
-      manuellesList.forEach(m => {
-        const btn = document.createElement('button');
-        btn.className = "border border-blue-200 bg-blue-50 rounded-2xl p-2.5 text-center flex flex-col items-center hover:bg-blue-100 transition active:scale-95";
-        btn.onclick = () => saveActivity('Activité manuelle', m.name);
-        btn.innerHTML = `
-          ${m.photo ? `<img src="${m.photo}" class="w-12 h-12 object-cover rounded-xl mb-1">` : `<span class="text-2xl mb-1">🎨</span>`}
-          <span class="text-xs font-bold text-blue-900">${m.name}</span>
-        `;
-        mGrid.appendChild(btn);
-      });
-    }
-
-    function addNewBaladeItem() {
-      const name = document.getElementById('new-balade-name').value.trim();
-      const photo = document.getElementById('new-balade-photo').value.trim();
-      if (name) {
-        baladesList.push({ id: 'b_' + Date.now(), name, photo });
-        localStorage.setItem('baby_balades_list', JSON.stringify(baladesList));
-        renderActivitiesGrid();
-        closeModal('modal-add-item-balade');
-        document.getElementById('new-balade-name').value = '';
-        document.getElementById('new-balade-photo').value = '';
-      }
-    }
-
-    function addNewManuelleItem() {
-      const name = document.getElementById('new-manuelle-name').value.trim();
-      const photo = document.getElementById('new-manuelle-photo').value.trim();
-      if (name) {
-        manuellesList.push({ id: 'm_' + Date.now(), name, photo });
-        localStorage.setItem('baby_manuelles_list', JSON.stringify(manuellesList));
-        renderActivitiesGrid();
-        closeModal('modal-add-item-manuelle');
-        document.getElementById('new-manuelle-name').value = '';
-        document.getElementById('new-manuelle-photo').value = '';
-      }
-    }
-
-    function saveActivity(subType, name) {
-      events.push({
-        id: 'evt_' + Date.now(),
-        category: 'Activités',
-        icon: subType === 'Balade' ? '🥾' : '🎨',
-        subType: subType,
-        details: name,
-        timestampIso: new Date().toISOString()
-      });
-      saveData();
-      closeModal('modal-activities');
-    }
-
-    // --- CHRONOMÈTRE (SOMMEIL) ---
-    function toggleTimer() {
-      const btn = document.getElementById('timer-btn');
-      if (!timerInterval) {
-        timerStartTime = new Date();
-        timerInterval = setInterval(() => {
-          timerSeconds++;
-          const hrs = String(Math.floor(timerSeconds / 3600)).padStart(2, '0');
-          const mins = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0');
-          const secs = String(timerSeconds % 60).padStart(2, '0');
-          document.getElementById('timer-display').innerText = `${hrs}:${mins}:${secs}`;
-        }, 1000);
-        btn.innerText = "Arrêter & Sauvegarder";
-        btn.className = "bg-red-600 text-white font-bold py-2 px-4 rounded-xl text-sm shadow hover:bg-red-700 transition";
-      } else {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        const endTime = new Date();
-        document.getElementById('sleep-start').value = timerStartTime.toISOString().slice(0, 16);
-        document.getElementById('sleep-end').value = endTime.toISOString().slice(0, 16);
-        btn.innerText = "S'est endormi";
-        btn.className = "bg-indigo-600 text-white font-bold py-2 px-4 rounded-xl text-sm shadow hover:bg-indigo-700 transition";
-      }
-    }
-
-    // --- SAISIES DE DONNÉES ---
-    function saveSleep() {
-      const sleepType = getSelectedCardValue('sleep-type-cards', 'Sieste');
-      const startVal = document.getElementById('sleep-start').value;
-      const endVal = document.getElementById('sleep-end').value;
-
-      let durationMins = 0;
-      let startIso = new Date().toISOString();
-      let endIso = null;
-
-      if (startVal && endVal) {
-        const d1 = new Date(startVal);
-        const d2 = new Date(endVal);
-        durationMins = Math.round((d2 - d1) / 60000);
-        startIso = d1.toISOString();
-        endIso = d2.toISOString();
-      } else if (timerSeconds > 0) {
-        durationMins = Math.round(timerSeconds / 60);
-        startIso = timerStartTime.toISOString();
-        endIso = new Date().toISOString();
-      }
-
-      const hrs = Math.floor(durationMins / 60);
-      const mins = durationMins % 60;
-
-      events.push({
-        id: 'evt_' + Date.now(),
-        category: 'Sommeil',
-        icon: sleepType === 'Nuit' ? '🌙' : '😴',
-        subType: sleepType,
-        details: `Durée: ${hrs}h ${mins}min`,
-        timestampIso: startIso,
-        endTimestampIso: endIso,
-        durationMinutes: durationMins
-      });
-
-      saveData();
-      closeModal('modal-sleep');
-      timerSeconds = 0;
-      document.getElementById('timer-display').innerText = "00:00:00";
-    }
-
-    function saveFeeding() {
-      const dtVal = document.getElementById('feeding-datetime').value;
-      const side = getSelectedCardValue('feeding-side-cards', 'Sein Gauche');
-      const amount = document.getElementById('feeding-amount').value;
-      
-      events.push({
-        id: 'evt_' + Date.now(),
-        category: 'Repas',
-        icon: side === 'Solides' ? '🥣' : '🤱',
-        subType: side,
-        details: amount,
-        timestampIso: dtVal ? new Date(dtVal).toISOString() : new Date().toISOString()
-      });
-      saveData();
-      closeModal('modal-feeding');
-    }
-
-    function saveDiaper() {
-      const dtVal = document.getElementById('diaper-datetime').value;
-      const state = getSelectedCardValue('diaper-state-cards', 'Propre');
-      events.push({
-        id: 'evt_' + Date.now(),
-        category: 'Couche',
-        icon: '👶',
-        subType: 'Change',
-        details: state,
-        timestampIso: dtVal ? new Date(dtVal).toISOString() : new Date().toISOString()
-      });
-      saveData();
-      closeModal('modal-diaper');
-    }
-
-    function saveMisc() {
-      const dtVal = document.getElementById('misc-datetime').value;
-      const note = document.getElementById('misc-note').value;
-      events.push({
-        id: 'evt_' + Date.now(),
-        category: 'Divers',
-        icon: '📝',
-        subType: 'Note',
-        details: note,
-        timestampIso: dtVal ? new Date(dtVal).toISOString() : new Date().toISOString()
-      });
-      saveData();
-      closeModal('modal-misc');
-    }
-
-    function createCustomCategory() {
-      const name = document.getElementById('custom-cat-name').value.trim();
-      const icon = document.getElementById('custom-cat-icon').value.trim() || '✨';
-      if (!name) return;
-
-      customCategories.push({ id: 'cat_' + Date.now(), name, icon });
-      localStorage.setItem('baby_custom_cats', JSON.stringify(customCategories));
-
-      renderCustomCategoryButtons();
-      closeModal('modal-custom-category');
-      document.getElementById('custom-cat-name').value = '';
-      document.getElementById('custom-cat-icon').value = '';
-    }
-
-    function renderCustomCategoryButtons() {
-      const grid = document.getElementById('quick-actions-grid');
-      document.querySelectorAll('.custom-cat-btn').forEach(b => b.remove());
-
-      customCategories.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.className = "custom-cat-btn bg-purple-50 border border-purple-100 p-3.5 rounded-2xl flex flex-col items-center justify-center shadow-sm hover:bg-purple-100 transition active:scale-95";
-        btn.onclick = () => {
-          events.push({
-            id: 'evt_' + Date.now(),
-            category: cat.name,
-            icon: cat.icon,
-            subType: cat.name,
-            details: '',
-            timestampIso: new Date().toISOString()
-          });
-          saveData();
-        };
-        btn.innerHTML = `
-          <span class="text-2xl mb-1">${cat.icon}</span>
-          <span class="text-xs font-bold text-purple-900">${cat.name}</span>
-        `;
-        grid.insertBefore(btn, grid.lastElementChild);
-      });
-    }
-
-    function saveGrowth() {
-      const w = parseFloat(document.getElementById('growth-weight').value);
-      const h = parseFloat(document.getElementById('growth-height').value);
-      const head = parseFloat(document.getElementById('growth-head').value);
-      const f = parseFloat(document.getElementById('growth-feet').value);
-
-      if (w || h || head || f) {
-        growthHistory.push({
-          id: 'growth_' + Date.now(),
-          weight: w || null,
-          height: h || null,
-          head: head || null,
-          feet: f || null,
-          dateIso: new Date().toISOString()
-        });
-        localStorage.setItem('baby_growth', JSON.stringify(growthHistory));
-        renderLatestGrowth();
-      }
-      closeModal('modal-growth');
-    }
-
-    function deleteEvent(id) {
-      events = events.filter(e => e.id !== id);
-      saveData();
-    }
-
-    function saveData() {
-      localStorage.setItem('baby_events', JSON.stringify(events));
-      renderEvents();
-      setInputsDefaultDateTime();
-    }
-
-    // --- RENDU UI DU JOURNAL AVEC CODES COULEURS EXACTS ---
-    function renderEvents() {
-      const listContainer = document.getElementById('events-list');
-      const selectedDate = document.getElementById('filter-date').value;
-      listContainer.innerHTML = '';
-
-      const filtered = events.filter(e => e.timestampIso.startsWith(selectedDate));
-
-      if (filtered.length === 0) {
-        listContainer.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs font-semibold">Aucun événement enregistré pour ce jour.</div>`;
-        return;
-      }
-
-      filtered.sort((a, b) => new Date(b.timestampIso) - new Date(a.timestampIso));
-
-      filtered.forEach(e => {
-        const time = new Date(e.timestampIso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        // Attribution dynamique des couleurs
-        let cardStyle = "bg-white border-slate-100 text-slate-800";
-
-        if (e.category === 'Couche') {
-          if (e.details.includes('Mouillée') || e.details.includes('Pipi')) {
-            cardStyle = "bg-yellow-50 border-yellow-200 text-yellow-900";
-          } else if (e.details.includes('Sale') || e.details.includes('Caca') || e.details.includes('deux')) {
-            cardStyle = "bg-amber-900/10 border-amber-800/30 text-amber-950";
-          } else if (e.details.includes('Diarrhée')) {
-            cardStyle = "bg-emerald-50 border-emerald-300 text-emerald-900";
-          }
-        } else if (e.category === 'Sommeil') {
-          if (e.subType === 'Nuit') {
-            cardStyle = "bg-indigo-900 text-white border-indigo-950";
-          } else {
-            cardStyle = "bg-indigo-100 border-indigo-200 text-indigo-900";
-          }
-        } else if (e.category === 'Repas') {
-          cardStyle = "bg-rose-50 border-rose-200 text-rose-900";
-        } else if (e.category === 'Activités') {
-          if (e.subType === 'Balade') {
-            cardStyle = "bg-sky-50 border-sky-200 text-sky-900";
-          } else {
-            cardStyle = "bg-blue-50 border-blue-200 text-blue-900";
-          }
-        }
-
-        const item = document.createElement('div');
-        item.className = `p-3 rounded-2xl border shadow-sm flex items-center justify-between ${cardStyle}`;
-        item.innerHTML = `
-          <div class="flex items-center gap-3">
-            <span class="text-2xl">${e.icon}</span>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="font-bold text-sm">${e.subType || e.category}</span>
-                <span class="text-[10px] bg-black/10 font-bold px-2 py-0.5 rounded-full">${time}</span>
-              </div>
-              ${e.details ? `<p class="text-xs opacity-80 mt-0.5">${e.details}</p>` : ''}
-            </div>
-          </div>
-          <button onclick="deleteEvent('${e.id}')" class="opacity-40 hover:opacity-100 p-1 font-bold text-sm">✕</button>
-        `;
-        listContainer.appendChild(item);
-      });
-    }
-
-    function renderLatestGrowth() {
-      if (growthHistory.length === 0) return;
-      const latest = growthHistory[growthHistory.length - 1];
-      if (latest.weight) document.getElementById('display-weight').innerText = `${latest.weight} kg`;
-      if (latest.height) document.getElementById('display-height').innerText = `${latest.height} cm`;
-      if (latest.feet) document.getElementById('display-feet').innerText = `${latest.feet} cm`;
-    }
-
-    // --- TIMELINE VISUELLE ---
-    function renderTimeline() {
-      const container = document.getElementById('timeline-rows');
-      container.innerHTML = '';
-
-      const selectedDate = document.getElementById('filter-date').value;
-      let dayEvents = events.filter(e => e.timestampIso.startsWith(selectedDate));
-
-      if (activeStatsFilter !== 'Tous') {
-        dayEvents = dayEvents.filter(e => e.category === activeStatsFilter);
-      }
-
-      if (dayEvents.length === 0) {
-        container.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center">Aucune donnée sur cette période.</div>`;
-        return;
-      }
-
-      dayEvents.forEach(e => {
-        const d = new Date(e.timestampIso);
-        const startMinutes = d.getHours() * 60 + d.getMinutes();
-        const leftPercent = (startMinutes / 1440) * 100;
-
-        let durationMins = e.durationMinutes || 30;
-        let widthPercent = (durationMins / 1440) * 100;
-        if (widthPercent < 2) widthPercent = 2;
-
-        let bgColor = "bg-slate-400";
-        if (e.category === 'Sommeil') bgColor = e.subType === 'Nuit' ? "bg-indigo-900" : "bg-indigo-400";
-        if (e.category === 'Repas') bgColor = "bg-rose-500";
-        if (e.category === 'Couche') bgColor = "bg-amber-500";
-        if (e.category === 'Activités') bgColor = e.subType === 'Balade' ? "bg-sky-500" : "bg-blue-600";
-
-        const row = document.createElement('div');
-        row.className = "relative h-6 bg-slate-100 rounded-lg w-full flex items-center";
-        row.innerHTML = `
-          <div class="absolute h-full ${bgColor} rounded-md text-[9px] text-white font-bold flex items-center px-1 truncate shadow-sm"
-               style="left: ${leftPercent}%; width: ${widthPercent}%;" title="${e.category} - ${e.details}">
-            ${e.icon}
-          </div>
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    // --- MOYENNES RÉELLES & STATISTIQUES ---
-    function setAveragesPeriod(period) {
-      activeAveragesPeriod = period;
-      ['S', 'M', '6M', 'A'].forEach(p => {
-        const btn = document.getElementById('btn-period-' + p);
-        if (p === period) {
-          btn.className = "px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold";
-        } else {
-          btn.className = "px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold";
-        }
-      });
-      updateAverages(period);
-    }
-
-    function updateAverages(period) {
-      const now = new Date();
-      let daysBack = 7;
-      if (period === 'M') daysBack = 30;
-      if (period === '6M') daysBack = 180;
-      if (period === 'A') daysBack = 365;
-
-      const startDate = new Date();
-      startDate.setDate(now.getDate() - daysBack);
-
-      const periodEvents = events.filter(e => {
-        const d = new Date(e.timestampIso);
-        const matchesCat = activeStatsFilter === 'Tous' || e.category === activeStatsFilter;
-        return d >= startDate && matchesCat;
-      });
-
-      if (periodEvents.length === 0) {
-        document.getElementById('avg-sleep-display').innerText = "0 événement / jour";
-        renderAveragesChart([], []);
-        return;
-      }
-
-      const dailyCounts = {};
-      periodEvents.forEach(e => {
-        const dayKey = e.timestampIso.split('T')[0];
-        dailyCounts[dayKey] = (dailyCounts[dayKey] || 0) + 1;
-      });
-
-      const totalEvts = Object.values(dailyCounts).reduce((a, b) => a + b, 0);
-      const daysCount = Object.keys(dailyCounts).length;
-      const avgEvts = (totalEvts / daysCount).toFixed(1);
-
-      document.getElementById('avg-sleep-display').innerText = `${avgEvts} événements / jour (${activeStatsFilter})`;
-
-      const labels = Object.keys(dailyCounts).sort();
-      const dataValues = labels.map(k => dailyCounts[k]);
-
-      renderAveragesChart(labels, dataValues);
-    }
-
-    function renderAveragesChart(labels, dataValues) {
-      const ctx = document.getElementById('chart-averages').getContext('2d');
-      if (averagesChartInstance) averagesChartInstance.destroy();
-
-      averagesChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Événements / jour',
-            data: dataValues,
-            backgroundColor: customHexColor,
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: { beginAtZero: true, ticks: { precision: 0 } }
-          }
-        }
-      });
-    }
-
-    // --- GRAPHIQUES DE CROISSANCE INITIALISÉS ---
-    function renderGrowthCharts() {
-      if (growthHistory.length === 0) return;
-
-      const sorted = [...growthHistory].sort((a, b) => new Date(a.dateIso) - new Date(b.dateIso));
-      const labels = sorted.map(g => new Date(g.dateIso).toLocaleDateString());
-
-      const metrics = [
-        { id: 'chart-weight', key: 'weight', label: 'Poids (kg)', color: '#3b82f6' },
-        { id: 'chart-height', key: 'height', label: 'Taille (cm)', color: '#10b981' },
-        { id: 'chart-head', key: 'head', label: 'Périmètre crânien (cm)', color: '#f59e0b' },
-        { id: 'chart-feet', key: 'feet', label: 'Pointure / Pieds (cm)', color: '#8b5cf6' }
-      ];
-
-      metrics.forEach(m => {
-        const ctx = document.getElementById(m.id).getContext('2d');
-        if (growthChartsInstances[m.id]) growthChartsInstances[m.id].destroy();
-
-        const values = sorted.map(g => g[m.key]);
-
-        growthChartsInstances[m.id] = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: m.label,
-              data: values,
-              borderColor: m.color,
-              backgroundColor: m.color + '22',
-              fill: true,
-              tension: 0.3,
-              pointRadius: 4
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: true } },
-            scales: { y: { beginAtZero: false } }
-          }
-        });
-      });
-    }
-
-    // --- EXPORT / IMPORT ---
     function exportJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
-        events, growth: growthHistory, customCategories, baladesList, manuellesList
-      }, null, 2));
-      const a = document.createElement('a');
-      a.href = dataStr;
-      a.download = `suivi_bebe_aime_${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
+      const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ events, growthHistory, subCats }));
+      const a = document.createElement('a'); a.href = str; a.download = `suivi_bebe_${new Date().toISOString().split('T')[0]}.json`;
       a.click();
-      a.remove();
     }
 
-    function importJSON(event) {
+    function importJSON(e) {
       const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          if (imported.events) {
-            events = imported.events;
-            localStorage.setItem('baby_events', JSON.stringify(events));
-          }
-          if (imported.growth) {
-            growthHistory = imported.growth;
-            localStorage.setItem('baby_growth', JSON.stringify(growthHistory));
-          }
-          if (imported.customCategories) {
-            customCategories = imported.customCategories;
-            localStorage.setItem('baby_custom_cats', JSON.stringify(customCategories));
-          }
-          if (imported.baladesList) {
-            baladesList = imported.baladesList;
-            localStorage.setItem('baby_balades_list', JSON.stringify(baladesList));
-          }
-          if (imported.manuellesList) {
-            manuellesList = imported.manuellesList;
-            localStorage.setItem('baby_manuelles_list', JSON.stringify(manuellesList));
-          }
-          renderCustomCategoryButtons();
-          renderActivitiesGrid();
-          renderEvents();
-          renderLatestGrowth();
-          alert("Importation réussie !");
-        } catch (err) {
-          alert("Fichier JSON invalide.");
-        }
+      reader.onload = (evt) => {
+        const imported = JSON.parse(evt.target.result);
+        if (imported.events) events = imported.events;
+        if (imported.growthHistory) growthHistory = imported.growthHistory;
+        if (imported.subCats) subCats = imported.subCats;
+        saveData();
       };
-      reader.readAsText(event.target.files[0]);
+      reader.readAsText(e.target.files[0]);
     }
 
     function exportCSV() {
-      let csvContent = "data:text/csv;charset=utf-8,ID,Categorie,Type,Details,Date_Debut,Duree_Minutes\n";
-      events.forEach(e => {
-        csvContent += `"${e.id}","${e.category}","${e.subType || ''}","${e.details || ''}","${e.timestampIso}","${e.durationMinutes || ''}"\n`;
-      });
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement('a');
-      link.href = encodedUri;
-      link.download = `suivi_bebe_aime_${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      let csv = "data:text/csv;charset=utf-8,ID,Categorie,Type,Details,Date\n";
+      events.forEach(e => { csv += `"${e.id}","${e.category}","${e.subType || ''}","${e.details || ''}","${e.timestampIso}"\n`; });
+      const a = document.createElement('a'); a.href = encodeURI(csv); a.download = `suivi_bebe_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
     }
   </script>
 </body>
