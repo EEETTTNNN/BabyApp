@@ -25,6 +25,17 @@
       scrollbar-width: none;
     }
 
+    /* Style des cartes sélectionnées */
+    .card-option {
+      transition: all 0.2s ease-in-out;
+      cursor: pointer;
+    }
+    .card-option.selected {
+      border-color: #0284c7 !important;
+      background-color: #f0f9ff !important;
+      box-shadow: 0 0 0 2px #0284c7;
+    }
+
     /* Thème Sombre dynamique complet */
     body.dark-theme {
       background-color: #0f172a !important;
@@ -47,6 +58,19 @@
     body.dark-theme .text-slate-700,
     body.dark-theme .text-slate-600 {
       color: #f1f5f9 !important;
+    }
+    body.dark-theme .text-slate-400,
+    body.dark-theme .text-slate-500 {
+      color: #94a3b8 !important;
+    }
+    body.dark-theme .border-slate-100,
+    body.dark-theme .border-slate-200 {
+      border-color: #334155 !important;
+    }
+    body.dark-theme .card-option.selected {
+      border-color: #38bdf8 !important;
+      background-color: #0c4a6e !important;
+      box-shadow: 0 0 0 2px #38bdf8;
     }
   </style>
 </head>
@@ -77,7 +101,7 @@
       v1.8.1
     </button>
 
-    <!-- Photo de Profil / Avatar (Clic direct sans crayon) -->
+    <!-- Photo de Profil / Avatar -->
     <button onclick="openModal('modal-icon')" class="mt-2 focus:outline-none">
       <div id="avatar-container" class="w-20 h-20 rounded-full bg-white/30 border-2 border-white/60 flex items-center justify-center text-4xl shadow-md overflow-hidden transition active:scale-95 bg-cover bg-center">
         👶
@@ -101,11 +125,11 @@
   </header>
 
   <!-- ========================================== -->
-  <!-- 2. CARROUSEL DE CARTES (Style UI fourni)   -->
+  <!-- 2. CARROUSEL DE CARTES                    -->
   <!-- ========================================== -->
   <div class="-mt-6 px-2 z-10">
     <div id="cards-carousel" class="flex gap-3 overflow-x-auto no-scrollbar py-2 px-2">
-      <!-- Les cartes d'événements sont générées en JavaScript -->
+      <!-- Généré dynamiquement en JS -->
     </div>
   </div>
 
@@ -118,9 +142,9 @@
       <span class="text-xs text-slate-400 font-semibold">Fil continu</span>
     </div>
 
-    <!-- Liste globale continue (tous les événements par ordre chronologique) -->
+    <!-- Liste globale continue -->
     <div id="global-timeline" class="space-y-2.5 pb-6">
-      <!-- Les événements sont injectés par JS de haut en bas -->
+      <!-- Injecté par JS -->
     </div>
 
     <!-- Pied de page -->
@@ -156,7 +180,7 @@
   <div id="modal-sleep" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="modal-content bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
       <h3 class="text-lg font-bold text-slate-800">🛏️ Sommeil</h3>
-      <div class="grid grid-cols-2 gap-2" id="sleep-type-cards">
+      <div class="grid grid-cols-2 gap-2" id="sleep-type-cards" data-selected-value="Sieste">
         <button onclick="selectCardOption('sleep-type-cards', 'Sieste')" class="card-option selected border-2 border-slate-200 rounded-2xl p-3 text-center bg-slate-50">
           <span class="text-xl block mb-1">😴</span>
           <span class="text-xs font-bold text-slate-700">Sieste</span>
@@ -185,7 +209,7 @@
   <div id="modal-diaper" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="modal-content bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
       <h3 class="text-lg font-bold text-slate-800">👶 Couches</h3>
-      <div class="grid grid-cols-3 gap-2" id="diaper-type-cards">
+      <div class="grid grid-cols-3 gap-2" id="diaper-type-cards" data-selected-value="Pipi">
         <button onclick="selectCardOption('diaper-type-cards', 'Pipi')" class="card-option selected border-2 border-slate-200 rounded-2xl p-2.5 text-center bg-yellow-50">
           <span class="text-xs font-bold text-yellow-800">Pipi 💧</span>
         </button>
@@ -215,12 +239,12 @@
     </div>
   </div>
 
-  <!-- MODALE : ACTIVITÉS (Camaïeu de vert) -->
+  <!-- MODALE : ACTIVITÉS -->
   <div id="modal-activities" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="modal-content bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
       <h3 class="text-lg font-bold text-slate-800">🎨 Activités</h3>
       <div id="activities-list-grid" class="grid grid-cols-2 gap-2 flex-1 overflow-y-auto">
-        <!-- Sous-catégories générées en JS -->
+        <!-- Généré en JS -->
       </div>
       <div class="border-t pt-3 space-y-2">
         <span class="text-xs font-bold text-slate-500">Ajouter une activité :</span>
@@ -232,12 +256,12 @@
     </div>
   </div>
 
-  <!-- MODALE : SORTIES (Camaïeu de violet) -->
+  <!-- MODALE : SORTIES -->
   <div id="modal-sorties" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="modal-content bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
       <h3 class="text-lg font-bold text-slate-800">🏞️ Sorties</h3>
       <div id="sorties-list-grid" class="grid grid-cols-2 gap-2 flex-1 overflow-y-auto">
-        <!-- Sous-catégories générées en JS -->
+        <!-- Généré en JS -->
       </div>
       <div class="border-t pt-3 space-y-2">
         <span class="text-xs font-bold text-slate-500">Ajouter une sortie :</span>
@@ -262,7 +286,7 @@
     </div>
   </div>
 
-  <!-- MODALE : STATISTIQUES ET TENDANCES TEMPORELLES -->
+  <!-- MODALE : STATISTIQUES, TENDANCES & MENSURATIONS -->
   <div id="modal-stats" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-2 z-50">
     <div class="modal-content bg-white rounded-3xl w-full max-w-md h-[90vh] shadow-2xl flex flex-col overflow-hidden">
       <div class="p-4 bg-slate-100 border-b flex justify-between items-center">
@@ -270,7 +294,7 @@
         <button onclick="closeModal('modal-stats')" class="text-slate-400 font-bold text-lg">✕</button>
       </div>
 
-      <!-- Filtres Périodes (S, M, 6M, A) -->
+      <!-- Filtres Périodes -->
       <div class="flex justify-around bg-slate-50 p-2 border-b">
         <button onclick="setStatsPeriod('S')" id="period-S" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold">Semaine</button>
         <button onclick="setStatsPeriod('M')" id="period-M" class="px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">Mois</button>
@@ -278,10 +302,51 @@
         <button onclick="setStatsPeriod('A')" id="period-A" class="px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">Année</button>
       </div>
 
-      <div class="flex-1 overflow-y-auto p-4 space-y-4">
-        <div class="h-64">
-          <canvas id="chart-stats-events"></canvas>
+      <div class="flex-1 overflow-y-auto p-4 space-y-6">
+        
+        <!-- BLOC 1 : RESUME TENDANCES / MOYENNES -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tendances & Moyennes</h4>
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="bg-blue-50 border border-blue-100 rounded-2xl p-2.5">
+              <span class="text-lg font-bold text-blue-700 block" id="trend-sleep-avg">--h</span>
+              <span class="text-[10px] text-blue-600 font-semibold">Sommeil/jour</span>
+            </div>
+            <div class="bg-amber-50 border border-amber-100 rounded-2xl p-2.5">
+              <span class="text-lg font-bold text-amber-700 block" id="trend-diaper-avg">--</span>
+              <span class="text-[10px] text-amber-600 font-semibold">Couches/jour</span>
+            </div>
+            <div class="bg-rose-50 border border-rose-100 rounded-2xl p-2.5">
+              <span class="text-lg font-bold text-rose-700 block" id="trend-feeding-avg">--</span>
+              <span class="text-[10px] text-rose-600 font-semibold">Repas/jour</span>
+            </div>
+          </div>
         </div>
+
+        <!-- BLOC 2 : MENSURATIONS ET CROISSANCE -->
+        <div class="border-t pt-4">
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Croissance & Mensurations</h4>
+          <div class="h-48 relative">
+            <canvas id="chart-stats-growth"></canvas>
+          </div>
+        </div>
+
+        <!-- BLOC 3 : RÉPARTITION DES ÉVÉNEMENTS -->
+        <div class="border-t pt-4">
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Répartition par événement</h4>
+          <div class="h-64 relative">
+            <canvas id="chart-stats-events"></canvas>
+          </div>
+        </div>
+
+        <!-- BLOC 4 : ÉVOLUTION SOMMEIL -->
+        <div class="border-t pt-4">
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Évolution Sommeil (Heures)</h4>
+          <div class="h-48 relative">
+            <canvas id="chart-stats-sleep"></canvas>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -295,14 +360,14 @@
         <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()" class="w-5 h-5">
       </div>
       <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-2">Couleur principale :</label>
+        <label class="block text-xs font-semibold text-slate-600 mb-2">Couleur principale d'en-tête :</label>
         <input type="color" id="theme-color-picker" onchange="setCustomThemeColor(this.value)" class="w-full h-10 rounded-xl cursor-pointer">
       </div>
       <button onclick="closeModal('modal-settings')" class="w-full bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm">Fermer</button>
     </div>
   </div>
 
-  <!-- MODALE : ICONES/PHOTOS (1 à 21) -->
+  <!-- MODALE : ICONES/PHOTOS -->
   <div id="modal-icon" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="modal-content bg-white rounded-3xl p-5 w-full max-w-sm shadow-2xl space-y-3 max-h-[85vh] flex flex-col">
       <h3 class="text-lg font-bold text-slate-800 text-center">Choisir une photo</h3>
@@ -360,6 +425,8 @@
 
     let currentStatsPeriod = 'S';
     let statsChartInstance = null;
+    let statsSleepChartInstance = null;
+    let statsGrowthChartInstance = null;
     let activeFeedingCategory = 'Allaitement';
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -371,26 +438,31 @@
       updateAvatarDisplay();
       renderLatestGrowth();
       renderSubCategoriesUI();
+
+      // Dates par défaut pour le sommeil
+      const now = new Date();
+      const nowIso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      const pastIso = new Date(now.getTime() - 3600000 - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      document.getElementById('sleep-start').value = pastIso;
+      document.getElementById('sleep-end').value = nowIso;
     });
 
-    // --- CHARGEMENT DES DÉCORS (1 à 10 ou aucun) ---
+    // --- CHARGEMENT DES DÉCORS ---
     function loadDecorations() {
       if (Math.random() < 0.7) {
         const index1 = Math.floor(Math.random() * 10) + 1;
         const imgTop = document.getElementById('decor-img-top');
         imgTop.src = `./DECOR/DECOR${index1}.jpeg`;
-        imgTop.onerror = () => document.getElementById('decor-container-top').classList.add('hidden');
-        document.getElementById('decor-container-top').classList.remove('hidden');
+        imgTop.onload = () => document.getElementById('decor-container-top').classList.remove('hidden');
 
         const index2 = Math.floor(Math.random() * 10) + 1;
         const imgBottom = document.getElementById('decor-img-bottom');
         imgBottom.src = `./DECOR/DECOR${index2}.jpeg`;
-        imgBottom.onerror = () => document.getElementById('decor-container-bottom').classList.add('hidden');
-        document.getElementById('decor-container-bottom').classList.remove('hidden');
+        imgBottom.onload = () => document.getElementById('decor-container-bottom').classList.remove('hidden');
       }
     }
 
-    // --- RENDER CARROUSEL ---
+    // --- RENDU CARROUSEL ---
     function renderCarouselCards() {
       const carousel = document.getElementById('cards-carousel');
       carousel.innerHTML = '';
@@ -462,13 +534,13 @@
       openModal(modalId);
     }
 
-    // --- FIL CONTINU GLOBAL SUR LA PAGE PRINCIPALE ---
+    // --- FIL CONTINU GLOBAL ---
     function renderGlobalTimeline() {
       const list = document.getElementById('global-timeline');
       list.innerHTML = '';
 
       if (events.length === 0) {
-        list.innerHTML = `<p class="text-center text-xs text-slate-400 py-8">Aucun événement dans le journal.</p>`;
+        list.innerHTML = `<p class="text-center text-xs text-slate-400 py-8">Aucun événement enregistré.</p>`;
         return;
       }
 
@@ -508,14 +580,22 @@
     // --- SAISIES & SOUS-CATÉGORIES ---
     function saveSleep() {
       const sleepType = getSelectedCardValue('sleep-type-cards', 'Sieste');
-      const start = document.getElementById('sleep-start').value || new Date().toISOString();
+      const start = document.getElementById('sleep-start').value;
+      const end = document.getElementById('sleep-end').value;
+
+      let durationHours = 0;
+      if (start && end) {
+        durationHours = (new Date(end) - new Date(start)) / 3600000;
+      }
+
       events.push({
         id: 'evt_' + Date.now(),
         category: 'Sommeil',
         icon: sleepType === 'Nuit' ? '🌙' : '😴',
         subType: sleepType,
-        details: '',
-        timestampIso: new Date(start).toISOString()
+        details: durationHours > 0 ? `${durationHours.toFixed(1)}h` : '',
+        durationHours: durationHours > 0 ? durationHours : 0,
+        timestampIso: start ? new Date(start).toISOString() : new Date().toISOString()
       });
       saveData();
       closeModal('modal-sleep');
@@ -612,7 +692,7 @@
       }
     }
 
-    // --- COULEURS DES ÉVÉNEMENTS ET HISTORIQUE DANS LES STATS ---
+    // --- CALCUL DES STATISTIQUES, TENDANCES & COULEURS ---
     function setStatsPeriod(period) {
       currentStatsPeriod = period;
       ['S', 'M', '6M', 'A'].forEach(p => {
@@ -622,34 +702,22 @@
     }
 
     function getEventExactColor(evt) {
-      // Sommeil : Bleu (#0D55D1 nuit, #3879EB sieste)
       if (evt.category === 'Sommeil') return evt.subType === 'Nuit' ? '#0D55D1' : '#3879EB';
-      
-      // Couches : Pipi=jaune, Caca=marron, Diarrhee=kaki
       if (evt.category === 'Couche') {
         if (evt.subType === 'Pipi') return '#f59e0b';
         if (evt.subType === 'Caca') return '#78350f';
         if (evt.subType === 'Diarrhée') return '#70e000';
       }
-
-      // Repas = Rouge, Allaitement = Rose
       if (evt.category === 'Repas') return '#ef4444';
       if (evt.category === 'Allaitement') return '#ec4899';
-
-      // Activités = Camaïeu de vert
       if (evt.category === 'Activité') {
         const greenShades = ['#10b981', '#059669', '#047857', '#34d399', '#6ee7b7'];
-        const index = Math.abs(hashCode(evt.subType || 'act')) % greenShades.length;
-        return greenShades[index];
+        return greenShades[Math.abs(hashCode(evt.subType || 'act')) % greenShades.length];
       }
-
-      // Sorties = Camaïeu de violet
       if (evt.category === 'Sorties') {
         const purpleShades = ['#8b5cf6', '#7c3aed', '#6d28d9', '#a78bfa', '#c084fc'];
-        const index = Math.abs(hashCode(evt.subType || 'sor')) % purpleShades.length;
-        return purpleShades[index];
+        return purpleShades[Math.abs(hashCode(evt.subType || 'sor')) % purpleShades.length];
       }
-
       return '#94a3b8';
     }
 
@@ -660,11 +728,59 @@
     }
 
     function renderStatsChart() {
-      const ctx = document.getElementById('chart-stats-events').getContext('2d');
+      // Calcul du filtre temporel
+      const now = new Date();
+      let daysLimit = 7;
+      if (currentStatsPeriod === 'M') daysLimit = 30;
+      if (currentStatsPeriod === '6M') daysLimit = 180;
+      if (currentStatsPeriod === 'A') daysLimit = 365;
+
+      const startDate = new Date(now.getTime() - (daysLimit * 86400000));
+      const filteredEvts = events.filter(e => new Date(e.timestampIso) >= startDate);
+
+      // 1. BLOC TENDANCES / MOYENNES
+      const totalSleepHours = filteredEvts.filter(e => e.category === 'Sommeil').reduce((acc, e) => acc + (e.durationHours || 0), 0);
+      const totalDiapers = filteredEvts.filter(e => e.category === 'Couche').length;
+      const totalMeals = filteredEvts.filter(e => e.category === 'Repas' || e.category === 'Allaitement').length;
+
+      document.getElementById('trend-sleep-avg').innerText = (totalSleepHours / daysLimit).toFixed(1) + 'h';
+      document.getElementById('trend-diaper-avg').innerText = (totalDiapers / daysLimit).toFixed(1);
+      document.getElementById('trend-feeding-avg').innerText = (totalMeals / daysLimit).toFixed(1);
+
+      // 2. GRAPHIQUE MENSURATIONS (CROISSANCE)
+      const ctxGrowth = document.getElementById('chart-stats-growth').getContext('2d');
+      if (statsGrowthChartInstance) statsGrowthChartInstance.destroy();
+
+      const sortedGrowth = [...growthHistory].sort((a,b) => new Date(a.date) - new Date(b.date));
+      const growthLabels = sortedGrowth.map(g => new Date(g.date).toLocaleDateString([], { day:'numeric', month:'short' }));
+      const weightData = sortedGrowth.map(g => g.weight || null);
+      const heightData = sortedGrowth.map(g => g.height || null);
+
+      statsGrowthChartInstance = new Chart(ctxGrowth, {
+        type: 'line',
+        data: {
+          labels: growthLabels,
+          datasets: [
+            { label: 'Poids (kg)', data: weightData, borderColor: '#0284c7', backgroundColor: '#0284c7', yAxisID: 'yWeight', tension: 0.2 },
+            { label: 'Taille (cm)', data: heightData, borderColor: '#10b981', backgroundColor: '#10b981', yAxisID: 'yHeight', tension: 0.2 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            yWeight: { type: 'linear', position: 'left', title: { display: true, text: 'kg' } },
+            yHeight: { type: 'linear', position: 'right', title: { display: true, text: 'cm' }, grid: { drawOnChartArea: false } }
+          }
+        }
+      });
+
+      // 3. GRAPHIQUE REPARTITION (DOUGHNUT)
+      const ctx1 = document.getElementById('chart-stats-events').getContext('2d');
       if (statsChartInstance) statsChartInstance.destroy();
 
       const counts = {};
-      events.forEach(e => {
+      filteredEvts.forEach(e => {
         const key = e.subType || e.category;
         counts[key] = (counts[key] || 0) + 1;
       });
@@ -676,7 +792,7 @@
         return getEventExactColor(sampleEvt);
       });
 
-      statsChartInstance = new Chart(ctx, {
+      statsChartInstance = new Chart(ctx1, {
         type: 'doughnut',
         data: {
           labels: labels,
@@ -686,6 +802,34 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { position: 'bottom' } }
+        }
+      });
+
+      // 4. GRAPHIQUE COURBE SOMMEIL
+      const ctx2 = document.getElementById('chart-stats-sleep').getContext('2d');
+      if (statsSleepChartInstance) statsSleepChartInstance.destroy();
+
+      const sleepEvts = filteredEvts.filter(e => e.category === 'Sommeil').sort((a,b) => new Date(a.timestampIso) - new Date(b.timestampIso));
+      const sleepLabels = sleepEvts.map(e => new Date(e.timestampIso).toLocaleDateString([], { day:'numeric', month:'short' }));
+      const sleepData = sleepEvts.map(e => e.durationHours || 1);
+
+      statsSleepChartInstance = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: sleepLabels,
+          datasets: [{
+            label: 'Durée (h)',
+            data: sleepData,
+            borderColor: '#3879EB',
+            backgroundColor: 'rgba(56, 121, 235, 0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true } }
         }
       });
     }
