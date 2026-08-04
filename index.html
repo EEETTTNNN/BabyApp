@@ -52,7 +52,7 @@
 </head>
 <body id="app-body" class="min-h-full flex flex-col max-w-md mx-auto bg-slate-50 text-slate-800 shadow-2xl relative overflow-x-hidden transition-colors duration-200">
 
-  <!-- DÉCORATION ALEATOIRE DECOR/ (1 à 10 ou rien) -->
+  <!-- DÉCORATION ALEATOIRE DECOR/ (DECOR1.jpeg à DECOR10.jpeg ou rien) -->
   <div id="decor-container-top" class="hidden absolute top-2 right-4 z-20 pointer-events-none opacity-80">
     <img id="decor-img-top" src="" alt="" class="w-12 h-12 object-contain">
   </div>
@@ -72,9 +72,9 @@
       </svg>
     </button>
 
-    <!-- Badge Version Cliquable pour Réglages (Haut Droite) -->
+    <!-- Badge Version Cliquable v1.8.1 pour Réglages (Haut Droite) -->
     <button onclick="openModal('modal-settings')" class="absolute top-4 right-4 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur-sm shadow-sm active:scale-95 transition">
-      v1.8.0
+      v1.8.1
     </button>
 
     <!-- Photo de Profil / Avatar (Clic direct sans crayon) -->
@@ -118,12 +118,12 @@
       <span class="text-xs text-slate-400 font-semibold">Fil continu</span>
     </div>
 
-    <!-- Liste globale continue -->
+    <!-- Liste globale continue (tous les événements par ordre chronologique) -->
     <div id="global-timeline" class="space-y-2.5 pb-6">
       <!-- Les événements sont injectés par JS de haut en bas -->
     </div>
 
-    <!-- Pied de page défilant -->
+    <!-- Pied de page -->
     <footer class="pt-4 pb-4 border-t border-slate-200">
       <div class="grid grid-cols-3 gap-2">
         <button onclick="exportJSON()" class="bg-white border border-slate-300 text-slate-700 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-slate-50 shadow-sm">📥 Export JSON</button>
@@ -135,10 +135,10 @@
   </main>
 
   <!-- ========================================== -->
-  <!-- 4. MODALES D'AJOUT ET HISTORIQUE PAR CATÉGORIE -->
+  <!-- 4. MODALES DE SAISIE ET HISTORIQUE DÉTAILLÉ -->
   <!-- ========================================== -->
 
-  <!-- MODALE : HISTORIQUE D'UNE CATÉGORIE SPECIFIQUE -->
+  <!-- MODALE : HISTORIQUE DE CATÉGORIE -->
   <div id="modal-cat-history" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="modal-content bg-white rounded-3xl p-5 w-full max-w-sm shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
       <div class="flex justify-between items-center border-b pb-2">
@@ -215,7 +215,7 @@
     </div>
   </div>
 
-  <!-- MODALE : ACTIVITÉS (Camaïeu Vert) -->
+  <!-- MODALE : ACTIVITÉS (Camaïeu de vert) -->
   <div id="modal-activities" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="modal-content bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
       <h3 class="text-lg font-bold text-slate-800">🎨 Activités</h3>
@@ -232,7 +232,7 @@
     </div>
   </div>
 
-  <!-- MODALE : SORTIES (Camaïeu Violet) -->
+  <!-- MODALE : SORTIES (Camaïeu de violet) -->
   <div id="modal-sorties" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="modal-content bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
       <h3 class="text-lg font-bold text-slate-800">🏞️ Sorties</h3>
@@ -302,7 +302,7 @@
     </div>
   </div>
 
-  <!-- MODALE : ICONES (1 à 21) -->
+  <!-- MODALE : ICONES/PHOTOS (1 à 21) -->
   <div id="modal-icon" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="modal-content bg-white rounded-3xl p-5 w-full max-w-sm shadow-2xl space-y-3 max-h-[85vh] flex flex-col">
       <h3 class="text-lg font-bold text-slate-800 text-center">Choisir une photo</h3>
@@ -324,15 +324,17 @@
     </div>
   </div>
 
+  <!-- ========================================== -->
+  <!-- LOGIQUE JAVASCRIPT                          -->
+  <!-- ========================================== -->
   <script>
-    // --- ÉTAT GLOBAL ET DONNÉES ---
     let events = JSON.parse(localStorage.getItem('baby_events')) || [];
     let growthHistory = JSON.parse(localStorage.getItem('baby_growth')) || [];
     let isDarkMode = localStorage.getItem('baby_dark_mode') === 'true';
     let themeColor = localStorage.getItem('baby_theme_color') || '#38bdf8';
     let selectedAvatar = localStorage.getItem('baby_avatar') || '👶';
 
-    // Sous-catégories dynamiques avec support Emojis ou Photos
+    // Sous-catégories dynamiques
     let subCats = JSON.parse(localStorage.getItem('baby_subcats')) || {
       'Activité': [
         { name: 'Pâte à modeler', icon: '🎨' },
@@ -371,9 +373,8 @@
       renderSubCategoriesUI();
     });
 
-    // --- DÉCORS SÉLECTIONNÉS ALEATOIREMENT ---
+    // --- CHARGEMENT DES DÉCORS (1 à 10 ou aucun) ---
     function loadDecorations() {
-      // Choisir aléatoirement si on affiche des décors (ex: 70% de chance)
       if (Math.random() < 0.7) {
         const index1 = Math.floor(Math.random() * 10) + 1;
         const imgTop = document.getElementById('decor-img-top');
@@ -395,7 +396,6 @@
       carousel.innerHTML = '';
 
       mainCategories.forEach(cat => {
-        // Obtenir le dernier événement de cette catégorie
         const catEvts = events.filter(e => e.category === cat.id);
         let timeAgo = "Aucun";
         if (catEvts.length > 0) {
@@ -462,7 +462,7 @@
       openModal(modalId);
     }
 
-    // --- RENDU EN FIL CONTINU GLOBAL ---
+    // --- FIL CONTINU GLOBAL SUR LA PAGE PRINCIPALE ---
     function renderGlobalTimeline() {
       const list = document.getElementById('global-timeline');
       list.innerHTML = '';
@@ -612,7 +612,7 @@
       }
     }
 
-    // --- COULEURS ET STATISTIQUES TEMPORELLES ---
+    // --- COULEURS DES ÉVÉNEMENTS ET HISTORIQUE DANS LES STATS ---
     function setStatsPeriod(period) {
       currentStatsPeriod = period;
       ['S', 'M', '6M', 'A'].forEach(p => {
@@ -663,7 +663,6 @@
       const ctx = document.getElementById('chart-stats-events').getContext('2d');
       if (statsChartInstance) statsChartInstance.destroy();
 
-      // Regroupement des événements par type pour la période
       const counts = {};
       events.forEach(e => {
         const key = e.subType || e.category;
@@ -691,7 +690,7 @@
       });
     }
 
-    // --- FONCTIONS LOGISTIQUES DU SITE ---
+    // --- FONCTIONS SYSTÈME ET DONNÉES ---
     function deleteEvent(id) {
       events = events.filter(e => e.id !== id);
       saveData();
