@@ -2,9 +2,9 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Baby Tracker PWA</title>
-    <link rel="manifest" href="data:application/json,base64,ewogICJuYW1lIjogIkJhYnkgVHJhY2tlciIsCiAgInNob3J0X25hbWUiOiAiQmFieVRyYWNrZXIiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImljb25zIjogW3sKICAgICJzcmMiOiAiaWNvbjEuanBlZyIsCiAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAidHlwZSI6ICJpbWFnZS9qcGVnIgp9XQp9">
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkJhYnkgVHJhY2tlciIsCiAgInNob3J0X25hbWUiOiAiQmFieVRyYWNrZXIiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImljb25zIjogW3sKICAgICJzcmMiOiAiaWNvbjEuanBlZyIsCiAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAidHlwZSI6ICJpbWFnZS9qcGVnIgp9XQp9">
     <link rel="icon" type="image/jpeg" href="icon1.jpeg">
     
     <style>
@@ -40,96 +40,93 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            padding-bottom: 70px;
+            padding-bottom: 80px;
         }
 
-        /* HEADER & TOP BAR */
+        /* HEADER */
         header {
             padding: 15px 20px 5px 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             position: relative;
+            z-index: 10;
         }
 
-        .header-btn {
-            background: rgba(255, 255, 255, 0.4);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            backdrop-filter: blur(5px);
-        }
-
-        .version-tag {
-            background: rgba(255, 255, 255, 0.85);
-            padding: 6px 14px;
+        .version-badge {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 16px;
             border-radius: 20px;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 0.9rem;
             color: #2c3e50;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        /* PROFILE SECTION */
+        /* PROFILE SECTION & CLOUD AVATAR */
         .profile-card {
             background: var(--card-bg);
-            border-radius: 24px;
+            border-radius: 28px;
             margin: 10px 15px;
-            padding: 20px 15px;
+            padding: 24px 15px 20px 15px;
             text-align: center;
             position: relative;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
         }
 
-        .decor-header-container {
+        .decor-header-wrapper {
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            min-height: 140px;
         }
 
-        .decor-left, .decor-right {
+        .decor-side-img {
             position: absolute;
-            width: 45px;
-            height: 45px;
+            width: 55px;
+            height: 55px;
             object-fit: cover;
-            border-radius: 50%;
+            border-radius: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             top: 50%;
             transform: translateY(-50%);
+            background: #fff;
         }
-        .decor-left { left: 15px; }
-        .decor-right { right: 15px; }
+        .decor-left { left: 10px; }
+        .decor-right { right: 10px; }
 
-        .cloud-avatar-wrapper {
-            width: 110px;
-            height: 110px;
-            background: #ffffff;
-            /* Cloud shape SVG mask */
-            clip-path: path('M 50,10 C 60,5 75,10 80,20 C 92,15 105,25 100,40 C 110,50 108,68 95,75 C 100,88 88,100 75,95 C 65,105 45,102 35,95 C 20,100 8,88 15,75 C 2,65 5,45 15,38 C 10,25 25,12 38,20 C 42,12 48,8 50,10 Z');
+        .cloud-avatar-container {
+            width: 140px;
+            height: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto;
+            position: relative;
             cursor: pointer;
-            filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.15));
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 100' fill='%23FFFFFF' filter='drop-shadow(0px 4px 6px rgba(0,0,0,0.12))'><path d='M 40 85 Q 15 85 15 60 Q 15 45 25 35 Q 25 15 50 15 Q 70 15 80 25 Q 95 10 115 25 Q 135 35 130 60 Q 135 85 105 85 Z'/></svg>");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
         }
 
         .cloud-avatar-inner {
-            width: 82px;
-            height: 82px;
+            width: 92px;
+            height: 92px;
             border-radius: 50%;
             overflow: hidden;
-            background: #E3F2FD;
+            background: #EBF5FB;
+            border: 3px solid #FFFFFF;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-top: 5px;
         }
 
         .cloud-avatar-inner img {
@@ -139,19 +136,20 @@
         }
 
         .profile-name {
-            font-size: 1.4rem;
-            font-weight: 700;
+            font-size: 1.5rem;
+            font-weight: 800;
             color: #2C3E50;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
         .profile-age {
             font-size: 0.85rem;
+            font-weight: 600;
             color: var(--text-sub);
             margin-top: 2px;
         }
 
-        /* CAROUSEL CATEGORIES */
+        /* CAROUSEL */
         .carousel-container {
             display: flex;
             overflow-x: auto;
@@ -162,139 +160,143 @@
         .carousel-container::-webkit-scrollbar { display: none; }
 
         .cat-card {
-            min-width: 95px;
+            min-width: 105px;
             background: var(--card-bg);
             border-radius: 20px;
-            padding: 12px 8px;
+            padding: 14px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
             cursor: pointer;
             flex-shrink: 0;
+            transition: transform 0.15s ease;
         }
+        .cat-card:active { transform: scale(0.96); }
 
         .cat-icon-circle {
-            width: 48px;
-            height: 48px;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             margin-bottom: 8px;
+            overflow: hidden;
+        }
+        .cat-icon-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .cat-title {
-            font-size: 0.8rem;
-            font-weight: 600;
+            font-size: 0.82rem;
+            font-weight: 700;
             color: var(--text-main);
-            margin-bottom: 4px;
-        }
-
-        .cat-subtitle {
-            font-size: 0.65rem;
-            color: var(--text-sub);
+            margin-bottom: 6px;
+            text-align: center;
         }
 
         .cat-add-btn {
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             border: none;
             color: white;
-            font-size: 1rem;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-top: 6px;
             cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         }
 
-        /* JOURNAL FEED */
-        .journal-container {
-            padding: 10px 15px;
-        }
+        /* JOURNAL */
+        .journal-container { padding: 10px 15px; }
 
         .date-divider {
             text-align: center;
             color: white;
-            font-weight: bold;
+            font-weight: 800;
             font-size: 0.9rem;
-            margin: 15px 0 10px 0;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            margin: 18px 0 10px 0;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+            letter-spacing: 0.5px;
         }
 
         .decor-inline-wrapper {
-            text-align: center;
-            margin: 10px 0;
+            display: flex;
+            justify-content: center;
+            margin: 14px 0;
         }
 
         .decor-inline-img {
-            max-width: 140px;
-            max-height: 90px;
-            border-radius: 12px;
+            max-width: 160px;
+            height: 95px;
+            border-radius: 16px;
             object-fit: cover;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+            background: #fff;
         }
 
         .event-card {
             background: var(--card-bg);
-            border-radius: 18px;
-            padding: 12px 16px;
+            border-radius: 20px;
+            padding: 14px 16px;
             margin-bottom: 10px;
             display: flex;
             align-items: center;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event-color-strip {
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 6px;
         }
 
         .event-icon-badge {
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
+            margin-left: 8px;
             margin-right: 14px;
             flex-shrink: 0;
+            overflow: hidden;
+        }
+        .event-icon-badge img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .event-details {
-            flex-grow: 1;
-        }
+        .event-details { flex-grow: 1; }
+        .event-title { font-weight: 700; font-size: 0.95rem; color: var(--text-main); }
+        .event-subtext { font-size: 0.78rem; color: var(--text-sub); margin-top: 3px; font-weight: 500; }
+        .event-time { font-size: 0.8rem; color: var(--text-sub); font-weight: 700; }
 
-        .event-title {
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: var(--text-main);
-        }
-
-        .event-subtext {
-            font-size: 0.75rem;
-            color: var(--text-sub);
-            margin-top: 2px;
-        }
-
-        .event-time {
-            font-size: 0.75rem;
-            color: var(--text-sub);
-            font-weight: 600;
-        }
-
-        /* FAB ADD BUTTON */
+        /* FAB */
         .fab-add {
             position: fixed;
-            bottom: 80px;
+            bottom: 85px;
             right: 20px;
-            width: 56px;
-            height: 56px;
+            width: 58px;
+            height: 58px;
             border-radius: 50%;
             background: #ffffff;
             border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.25);
             color: #3498DB;
-            font-size: 2rem;
+            font-size: 2.2rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -302,7 +304,7 @@
             z-index: 90;
         }
 
-        /* BOTTOM NAVBAR */
+        /* NAVBAR */
         .navbar {
             position: fixed;
             bottom: 0;
@@ -310,14 +312,14 @@
             transform: translateX(-50%);
             width: 100%;
             max-width: 480px;
-            height: 65px;
+            height: 70px;
             background: #ffffff;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            box-shadow: 0 -3px 10px rgba(0,0,0,0.08);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
             z-index: 100;
         }
 
@@ -326,303 +328,348 @@
             flex-direction: column;
             align-items: center;
             color: #95A5A6;
-            font-size: 0.7rem;
+            font-size: 0.72rem;
+            font-weight: 600;
             border: none;
             background: none;
             cursor: pointer;
             width: 25%;
         }
+        .nav-item.active { color: #3498DB; font-weight: 800; }
+        .nav-item svg { width: 24px; height: 24px; fill: currentColor; margin-bottom: 4px; }
 
-        .nav-item.active {
+        /* VIEWS */
+        .tab-view { display: none; }
+        .tab-view.active { display: block; }
+
+        /* HISTORIQUE SYNOPTIQUE / GANTT */
+        .zoom-controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 15px 0 5px 0;
+        }
+        .zoom-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.5);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: #2C3E50;
+        }
+        .zoom-btn.active {
+            background: #ffffff;
             color: #3498DB;
-            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
         }
 
-        .nav-item svg {
-            width: 22px;
-            height: 22px;
-            fill: currentColor;
-            margin-bottom: 3px;
+        .history-card {
+            background: white;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .history-date-header {
+            font-weight: 800;
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            color: #2C3E50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* VIEWS MANAGEMENT */
-        .tab-view {
-            display: none;
-        }
-        .tab-view.active {
-            display: block;
+        .timeline-track {
+            height: 24px;
+            border-radius: 12px;
+            background: #F2F4F4;
+            position: relative;
+            overflow: hidden;
+            margin-top: 6px;
         }
 
-        /* MODAL SYSTEM */
+        .timeline-block {
+            height: 100%;
+            position: absolute;
+            top: 0;
+            border-radius: 6px;
+            min-width: 6px;
+            transition: opacity 0.2s;
+        }
+        .timeline-block:hover { opacity: 0.85; }
+
+        /* TENDANCES & ANALYSE */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 10px 15px;
+            scrollbar-width: none;
+        }
+        .filter-btn {
+            padding: 6px 14px;
+            border-radius: 18px;
+            border: none;
+            background: rgba(255,255,255,0.6);
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #2C3E50;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .filter-btn.active { background: #2C3E50; color: #fff; }
+
+        .trend-card {
+            background: white;
+            border-radius: 18px;
+            padding: 16px;
+            margin: 10px 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* CROISSANCE */
+        .growth-card {
+            background: white;
+            border-radius: 20px;
+            padding: 18px;
+            margin: 12px 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .growth-card h3 {
+            font-size: 1.05rem;
+            color: #2C3E50;
+            margin-bottom: 12px;
+        }
+
+        /* MODALS */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.55);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 200;
             padding: 20px;
+            backdrop-filter: blur(4px);
         }
-        .modal-overlay.open {
-            display: flex;
-        }
+        .modal-overlay.open { display: flex; }
 
         .modal-content {
             background: #ffffff;
-            border-radius: 20px;
+            border-radius: 24px;
             width: 100%;
-            max-width: 400px;
-            max-height: 85vh;
+            max-width: 420px;
+            max-height: 88vh;
             overflow-y: auto;
-            padding: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            position: relative;
+            padding: 22px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
         }
 
         .modal-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 18px;
             color: #2C3E50;
+            text-align: center;
         }
 
         .avatar-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
+            margin-bottom: 15px;
         }
 
-        .avatar-option {
+        .avatar-card {
             width: 100%;
             aspect-ratio: 1;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid transparent;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 3px solid #ECEFF1;
             cursor: pointer;
+            background: #F8F9F9;
         }
-        .avatar-option:hover, .avatar-option.selected {
-            border-color: #3498DB;
-        }
+        .avatar-card:hover { border-color: #3498DB; }
+        .avatar-card img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* FORM CONTROLS */
-        .form-group {
-            margin-bottom: 14px;
-        }
+        .form-group { margin-bottom: 14px; }
         .form-group label {
             display: block;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-bottom: 4px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-bottom: 5px;
             color: #34495E;
         }
         .form-group input, .form-group select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #BDC3C7;
-            border-radius: 10px;
-            font-size: 0.9rem;
+            padding: 12px;
+            border: 1.5px solid #BDC3C7;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            background: #F8F9F9;
         }
 
         .btn-submit {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background: #3498DB;
             color: white;
             border: none;
-            border-radius: 10px;
-            font-weight: bold;
+            border-radius: 14px;
+            font-weight: 800;
             font-size: 0.95rem;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 8px;
+            box-shadow: 0 4px 10px rgba(52,152,219,0.3);
         }
 
-        .color-picker-ring {
+        .color-picker-input {
             width: 100%;
-            height: 40px;
+            height: 48px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
-        }
-
-        /* TIMELINE HISTORIQUE */
-        .zoom-controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 10px 0;
-        }
-        .zoom-btn {
-            padding: 6px 16px;
-            border: none;
-            border-radius: 15px;
-            background: rgba(255,255,255,0.6);
-            font-weight: bold;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-        .zoom-btn.active {
-            background: #ffffff;
-            color: #3498DB;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .timeline-bar {
-            height: 18px;
-            border-radius: 9px;
-            margin-top: 4px;
-            position: relative;
-            background: #ECF0F1;
-            overflow: hidden;
-        }
-
-        .timeline-segment {
-            height: 100%;
-            position: absolute;
-            top: 0;
-            border-radius: 4px;
-        }
-
-        /* GROWTH STYLES */
-        .growth-card {
-            background: white;
-            border-radius: 16px;
-            padding: 15px;
-            margin: 10px 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            background: transparent;
         }
     </style>
 </head>
 <body>
 
 <div id="app-container">
-    <!-- TOP HEADER -->
+    <!-- TOP BAR (VERSION STRICTEMENT INCÉMENTÉE AU CLIC POUR PARAMÈTRES) -->
     <header>
-        <button class="header-btn" onclick="openGrowthTabDirectly()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="#2C3E50"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-        </button>
-        <div class="version-tag" id="versionTag" onclick="openSettingsModal()">1.0.1</div>
+        <div class="version-badge" id="versionBadge" onclick="openSettingsModal()">
+            <span>v<span id="versionNumber">1.0.1</span></span>
+        </div>
     </header>
 
-    <!-- TAB 1: JOURNAL (HOME) -->
+    <!-- ONGLET 1 : JOURNAL (ACCUEIL) -->
     <div id="tab-journal" class="tab-view active">
-        <!-- PROFILE SECTION -->
+        <!-- PROFILE AVEC NUAGE ET IMAGE DE DECOR AUX CROIX VIOLETTES -->
         <div class="profile-card">
-            <div class="decor-header-container">
-                <img id="decorLeft" class="decor-left" src="" alt="" style="display:none;">
-                <div class="cloud-avatar-wrapper" onclick="openAvatarModal()">
+            <div class="decor-header-wrapper">
+                <img id="decorHeaderLeft" class="decor-side-img decor-left" src="" alt="" style="display:none;">
+                <div class="cloud-avatar-container" onclick="openAvatarModal()">
                     <div class="cloud-avatar-inner">
-                        <img id="profileAvatar" src="icon1.jpeg" alt="Avatar Enfant" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%233498db\'><circle cx=\'12\' cy=\'8\' r=\'4\'/><path d=\'M12 14c-6.1 0-8 4-8 4v2h16v-2s-1.9-4-8-4z\'/></svg>'">
+                        <img id="profileAvatar" src="icon1.jpeg" alt="Avatar" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%233498db\'><circle cx=\'12\' cy=\'8\' r=\'4\'/><path d=\'M12 14c-6.1 0-8 4-8 4v2h16v-2s-1.9-4-8-4z\'/></svg>'">
                     </div>
                 </div>
-                <img id="decorRight" class="decor-right" src="" alt="" style="display:none;">
+                <img id="decorHeaderRight" class="decor-side-img decor-right" src="" alt="" style="display:none;">
             </div>
-            <div class="profile-name">Aimé</div>
-            <div class="profile-age" id="profileAge">1 an, 7 mois et 5 jours</div>
+            <div class="profile-name" id="displayChildName">Aimé</div>
+            <div class="profile-age" id="displayChildAge">1 an, 7 mois et 5 jours</div>
         </div>
 
-        <!-- CAROUSEL CATEGORIES -->
+        <!-- CAROUSEL DES CATÉGORIES -->
         <div class="carousel-container" id="carouselContainer"></div>
 
-        <!-- JOURNAL FEED -->
+        <!-- FLUX DU JOURNAL -->
         <div class="journal-container" id="journalFeed"></div>
     </div>
 
-    <!-- TAB 2: HISTORIQUE -->
+    <!-- ONGLET 2 : HISTORIQUE (EX-TENDANCE RENOMMÉ) -->
     <div id="tab-historique" class="tab-view">
         <div class="zoom-controls">
-            <button class="zoom-btn active" onclick="setHistoryZoom('day')">Journées</button>
-            <button class="zoom-btn" onclick="setHistoryZoom('month')">Mois</button>
+            <button class="zoom-btn active" onclick="setHistoryZoom('day', this)">Journées</button>
+            <button class="zoom-btn" onclick="setHistoryZoom('month', this)">Mois</button>
         </div>
         <div class="journal-container" id="historiqueFeed"></div>
     </div>
 
-    <!-- TAB 3: TENDANCES -->
+    <!-- ONGLET 3 : TENDANCES (STATISTIQUES & CAMAÏEUX RÉELS) -->
     <div id="tab-tendances" class="tab-view">
-        <div class="journal-container" id="tendancesFeed"></div>
+        <div class="filter-bar" id="tendancesFilterBar"></div>
+        <div id="tendancesFeed"></div>
     </div>
 
-    <!-- TAB 4: CROISSANCE -->
+    <!-- ONGLET 4 : CROISSANCE (MENSURATIONS ISOLÉES ICI UNIQUEMENT) -->
     <div id="tab-croissance" class="tab-view">
         <div class="growth-card">
-            <h3>Saisir une mensuration</h3>
-            <div class="form-group" style="margin-top:10px;">
+            <h3>Ajouter une mensuration</h3>
+            <div class="form-group">
                 <label>Taille (cm)</label>
-                <input type="number" id="inputHeight" placeholder="ex: 78">
+                <input type="number" step="0.5" id="inputHeight" placeholder="ex: 78">
             </div>
             <div class="form-group">
                 <label>Poids (kg)</label>
                 <input type="number" step="0.1" id="inputWeight" placeholder="ex: 10.2">
             </div>
             <div class="form-group">
-                <label>Périmètre Crânien (cm)</label>
-                <input type="number" id="inputHead" placeholder="ex: 46">
+                <label>Périmètre Crânien - PC (cm)</label>
+                <input type="number" step="0.5" id="inputHead" placeholder="ex: 46">
             </div>
-            <button class="btn-submit" onclick="saveGrowthData()">Enregistrer Mensuration</button>
+            <button class="btn-submit" onclick="saveGrowthData()">Enregistrer dans Croissance</button>
         </div>
 
         <div class="growth-card">
-            <h3>Historique de Croissance</h3>
+            <h3>Historique de la Croissance</h3>
             <div id="growthHistoryList" style="margin-top: 10px;"></div>
         </div>
     </div>
 
-    <!-- FAB ADD EVENT -->
+    <!-- BOUTON D'AJOUT D'ÉVÉNEMENT -->
     <button class="fab-add" onclick="openAddEventModal()">+</button>
 
-    <!-- NAVBAR -->
+    <!-- BARRE DE NAVIGATION INFÉRIEURE -->
     <nav class="navbar">
-        <button class="nav-item active" onclick="switchTab('journal')">
+        <button class="nav-item active" onclick="switchTab('journal', this)">
             <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
             Journal
         </button>
-        <button class="nav-item" onclick="switchTab('historique')">
+        <button class="nav-item" onclick="switchTab('historique', this)">
             <svg viewBox="0 0 24 24"><path d="M13.5 8H12v6l5.2 3.1.8-1.3-4.5-2.7V8zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/></svg>
             Historique
         </button>
-        <button class="nav-item" onclick="switchTab('tendances')">
+        <button class="nav-item" onclick="switchTab('tendances', this)">
             <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
             Tendances
         </button>
-        <button class="nav-item" onclick="switchTab('croissance')">
+        <button class="nav-item" onclick="switchTab('croissance', this)">
             <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.5 2 12 2zm-1 14H9V8h2v8zm4 0h-2V11h2v5z"/></svg>
             Croissance
         </button>
     </nav>
 </div>
 
-<!-- MODAL AVATAR SELECTION -->
+<!-- MODALE CHOIX AVATAR (15 CARTES) -->
 <div class="modal-overlay" id="modalAvatar">
     <div class="modal-content">
-        <div class="modal-title">Choisir une photo de profil</div>
+        <div class="modal-title">Choisir la photo de profil</div>
         <div class="avatar-grid" id="avatarGrid"></div>
-        <button class="btn-submit" style="background:#7F8C8D; margin-top:15px;" onclick="closeModal('modalAvatar')">Fermer</button>
+        <button class="btn-submit" style="background:#95A5A6;" onclick="closeModal('modalAvatar')">Annuler</button>
     </div>
 </div>
 
-<!-- MODAL SETTINGS & COLOR WHEEL -->
+<!-- MODALE PARAMÈTRES & ROUE DE SÉLECTION DE COULEUR (MENU DU N° DE VERSION) -->
 <div class="modal-overlay" id="modalSettings">
     <div class="modal-content">
         <div class="modal-title">Paramètres & Thème</div>
         <div class="form-group">
-            <label>Couleur de fond du site</label>
-            <input type="color" id="bgColorPicker" class="color-picker-ring" value="#64B5F6" onchange="changeBackgroundColor(this.value)">
+            <label>Couleur de fond du site (Roue de sélection)</label>
+            <input type="color" id="bgColorPicker" class="color-picker-input" value="#64B5F6" onchange="changeBackgroundColor(this.value)">
         </div>
         <div class="form-group">
             <label>Prénom de l'enfant</label>
             <input type="text" id="settingChildName" value="Aimé">
         </div>
-        <button class="btn-submit" onclick="saveSettings()">Enregistrer</button>
-        <button class="btn-submit" style="background:#7F8C8D; margin-top:8px;" onclick="closeModal('modalSettings')">Fermer</button>
+        <button class="btn-submit" onclick="saveSettings()">Valider & Incrémenter Version</button>
+        <button class="btn-submit" style="background:#95A5A6;" onclick="closeModal('modalSettings')">Fermer</button>
     </div>
 </div>
 
-<!-- MODAL ADD EVENT -->
+<!-- MODALE AJOUTER ÉVÉNEMENT -->
 <div class="modal-overlay" id="modalAddEvent">
     <div class="modal-content">
-        <div class="modal-title">Ajouter un événement</div>
+        <div class="modal-title">Nouvel événement</div>
         <div class="form-group">
-            <label>Catégorie</label>
+            <label>Catégorie principale</label>
             <select id="eventCatSelect" onchange="updateSubcatDropdown()"></select>
         </div>
         <div class="form-group" id="subcatGroup" style="display:none;">
@@ -634,21 +681,25 @@
             <input type="time" id="eventTime">
         </div>
         <div class="form-group">
-            <label>Notes / Détails</label>
-            <input type="text" id="eventNotes" placeholder="Détails optionnels">
+            <label>Durée (optionnel)</label>
+            <input type="text" id="eventDuration" placeholder="ex: 1h 30min ou 15min">
         </div>
-        <button class="btn-submit" onclick="submitNewEvent()">Ajouter</button>
-        <button class="btn-submit" style="background:#27AE60; margin-top:8px;" onclick="openAddCatModal()">+ Créer Catégorie / Sous-catégorie</button>
-        <button class="btn-submit" style="background:#7F8C8D; margin-top:8px;" onclick="closeModal('modalAddEvent')">Fermer</button>
+        <div class="form-group">
+            <label>Notes / Détails</label>
+            <input type="text" id="eventNotes" placeholder="Précisions">
+        </div>
+        <button class="btn-submit" onclick="submitNewEvent()">Enregistrer</button>
+        <button class="btn-submit" style="background:#27AE60;" onclick="openAddCustomModal()">+ Créer Catégorie / Sous-catégorie</button>
+        <button class="btn-submit" style="background:#95A5A6;" onclick="closeModal('modalAddEvent')">Fermer</button>
     </div>
 </div>
 
-<!-- MODAL ADD CUSTOM CATEGORY -->
-<div class="modal-overlay" id="modalAddCat">
+<!-- MODALE CRÉATION CATÉGORIE / SOUS-CATÉGORIE EXTENSIBLE -->
+<div class="modal-overlay" id="modalAddCustom">
     <div class="modal-content">
         <div class="modal-title">Créer Catégorie / Sous-catégorie</div>
         <div class="form-group">
-            <label>Type</label>
+            <label>Type d'élément</label>
             <select id="customTypeSelect" onchange="toggleParentCatDropdown()">
                 <option value="category">Nouvelle Catégorie</option>
                 <option value="subcategory">Nouvelle Sous-catégorie</option>
@@ -660,71 +711,69 @@
         </div>
         <div class="form-group">
             <label>Nom</label>
-            <input type="text" id="customName" placeholder="Ex: Promenade, Peinture...">
+            <input type="text" id="customName" placeholder="Ex: Lecture, Jardin, Médicament...">
         </div>
         <div class="form-group">
-            <label>Couleur</label>
-            <input type="color" id="customColor" class="color-picker-ring" value="#9B59B6">
+            <label>Couleur associée</label>
+            <input type="color" id="customColor" class="color-picker-input" value="#9B59B6">
         </div>
         <div class="form-group">
-            <label>Emoji ou URL d'image</label>
+            <label>Emoji OU Nom d'image / photo</label>
             <input type="text" id="customIcon" placeholder="🎨 ou icon1.jpeg">
         </div>
-        <button class="btn-submit" onclick="submitCustomCategory()">Créer</button>
-        <button class="btn-submit" style="background:#7F8C8D; margin-top:8px;" onclick="closeModal('modalAddCat')">Fermer</button>
+        <button class="btn-submit" onclick="submitCustomCategory()">Créer l'élément</button>
+        <button class="btn-submit" style="background:#95A5A6;" onclick="closeModal('modalAddCustom')">Annuler</button>
     </div>
 </div>
 
 <script>
-    /* VERSIONING STRICT INTEGRATION */
-    let CURRENT_VERSION = "1.0.1";
+    /* GESTION DE VERSION STRICTE (1.0.1 -> 1.0.9 -> 1.1.0) */
+    let currentVersionStr = localStorage.getItem('app_version') || "1.0.1";
     
     function autoIncrementVersion() {
-        let parts = CURRENT_VERSION.split('.').map(Number);
+        let parts = currentVersionStr.split('.').map(Number);
         parts[2]++;
         if (parts[2] > 9) {
             parts[2] = 0;
             parts[1]++;
         }
-        CURRENT_VERSION = parts.join('.');
-        document.getElementById('versionTag').innerText = CURRENT_VERSION;
-        localStorage.setItem('app_version', CURRENT_VERSION);
+        currentVersionStr = parts.join('.');
+        document.getElementById('versionNumber').innerText = currentVersionStr;
+        localStorage.setItem('app_version', currentVersionStr);
     }
 
-    /* DEFAULT & STRICT COLOR CODES DATA STRUCTURE */
+    /* CODE COULEUR STRICT & STRUCTURE D'INITIALISATION */
     let defaultCategories = {
         "couches": {
-            name: "Couches",
-            color: "#F1C40F",
-            icon: "👶",
+            name: "Couches", color: "#F1C40F", icon: "👶",
             subcats: {
                 "pipi": { name: "Pipi", color: "#F1C40F", icon: "💧" },
                 "caca": { name: "Caca", color: "#8B4513", icon: "💩" },
-                "diarrhee": { name: "Diarrhée", color: "#C08081", icon: "⚠️" }
+                "diarrhee": { name: "Diarrhée", color: "#78866B", icon: "⚠️" }
             }
         },
         "sommeil": {
-            name: "Sommeil",
-            color: "#0D55D1",
-            icon: "🌙",
+            name: "Sommeil", color: "#0D55D1", icon: "🌙",
             subcats: {
                 "nuit": { name: "Nuit", color: "#0D55D1", icon: "🌌" },
                 "sieste": { name: "Sieste", color: "#3879EB", icon: "😴" }
             }
         },
         "alimentation": {
-            name: "Alimentation",
-            color: "#800020",
-            icon: "🍼",
+            name: "Alimentation", color: "#800020", icon: "🍼",
             subcats: {
                 "repas": { name: "Repas", color: "#800020", icon: "🍲" },
                 "allaitement": { name: "Allaitement", color: "#FF69B4", icon: "🤱" }
             }
         },
+        "sieste": {
+            name: "Sieste", color: "#3879EB", icon: "😴", subcats: {}
+        },
+        "repas": {
+            name: "Repas", color: "#800020", icon: "🍲", subcats: {}
+        },
         "activites": {
-            name: "Activités",
-            color: "#E67E22",
-            icon: "🎨",
+            name: "Activités", color: "#E67E22", icon: "🎨",
             subcats: {
                 "pate_a_modeler": { name: "Pâte à modeler", color: "#D35400", icon: "🏺" },
                 "peinture": { name: "Peinture", color: "#E67E22", icon: "🖌️" },
@@ -732,15 +781,13 @@
             }
         },
         "sorties": {
-            name: "Sorties",
-            color: "#27AE60",
-            icon: "🌳",
+            name: "Sorties", color: "#27AE60", icon: "🌳",
             subcats: {
                 "villar": { name: "Villar", color: "#1E8449", icon: "🏔️" },
                 "claree": { name: "Clarée", color: "#27AE60", icon: "🏞️" },
                 "guisane": { name: "Guisane", color: "#2ECC71", icon: "🌊" },
                 "mtg": { name: "MTG", color: "#52BE80", icon: "⛰️" },
-                "piscine": { name: "Piscine", color: "#A3E4D7", icon: "🏊" },
+                "piscine": { name: "Piscine", color: "#7DCEA0", icon: "🏊" },
                 "savines": { name: "Savines", color: "#117864", icon: "⛵" }
             }
         },
@@ -750,24 +797,23 @@
 
     let categoriesData = JSON.parse(localStorage.getItem('app_categories')) || defaultCategories;
     let eventsData = JSON.parse(localStorage.getItem('app_events')) || [
-        { id: 1, cat: 'sommeil', subcat: 'nuit', date: '2026-08-05', time: '21:00', duration: '10h 30min', notes: 'Bonne nuit' },
-        { id: 2, cat: 'alimentation', subcat: 'allaitement', date: '2026-08-05', time: '08:30', duration: '15min', notes: '' },
-        { id: 3, cat: 'couches', subcat: 'pipi', date: '2026-08-05', time: '08:00', duration: '', notes: 'Couche mouillée' },
-        { id: 4, cat: 'sommeil', subcat: 'sieste', date: '2026-08-04', time: '13:15', duration: '1h 30min', notes: '' },
-        { id: 5, cat: 'sorties', subcat: 'claree', date: '2026-08-01', time: '10:00', duration: '2h', notes: 'Balade' }
+        { id: 101, cat: "sommeil", subcat: "nuit", date: "2026-08-05", time: "21:00", duration: "10h 30min", notes: "Nuit paisible" },
+        { id: 102, cat: "alimentation", subcat: "allaitement", date: "2026-08-05", time: "08:30", duration: "15min", notes: "" },
+        { id: 103, cat: "couches", subcat: "pipi", date: "2026-08-05", time: "08:00", duration: "", notes: "Couche mouillée" },
+        { id: 104, cat: "sommeil", subcat: "sieste", date: "2026-08-04", time: "13:15", duration: "1h 30min", notes: "" },
+        { id: 105, cat: "sorties", subcat: "claree", date: "2026-08-02", time: "10:30", duration: "2h", notes: "Balade vallée de la Clarée" },
+        { id: 106, cat: "activites", subcat: "peinture", date: "2026-08-01", time: "16:00", duration: "45min", notes: "Atelier gouache" }
     ];
     let growthData = JSON.parse(localStorage.getItem('app_growth')) || [
-        { date: '2026-08-01', height: 78, weight: 10, head: 46 }
+        { date: "2026-08-01", height: 78, weight: 10.0, head: 46 }
     ];
 
-    let currentZoom = 'day';
+    let currentHistoryZoom = 'day';
+    let currentTrendFilter = 'all';
 
-    /* INITIALIZATION */
+    /* INITIALISATION */
     window.addEventListener('DOMContentLoaded', () => {
-        if (localStorage.getItem('app_version')) {
-            CURRENT_VERSION = localStorage.getItem('app_version');
-        }
-        document.getElementById('versionTag').innerText = CURRENT_VERSION;
+        document.getElementById('versionNumber').innerText = currentVersionStr;
 
         let savedBg = localStorage.getItem('app_bg_color') || '#64B5F6';
         document.body.style.backgroundColor = savedBg;
@@ -775,6 +821,10 @@
 
         let savedAvatar = localStorage.getItem('app_avatar') || 'icon1.jpeg';
         document.getElementById('profileAvatar').src = savedAvatar;
+
+        let savedName = localStorage.getItem('app_child_name') || 'Aimé';
+        document.getElementById('displayChildName').innerText = savedName;
+        document.getElementById('settingChildName').value = savedName;
 
         initDecorHeader();
         renderCarousel();
@@ -784,9 +834,9 @@
         renderGrowth();
     });
 
-    /* DECOR IMAGES ALGORITHM */
+    /* IMAGES DÉCORATIVES ALÉATOIRES (DECOR1.jpeg -> DECOR10.jpeg) */
     function getRandomDecor() {
-        if (Math.random() > 0.4) {
+        if (Math.random() > 0.35) {
             let num = Math.floor(Math.random() * 10) + 1;
             return `DECOR${num}.jpeg`;
         }
@@ -794,25 +844,24 @@
     }
 
     function initDecorHeader() {
-        let leftImg = getRandomDecor();
-        let rightImg = getRandomDecor();
-        
-        let dLeft = document.getElementById('decorLeft');
-        let dRight = document.getElementById('decorRight');
+        let leftSrc = getRandomDecor();
+        let rightSrc = getRandomDecor();
+        let dLeft = document.getElementById('decorHeaderLeft');
+        let dRight = document.getElementById('decorHeaderRight');
 
-        if (leftImg) {
-            dLeft.src = leftImg;
+        if (leftSrc) {
+            dLeft.src = leftSrc;
             dLeft.style.display = 'block';
-            dLeft.onerror = () => dLeft.style.display = 'none';
+            dLeft.onerror = () => { dLeft.style.display = 'none'; };
         }
-        if (rightImg) {
-            dRight.src = rightImg;
+        if (rightSrc) {
+            dRight.src = rightSrc;
             dRight.style.display = 'block';
-            dRight.onerror = () => dRight.style.display = 'none';
+            dRight.onerror = () => { dRight.style.display = 'none'; };
         }
     }
 
-    /* RENDER CAROUSEL */
+    /* RENDU CAROUSEL */
     function renderCarousel() {
         let container = document.getElementById('carouselContainer');
         container.innerHTML = '';
@@ -823,17 +872,24 @@
             card.onclick = () => openAddEventModalWithCat(key);
             card.innerHTML = `
                 <div class="cat-icon-circle" style="background:${cat.color}20; color:${cat.color};">
-                    ${cat.icon.length > 5 ? `<img src="${cat.icon}" style="width:100%;height:100%;border-radius:50%;">` : cat.icon}
+                    ${formatIconOrImage(cat.icon)}
                 </div>
                 <div class="cat-title">${cat.name}</div>
-                <div class="cat-subtitle">Récent</div>
                 <button class="cat-add-btn" style="background:${cat.color};">+</button>
             `;
             container.appendChild(card);
         });
     }
 
-    /* RENDER JOURNAL FEED */
+    function formatIconOrImage(iconValue) {
+        if (!iconValue) return '📌';
+        if (iconValue.includes('.') || iconValue.includes('/') || iconValue.startsWith('http')) {
+            return `<img src="${iconValue}" alt="">`;
+        }
+        return iconValue;
+    }
+
+    /* RENDU JOURNAL (AVEC IMAGES DECOR ENTRE LES JOURNÉES) */
     function renderJournal() {
         let feed = document.getElementById('journalFeed');
         feed.innerHTML = '';
@@ -841,7 +897,7 @@
         let grouped = groupEventsByDate(eventsData);
         let dates = Object.keys(grouped).sort().reverse();
 
-        dates.forEach((dateStr, index) => {
+        dates.forEach((dateStr, idx) => {
             let dateDiv = document.createElement('div');
             dateDiv.className = 'date-divider';
             dateDiv.innerText = formatDateFr(dateStr);
@@ -851,14 +907,14 @@
                 feed.appendChild(createEventCardElement(ev));
             });
 
-            // Random Decor image insertion between days
-            if (index < dates.length - 1) {
+            // Image DECOR aléatoire aux croix violettes entre les journées
+            if (idx < dates.length - 1) {
                 let decorSrc = getRandomDecor();
                 if (decorSrc) {
-                    let decorContainer = document.createElement('div');
-                    decorContainer.className = 'decor-inline-wrapper';
-                    decorContainer.innerHTML = `<img src="${decorSrc}" class="decor-inline-img" onerror="this.parentElement.remove()">`;
-                    feed.appendChild(decorContainer);
+                    let wrapper = document.createElement('div');
+                    wrapper.className = 'decor-inline-wrapper';
+                    wrapper.innerHTML = `<img src="${decorSrc}" class="decor-inline-img" onerror="this.parentElement.remove()">`;
+                    feed.appendChild(wrapper);
                 }
             }
         });
@@ -875,103 +931,202 @@
         let card = document.createElement('div');
         card.className = 'event-card';
         card.innerHTML = `
+            <div class="event-color-strip" style="background:${finalColor};"></div>
             <div class="event-icon-badge" style="background:${finalColor}20; color:${finalColor};">
-                ${finalIcon.length > 5 ? `<img src="${finalIcon}" style="width:100%;height:100%;border-radius:50%;">` : finalIcon}
+                ${formatIconOrImage(finalIcon)}
             </div>
             <div class="event-details">
                 <div class="event-title">${finalTitle}</div>
-                <div class="event-subtext">${ev.duration ? ev.duration + ', ' : ''}${ev.notes}</div>
+                <div class="event-subtext">${ev.duration ? '⏳ ' + ev.duration + ' — ' : ''}${ev.notes || ''}</div>
             </div>
             <div class="event-time">${ev.time}</div>
         `;
         return card;
     }
 
-    /* RENDER HISTORIQUE WITH ZOOM (DAYS / MONTHS) */
+    /* RENDU ONGLET HISTORIQUE (EX-TENDANCE, AVEC ZOOM JOUR / MOIS) */
     function renderHistorique() {
         let feed = document.getElementById('historiqueFeed');
         feed.innerHTML = '';
 
         if (eventsData.length === 0) {
-            feed.innerHTML = '<div style="text-align:center; color:white; padding:20px;">Aucune donnée enregistrée.</div>';
+            feed.innerHTML = '<div style="text-align:center;color:white;padding:25px;">Aucun événement à afficher dans l\'historique.</div>';
             return;
         }
 
-        let grouped = groupEventsByDate(eventsData);
-        let dates = Object.keys(grouped).sort().reverse();
+        if (currentHistoryZoom === 'day') {
+            let grouped = groupEventsByDate(eventsData);
+            let dates = Object.keys(grouped).sort().reverse();
 
-        dates.forEach(dateStr => {
-            let card = document.createElement('div');
-            card.className = 'growth-card';
-            card.innerHTML = `<strong>${formatDateFr(dateStr)}</strong>`;
+            dates.forEach(dateStr => {
+                let card = document.createElement('div');
+                card.className = 'history-card';
+                card.innerHTML = `<div class="history-date-header"><span>${formatDateFr(dateStr)}</span><span style="font-size:0.8rem;color:#7F8C8D;">24h</span></div>`;
 
-            let dayEvents = grouped[dateStr];
-            let timelineBar = document.createElement('div');
-            timelineBar.className = 'timeline-bar';
+                let track = document.createElement('div');
+                track.className = 'timeline-track';
 
-            dayEvents.forEach(ev => {
-                let cat = categoriesData[ev.cat] || { color: '#3498DB' };
-                let subcat = (cat.subcats && cat.subcats[ev.subcat]) ? cat.subcats[ev.subcat] : null;
-                let color = subcat ? subcat.color : cat.color;
+                grouped[dateStr].forEach(ev => {
+                    let cat = categoriesData[ev.cat] || { color: '#3498DB' };
+                    let subcat = (cat.subcats && cat.subcats[ev.subcat]) ? cat.subcats[ev.subcat] : null;
+                    let color = subcat ? subcat.color : cat.color;
 
-                let seg = document.createElement('div');
-                seg.className = 'timeline-segment';
-                let timeParts = ev.time.split(':').map(Number);
-                let leftPercent = ((timeParts[0] * 60 + timeParts[1]) / 1440) * 100;
-                seg.style.left = leftPercent + '%';
-                seg.style.width = (currentZoom === 'day' ? '8%' : '4%');
-                seg.style.backgroundColor = color;
-                timelineBar.appendChild(seg);
+                    let timeParts = ev.time.split(':').map(Number);
+                    let minutes = timeParts[0] * 60 + timeParts[1];
+                    let leftPercent = (minutes / 1440) * 100;
+
+                    let block = document.createElement('div');
+                    block.className = 'timeline-block';
+                    block.style.left = leftPercent + '%';
+                    block.style.width = '6%';
+                    block.style.backgroundColor = color;
+                    block.title = `${ev.time} - ${subcat ? subcat.name : cat.name}`;
+                    track.appendChild(block);
+                });
+
+                card.appendChild(track);
+                feed.appendChild(card);
             });
+        } else {
+            // Zoom Mois
+            let groupedMonth = eventsData.reduce((acc, ev) => {
+                let m = ev.date.substring(0, 7);
+                acc[m] = acc[m] || [];
+                acc[m].push(ev);
+                return acc;
+            }, {});
 
-            card.appendChild(timelineBar);
-            feed.appendChild(card);
-        });
+            let months = Object.keys(groupedMonth).sort().reverse();
+            months.forEach(mStr => {
+                let card = document.createElement('div');
+                card.className = 'history-card';
+                card.innerHTML = `<div class="history-date-header"><span>Mois de ${formatMonthFr(mStr)}</span><span>${groupedMonth[mStr].length} événements</span></div>`;
+                
+                let summaryDiv = document.createElement('div');
+                summaryDiv.style.display = 'flex';
+                summaryDiv.style.gap = '6px';
+                summaryDiv.style.flexWrap = 'wrap';
+                summaryDiv.style.marginTop = '10px';
+
+                groupedMonth[mStr].forEach(ev => {
+                    let cat = categoriesData[ev.cat] || { color: '#3498DB' };
+                    let subcat = (cat.subcats && cat.subcats[ev.subcat]) ? cat.subcats[ev.subcat] : null;
+                    let color = subcat ? subcat.color : cat.color;
+
+                    let dot = document.createElement('div');
+                    dot.style.width = '14px';
+                    dot.style.height = '14px';
+                    dot.style.borderRadius = '4px';
+                    dot.style.backgroundColor = color;
+                    summaryDiv.appendChild(dot);
+                });
+
+                card.appendChild(summaryDiv);
+                feed.appendChild(card);
+            });
+        }
     }
 
-    function setHistoryZoom(zoom) {
-        currentZoom = zoom;
-        document.querySelectorAll('.zoom-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
+    function setHistoryZoom(zoomType, btnElem) {
+        currentHistoryZoom = zoomType;
+        document.querySelectorAll('#tab-historique .zoom-btn').forEach(b => b.classList.remove('active'));
+        btnElem.classList.add('active');
         renderHistorique();
     }
 
-    /* RENDER TENDANCES */
+    /* RENDU ONGLET TENDANCES (CAMAÏEUX ORANGES POUR ACTIVITÉS / VERTS POUR SORTIES) */
     function renderTendances() {
+        let filterBar = document.getElementById('tendancesFilterBar');
+        filterBar.innerHTML = '';
+
+        let allBtn = document.createElement('button');
+        allBtn.className = `filter-btn ${currentTrendFilter === 'all' ? 'active' : ''}`;
+        allBtn.innerText = 'Toutes les catégories';
+        allBtn.onclick = () => { currentTrendFilter = 'all'; renderTendances(); };
+        filterBar.appendChild(allBtn);
+
+        Object.keys(categoriesData).forEach(k => {
+            let btn = document.createElement('button');
+            btn.className = `filter-btn ${currentTrendFilter === k ? 'active' : ''}`;
+            btn.innerText = categoriesData[k].name;
+            btn.onclick = () => { currentTrendFilter = k; renderTendances(); };
+            filterBar.appendChild(btn);
+        });
+
         let feed = document.getElementById('tendancesFeed');
         feed.innerHTML = '';
 
-        Object.keys(categoriesData).forEach(catKey => {
-            let cat = categoriesData[catKey];
-            let count = eventsData.filter(e => e.cat === catKey).length;
+        if (currentTrendFilter === 'all') {
+            Object.keys(categoriesData).forEach(catKey => {
+                let cat = categoriesData[catKey];
+                let count = eventsData.filter(e => e.cat === catKey).length;
 
-            let card = document.createElement('div');
-            card.className = 'growth-card';
-            card.style.display = 'flex';
-            card.style.alignItems = 'center';
-            card.style.justifySpaceBetween = 'space-between';
-            card.innerHTML = `
-                <div style="display:flex; align-items:center;">
-                    <div class="event-icon-badge" style="background:${cat.color}20; color:${cat.color}; margin-right:10px;">
-                        ${cat.icon}
+                let card = document.createElement('div');
+                card.className = 'trend-card';
+                card.innerHTML = `
+                    <div style="display:flex; align-items:center;">
+                        <div class="event-icon-badge" style="background:${cat.color}20; color:${cat.color};">
+                            ${formatIconOrImage(cat.icon)}
+                        </div>
+                        <strong style="font-size:1.05rem;color:#2C3E50;">${cat.name}</strong>
                     </div>
-                    <strong>${cat.name}</strong>
-                </div>
-                <div style="font-weight:bold; font-size:1.1rem; color:${cat.color}">${count} entrées</div>
-            `;
-            feed.appendChild(card);
-        });
+                    <div style="font-weight:800; font-size:1.2rem; color:${cat.color}">${count} <span style="font-size:0.8rem;color:#7F8C8D;">entrées</span></div>
+                `;
+                feed.appendChild(card);
+            });
+        } else {
+            // Vue détaillée filtrée (par exemple "activites" => camaïeu d'orange ou "sorties" => camaïeu de verts)
+            let cat = categoriesData[currentTrendFilter];
+            if (!cat) return;
+
+            let cardHeader = document.createElement('div');
+            cardHeader.className = 'trend-card';
+            cardHeader.innerHTML = `<strong>Détail par sous-catégorie pour : ${cat.name}</strong>`;
+            feed.appendChild(cardHeader);
+
+            if (cat.subcats && Object.keys(cat.subcats).length > 0) {
+                Object.keys(cat.subcats).forEach(subKey => {
+                    let sub = cat.subcats[subKey];
+                    let count = eventsData.filter(e => e.cat === currentTrendFilter && e.subcat === subKey).length;
+
+                    let card = document.createElement('div');
+                    card.className = 'trend-card';
+                    card.style.borderLeft = `6px solid ${sub.color}`;
+                    card.innerHTML = `
+                        <div style="display:flex; align-items:center;">
+                            <div class="event-icon-badge" style="background:${sub.color}20; color:${sub.color};">
+                                ${formatIconOrImage(sub.icon)}
+                            </div>
+                            <strong style="font-size:1rem;color:#2C3E50;">${sub.name}</strong>
+                        </div>
+                        <div style="font-weight:800; font-size:1.15rem; color:${sub.color}">${count}</div>
+                    `;
+                    feed.appendChild(card);
+                });
+            } else {
+                feed.innerHTML += `<div style="text-align:center;color:white;padding:20px;">Aucune sous-catégorie créée pour cette catégorie.</div>`;
+            }
+        }
     }
 
-    /* RENDER CROISSANCE */
+    /* RENDU ONGLET CROISSANCE (MENSURATIONS) */
     function renderGrowth() {
         let list = document.getElementById('growthHistoryList');
         list.innerHTML = '';
         growthData.forEach(g => {
             let item = document.createElement('div');
-            item.style.padding = '8px 0';
-            item.style.borderBottom = '1px solid #EEE';
-            item.innerHTML = `<strong>${formatDateFr(g.date)}</strong> : ${g.height ? g.height+' cm' : ''} ${g.weight ? ' - '+g.weight+' kg' : ''} ${g.head ? ' - PC: '+g.head+' cm' : ''}`;
+            item.style.padding = '10px 0';
+            item.style.borderBottom = '1px solid #ECEFF1';
+            item.style.display = 'flex';
+            item.style.justifyContent = 'space-between';
+            item.innerHTML = `
+                <strong style="color:#2C3E50;">${formatDateFr(g.date)}</strong>
+                <span style="font-weight:600;color:#34495E;">
+                    ${g.height ? g.height + ' cm ' : ''} 
+                    ${g.weight ? '• ' + g.weight + ' kg ' : ''}
+                    ${g.head ? '• PC: ' + g.head + ' cm' : ''}
+                </span>
+            `;
             list.appendChild(item);
         });
     }
@@ -993,37 +1148,33 @@
         }
     }
 
-    /* TAB NAVIGATION */
-    function switchTab(tabName) {
+    /* NAVIGATION PAR ONGLETS */
+    function switchTab(tabName, elem) {
         document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
         document.getElementById('tab-' + tabName).classList.add('active');
-        event.currentTarget.classList.add('active');
+        if (elem) elem.classList.add('active');
+
+        if (tabName === 'historique') renderHistorique();
+        if (tabName === 'tendances') renderTendances();
     }
 
-    function openGrowthTabDirectly() {
-        document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById('tab-croissance').classList.add('active');
-    }
-
-    /* MODAL MANAGEMENT */
+    /* GESTION DES MODALES */
     function openAvatarModal() {
         let grid = document.getElementById('avatarGrid');
         grid.innerHTML = '';
         for (let i = 1; i <= 15; i++) {
-            let img = document.createElement('img');
-            img.src = `icon${i}.jpeg`;
-            img.className = 'avatar-option';
-            img.onerror = () => { img.src = 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%233498db\'><circle cx=\'12\' cy=\'8\' r=\'4\'/><path d=\'M12 14c-6.1 0-8 4-8 4v2h16v-2s-1.9-4-8-4z\'/></svg>'; };
-            img.onclick = () => {
+            let card = document.createElement('div');
+            card.className = 'avatar-card';
+            card.innerHTML = `<img src="icon${i}.jpeg" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' viewBox=\\\'0 0 24 24\\\' fill=\\\'%233498db\\\'><circle cx=\\\'12\\\' cy=\\\'8\\\' r=\\\'4\\\'/><path d=\\\'M12 14c-6.1 0-8 4-8 4v2h16v-2s-1.9-4-8-4z\\\'/></svg>'">`;
+            card.onclick = () => {
                 document.getElementById('profileAvatar').src = `icon${i}.jpeg`;
                 localStorage.setItem('app_avatar', `icon${i}.jpeg`);
                 autoIncrementVersion();
                 closeModal('modalAvatar');
             };
-            grid.appendChild(img);
+            grid.appendChild(card);
         }
         document.getElementById('modalAvatar').classList.add('open');
     }
@@ -1040,7 +1191,8 @@
     function saveSettings() {
         let name = document.getElementById('settingChildName').value;
         if (name) {
-            document.querySelector('.profile-name').innerText = name;
+            document.getElementById('displayChildName').innerText = name;
+            localStorage.setItem('app_child_name', name);
         }
         autoIncrementVersion();
         closeModal('modalSettings');
@@ -1086,6 +1238,7 @@
         let catKey = document.getElementById('eventCatSelect').value;
         let subcatKey = document.getElementById('eventSubcatSelect').value;
         let time = document.getElementById('eventTime').value;
+        let dur = document.getElementById('eventDuration').value;
         let notes = document.getElementById('eventNotes').value;
         let today = new Date().toISOString().split('T')[0];
 
@@ -1095,6 +1248,7 @@
             subcat: subcatKey,
             date: today,
             time: time,
+            duration: dur,
             notes: notes
         });
 
@@ -1104,15 +1258,17 @@
         renderHistorique();
         renderTendances();
         closeModal('modalAddEvent');
+        document.getElementById('eventNotes').value = '';
+        document.getElementById('eventDuration').value = '';
     }
 
-    function openAddCatModal() {
+    function openAddCustomModal() {
         let select = document.getElementById('parentCatSelect');
         select.innerHTML = '';
         Object.keys(categoriesData).forEach(k => {
             select.innerHTML += `<option value="${k}">${categoriesData[k].name}</option>`;
         });
-        document.getElementById('modalAddCat').classList.add('open');
+        document.getElementById('modalAddCustom').classList.add('open');
     }
 
     function toggleParentCatDropdown() {
@@ -1125,7 +1281,7 @@
         let name = document.getElementById('customName').value;
         let color = document.getElementById('customColor').value;
         let icon = document.getElementById('customIcon').value || '📌';
-        let key = name.toLowerCase().replace(/\s+/g, '_');
+        let key = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '_');
 
         if (!name) return;
 
@@ -1140,7 +1296,8 @@
         localStorage.setItem('app_categories', JSON.stringify(categoriesData));
         autoIncrementVersion();
         renderCarousel();
-        closeModal('modalAddCat');
+        renderTendances();
+        closeModal('modalAddCustom');
         openAddEventModal();
     }
 
@@ -1148,7 +1305,7 @@
         document.getElementById(modalId).classList.remove('open');
     }
 
-    /* UTILS */
+    /* UTILITAIRES DE DATES */
     function groupEventsByDate(events) {
         return events.reduce((acc, ev) => {
             acc[ev.date] = acc[ev.date] || [];
@@ -1160,7 +1317,13 @@
     function formatDateFr(dateStr) {
         let p = dateStr.split('-');
         let months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-        return `${p[2]} ${months[parseInt(p[1])-1]}`;
+        return `${parseInt(p[2])} ${months[parseInt(p[1])-1]}`;
+    }
+
+    function formatMonthFr(monthStr) {
+        let p = monthStr.split('-');
+        let months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+        return `${months[parseInt(p[1])-1]} ${p[0]}`;
     }
 </script>
 </body>
