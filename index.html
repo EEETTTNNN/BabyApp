@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#5b9bd5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Suivi Bébé</title>
+  
+  <!-- CDN Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary-blue: #5b9bd5;
+      --bg-blue: #6cb0f3;
+      --bg-light: #f4f7fb;
+      --card-bg: #ffffff;
+      --text-dark: #2c3e50;
+      --text-muted: #8e9aaf;
+      
+      /* Pastels catégories */
+      --purple-main: #9b87f5;
+      --purple-light: #f0edff;
+      --green-main: #4cd964;
+      --green-light: #e8fafd;
+      --orange-main: #ffb347;
+      --orange-light: #fff8eb;
+      --pink-main: #ff6b81;
+      --pink-light: #ffeef0;
+      --cyan-main: #4cd3d2;
+      --cyan-light: #e8fafa;
+
+      --radius-lg: 28px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --shadow-soft: 0 8px 24px rgba(149, 157, 165, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-blue);
+      color: var(--text-dark);
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Views Framework */
+    .view {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+      width: 100%;
+    }
+    .view.active {
+      display: flex;
+    }
+
+    /* Header Profile */
+    .header-card {
+      background: var(--card-bg);
+      border-bottom-left-radius: 36px;
+      border-bottom-right-radius: 36px;
+      padding: 20px 20px 25px 20px;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      z-index: 10;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .icon-btn {
+      background: #f0f3f8;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-blue);
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+
+    .baby-profile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      background: #e3f2fd;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    .avatar-wrapper i {
+      font-size: 3rem;
+      color: var(--primary-blue);
+    }
+
+    .baby-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a2530;
+    }
+
+    .baby-age {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .baby-stats-row {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      margin-top: 15px;
+      padding-top: 12px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Quick Action Cards Carousel */
+    .quick-actions-scroll {
+      display: flex;
+      gap: 12px;
+      padding: 20px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .quick-actions-scroll::-webkit-scrollbar { display: none; }
+
+    .action-card {
+      min-width: 110px;
+      flex: 1;
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+    }
+
+    .action-card-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    .action-card.sleep .action-card-icon { background: var(--purple-light); color: var(--purple-main); }
+    .action-card.diaper .action-card-icon { background: var(--orange-light); color: var(--orange-main); }
+    .action-card.feed .action-card-icon { background: var(--green-light); color: var(--green-main); }
+
+    .action-card-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+    .action-card-time { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; }
+
+    .add-btn-mini {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .sleep .add-btn-mini { background: var(--purple-main); }
+    .diaper .add-btn-mini { background: var(--orange-main); }
+    .feed .add-btn-mini { background: var(--green-main); }
+
+    /* Feed / Timeline Section */
+    .feed-container {
+      padding: 0 20px 80px 20px;
+      flex: 1;
+    }
+
+    .date-group-header {
+      color: white;
+      text-align: center;
+      font-weight: 600;
+      margin: 15px 0 10px 0;
+      font-size: 0.95rem;
+    }
+
+    .timeline-item {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .item-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .item-details { flex: 1; }
+    .item-title { font-weight: 700; font-size: 0.95rem; }
+    .item-subtext { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* Floating Action Button */
+    .fab {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      color: var(--primary-blue);
+      border: none;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 90;
+    }
+
+    /* Modal Overlay & Sheet */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: flex-end;
+      z-index: 100;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal-sheet {
+      background: var(--card-bg);
+      width: 100%;
+      max-height: 90vh;
+      border-top-left-radius: 30px;
+      border-top-right-radius: 30px;
+      padding: 24px;
+      overflow-y: auto;
+      animation: slideUp 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-title { font-size: 1.2rem; font-weight: 700; }
+
+    /* Category Select Grid in Event Selection */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .cat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      text-align: center;
+    }
+    .cat-icon {
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; margin-bottom: 6px;
+    }
+    .cat-label { font-size: 0.75rem; color: var(--text-dark); }
+
+    /* Form Fields */
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-dark); }
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #e1e8ed;
+      background: #f8fafc;
+      font-size: 1rem;
+      outline: none;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary-blue);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    /* Timer Display */
+    .timer-display {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin: 15px 0;
+      color: var(--purple-main);
+    }
+
+    /* Stats View Styles */
+    .stats-header {
+      background: white;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #eee;
+    }
+    .stats-nav {
+      display: flex;
+      background: white;
+      border-bottom: 1px solid #eee;
+    }
+    .stats-nav-item {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+    }
+    .stats-nav-item.active {
+      color: var(--primary-blue);
+      border-bottom-color: var(--primary-blue);
+      font-weight: 700;
+    }
+
+    .sub-filter-row {
+      display: flex;
+      gap: 10px;
+      padding: 12px 20px;
+      background: white;
+      overflow-x: auto;
+    }
+    .filter-chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: #f0f3f8;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .filter-chip.active {
+      background: var(--primary-blue);
+      color: white;
+    }
+
+    .segmented-control {
+      display: flex;
+      background: #eef2f5;
+      padding: 4px;
+      border-radius: 20px;
+      margin: 15px 20px;
+    }
+    .segmented-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 8px 0;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .segmented-btn.active {
+      background: white;
+      color: var(--text-dark);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .stats-content {
+      padding: 0 20px 40px 20px;
+      background: white;
+      flex: 1;
+    }
+
+    .stat-summary-box {
+      margin-bottom: 15px;
+    }
+    .stat-main-num {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--purple-main);
+    }
+
+    /* Custom 24h Timeline Gantt */
+    .gantt-container {
+      margin-top: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .gantt-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .gantt-label {
+      width: 50px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .gantt-track {
+      flex: 1;
+      height: 20px;
+      background: #f0f3f8;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .gantt-bar {
+      position: absolute;
+      top: 0; bottom: 0;
+      border-radius: 4px;
+    }
+
+    /* Option selector pill grid */
+    .pill-selector {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .pill-option {
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 1px solid #e1e8ed;
+      background: #f8fafc;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .pill-option.active {
+      background: var(--primary-blue);
+      color: white;
+      border-color: var(--primary-blue);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MAIN TRACKER VIEW -->
+  <div id="view-tracker" class="view active">
+    <div class="header-card">
+      <div class="top-actions">
+        <button class="icon-btn" onclick="switchView('view-stats')"><i class="fa-solid fa-chart-column"></i></button>
+        <button class="icon-btn" onclick="switchView('view-settings')"><i class="fa-solid fa-gear"></i></button>
+      </div>
+      <div class="baby-profile">
+        <div class="avatar-wrapper">
+          <i class="fa-solid fa-baby"></i>
+        </div>
+        <div class="baby-name" id="disp-baby-name">Aimé</div>
+        <div class="baby-age" id="disp-baby-age">1 an, 7 mois et 5 jours</div>
+        <div class="baby-stats-row">
+          <div class="stat-item">
+            <div class="stat-value" id="disp-baby-height">--</div>
+            <div class="stat-label">Taille</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="disp-baby-weight">10 kg</div>
+            <div class="stat-label">Poids</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions Carousel -->
+    <div class="quick-actions-scroll">
+      <div class="action-card sleep">
+        <div class="action-card-icon"><i class="fa-solid fa-bed"></i></div>
+        <div class="action-card-title">Sommeil</div>
+        <div class="action-card-time" id="time-sleep">il y a 39h</div>
+        <button class="add-btn-mini" onclick="openModal('modal-sleep')"><i class="fa-solid fa-plus"></i></button>
+      </div>
+      <div class="action-card diaper">
+        <div class="action-card-icon"><i class="fa-solid fa-baby-carriage"></i></div>
+        <div class="action-card-title">Couche</div>
+        <div class="action-card-time" id="time-diaper">il y a longtemps</div>
+        <button class="add-btn-mini" onclick="openModal('modal-diaper')"><i class="fa-solid fa-plus"></i></button>
+      </div>
+      <div class="action-card feed">
+        <div class="action-card-icon"><i class="fa-solid fa-person-breastfeeding"></i></div>
+        <div class="action-card-title">Allaitement</div>
+        <div class="action-card-time" id="time-feed">il y a longtemps</div>
+        <button class="add-btn-mini" onclick="openModal('modal-feed')"><i class="fa-solid fa-plus"></i></button>
+      </div>
+    </div>
+
+    <!-- Timeline Journal Feed -->
+    <div class="feed-container" id="journal-feed">
+      <!-- Dynamic Content Generated via JS -->
+    </div>
+
+    <button class="fab" onclick="openModal('modal-select-event')"><i class="fa-solid fa-plus"></i></button>
+  </div>
+
+  <!-- STATS VIEW -->
+  <div id="view-stats" class="view">
+    <div class="stats-header">
+      <button class="icon-btn" onclick="switchView('view-tracker')"><i class="fa-solid fa-chevron-left"></i></button>
+      <h2 style="font-size: 1.1rem;">Statistiques</h2>
+      <div style="width: 44px;"></div>
+    </div>
+    
+    <div class="stats-nav">
+      <div class="stats-nav-item active" onclick="switchStatsTab('tendance')">Tendance</div>
+      <div class="stats-nav-item" onclick="switchStatsTab('tendances')">Tendances</div>
+      <div class="stats-nav-item" onclick="switchStatsTab('croissance')">Croissance</div>
+    </div>
+
+    <!-- Category filters -->
+    <div class="sub-filter-row" id="stats-cat-filters">
+      <div class="filter-chip active" onclick="setStatsCategory('sleep')"><i class="fa-solid fa-bed"></i> Sommeil</div>
+      <div class="filter-chip" onclick="setStatsCategory('feed')"><i class="fa-solid fa-bottle-droplet"></i> Repas</div>
+      <div class="filter-chip" onclick="setStatsCategory('diaper')"><i class="fa-solid fa-baby-carriage"></i> Couche</div>
+    </div>
+
+    <!-- Sub-tab Tendance (24h Activity Gantt) -->
+    <div id="tab-tendance" class="stats-content">
+      <div class="gantt-container" id="gantt-chart-container">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Sub-tab Tendances (Interactive Bar Chart) -->
+    <div id="tab-tendances" class="stats-content" style="display:none;">
+      <div class="segmented-control">
+        <button class="segmented-btn" onclick="updateChartTimeframe('J')">J</button>
+        <button class="segmented-btn" onclick="updateChartTimeframe('S')">S</button>
+        <button class="segmented-btn active" onclick="updateChartTimeframe('M')">M</button>
+        <button class="segmented-btn" onclick="updateChartTimeframe('6M')">6M</button>
+        <button class="segmented-btn" onclick="updateChartTimeframe('A')">A</button>
+      </div>
+
+      <div class="stat-summary-box">
+        <div style="font-size:0.85rem; color:var(--text-muted);" id="stat-period-title">Sommeil en août</div>
+        <div class="stat-main-num" id="stat-period-val">4 h 29 min</div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">Moyenne quotidienne</div>
+      </div>
+
+      <div style="position: relative; width:100%; height:250px;">
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Sub-tab Croissance (WHO Percentiles) -->
+    <div id="tab-croissance" class="stats-content" style="display:none;">
+      <div class="segmented-control">
+        <button class="segmented-btn active" onclick="switchGrowthMetric('weight')">Poids</button>
+        <button class="segmented-btn" onclick="switchGrowthMetric('height')">Taille</button>
+      </div>
+      <div style="position: relative; width:100%; height:280px; margin-top:20px;">
+        <canvas id="growthChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS VIEW -->
+  <div id="view-settings" class="view" style="background:white;">
+    <div class="stats-header">
+      <button class="icon-btn" onclick="switchView('view-tracker')"><i class="fa-solid fa-chevron-left"></i></button>
+      <h2 style="font-size: 1.1rem;">Paramètres</h2>
+      <div style="width: 44px;"></div>
+    </div>
+    <div style="padding: 20px;">
+      <h3 style="margin-bottom:15px;">Profil de l'enfant</h3>
+      <div class="form-group">
+        <label class="form-label">Nom</label>
+        <input type="text" id="cfg-name" class="form-control" value="Aimé">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date de naissance</label>
+        <input type="date" id="cfg-dob" class="form-control" value="2025-01-01">
+      </div>
+      <button class="btn-submit" onclick="saveSettings()">Enregistrer le profil</button>
+
+      <hr style="margin: 30px 0; border:none; border-top: 1px solid #eee;">
+
+      <h3 style="margin-bottom:15px;">Gestion des données</h3>
+      <button class="btn-submit" style="background:#2c3e50;" onclick="exportData()">Exporter les données (JSON)</button>
+      <input type="file" id="import-file" style="display:none" onchange="importData(event)">
+      <button class="btn-submit" style="background:#e74c3c; margin-top:10px;" onclick="document.getElementById('import-file').click()">Importer des données</button>
+    </div>
+  </div>
+
+  <!-- MODAL: SELECT EVENT TYPE -->
+  <div class="modal-overlay" id="modal-select-event">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title">Ajouter un événement</div>
+        <button class="icon-btn" onclick="closeModal('modal-select-event')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      
+      <div style="font-weight:600; font-size:0.85rem; margin:10px 0; color:var(--text-muted);">Alimentation</div>
+      <div class="category-grid">
+        <div class="cat-item" onclick="closeModal('modal-select-event'); openModal('modal-feed')">
+          <div class="cat-icon" style="background:var(--green-light); color:var(--green-main);"><i class="fa-solid fa-person-breastfeeding"></i></div>
+          <div class="cat-label">Allaitement</div>
+        </div>
+        <div class="cat-item" onclick="closeModal('modal-select-event'); openModal('modal-solids')">
+          <div class="cat-icon" style="background:var(--green-light); color:var(--green-main);"><i class="fa-solid fa-bowl-food"></i></div>
+          <div class="cat-label">Solides</div>
+        </div>
+      </div>
+
+      <div style="font-weight:600; font-size:0.85rem; margin:10px 0; color:var(--text-muted);">Activité</div>
+      <div class="category-grid">
+        <div class="cat-item" onclick="closeModal('modal-select-event'); openModal('modal-sleep')">
+          <div class="cat-icon" style="background:var(--purple-light); color:var(--purple-main);"><i class="fa-solid fa-bed"></i></div>
+          <div class="cat-label">Sommeil</div>
+        </div>
+        <div class="cat-item" onclick="closeModal('modal-select-event'); openModal('modal-diaper')">
+          <div class="cat-icon" style="background:var(--orange-light); color:var(--orange-main);"><i class="fa-solid fa-baby-carriage"></i></div>
+          <div class="cat-label">Couche</div>
+        </div>
+      </div>
+
+      <div style="font-weight:600; font-size:0.85rem; margin:10px 0; color:var(--text-muted);">Croissance & Santé</div>
+      <div class="category-grid">
+        <div class="cat-item" onclick="closeModal('modal-select-event'); openModal('modal-growth')">
+          <div class="cat-icon" style="background:var(--pink-light); color:var(--pink-main);"><i class="fa-solid fa-weight-scale"></i></div>
+          <div class="cat-label">Croissance</div>
+        </div>
+        <div class="cat-item" onclick="closeModal('modal-select-event'); openModal('modal-health')">
+          <div class="cat-icon" style="background:var(--cyan-light); color:var(--cyan-main);"><i class="fa-solid fa-stethoscope"></i></div>
+          <div class="cat-label">Santé</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SLEEP -->
+  <div class="modal-overlay" id="modal-sleep">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title">Suivi du Sommeil</div>
+        <button class="icon-btn" onclick="closeModal('modal-sleep')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="timer-display" id="sleep-timer">00:00:00</div>
+      <button class="btn-submit" id="btn-timer-toggle" onclick="toggleSleepTimer()" style="background:var(--purple-main); margin-bottom:20px;">S'est endormi</button>
+      
+      <form onsubmit="saveSleepEvent(event)">
+        <div class="form-group">
+          <label class="form-label">Début</label>
+          <input type="datetime-local" id="sleep-start" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fin</label>
+          <input type="datetime-local" id="sleep-end" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Commentaire</label>
+          <input type="text" id="sleep-note" class="form-control" placeholder="Remarques...">
+        </div>
+        <button type="submit" class="btn-submit">Enregistrer</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: DIAPER -->
+  <div class="modal-overlay" id="modal-diaper">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title">Changement de Couche</div>
+        <button class="icon-btn" onclick="closeModal('modal-diaper')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="saveDiaperEvent(event)">
+        <div class="form-group">
+          <label class="form-label">État de la couche</label>
+          <div class="pill-selector" id="diaper-state-selector">
+            <div class="pill-option active" data-val="Mouillée" onclick="selectPill(this)">Mouillée</div>
+            <div class="pill-option" data-val="Sale" onclick="selectPill(this)">Sale</div>
+            <div class="pill-option" data-val="Les deux" onclick="selectPill(this)">Les deux</div>
+            <div class="pill-option" data-val="Propre" onclick="selectPill(this)">Propre</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Heure</label>
+          <input type="datetime-local" id="diaper-time" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Commentaire</label>
+          <input type="text" id="diaper-note" class="form-control" placeholder="Notes...">
+        </div>
+        <button type="submit" class="btn-submit" style="background:var(--orange-main);">Enregistrer</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SOLIDS -->
+  <div class="modal-overlay" id="modal-solids">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title">Repas Solide</div>
+        <button class="icon-btn" onclick="closeModal('modal-solids')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="saveSolidsEvent(event)">
+        <div class="form-group">
+          <label class="form-label">Aliments ingérés</label>
+          <input type="text" id="solids-food" class="form-control" placeholder="ex: Purée de carottes" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Heure</label>
+          <input type="datetime-local" id="solids-time" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Commentaire</label>
+          <input type="text" id="solids-note" class="form-control">
+        </div>
+        <button type="submit" class="btn-submit" style="background:var(--green-main);">Enregistrer</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: HEALTH -->
+  <div class="modal-overlay" id="modal-health">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title">Santé & Maladie</div>
+        <button class="icon-btn" onclick="closeModal('modal-health')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="saveHealthEvent(event)">
+        <div class="form-group">
+          <label class="form-label">Symptôme / Maladie</label>
+          <select id="health-type" class="form-control">
+            <option value="Rhume">Rhume</option>
+            <option value="Toux">Toux</option>
+            <option value="Fièvre">Fièvre</option>
+            <option value="Bronchite">Bronchite</option>
+            <option value="Diarrhée">Diarrhée</option>
+            <option value="Otite">Otite</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Heure</label>
+          <input type="datetime-local" id="health-time" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Commentaire / Traitement</label>
+          <input type="text" id="health-note" class="form-control">
+        </div>
+        <button type="submit" class="btn-submit" style="background:var(--cyan-main);">Enregistrer</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: GROWTH -->
+  <div class="modal-overlay" id="modal-growth">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title">Mesures de Croissance</div>
+        <button class="icon-btn" onclick="closeModal('modal-growth')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="saveGrowthEvent(event)">
+        <div class="form-group">
+          <label class="form-label">Poids (kg)</label>
+          <input type="number" step="0.01" id="growth-weight" class="form-control" placeholder="10.0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Taille (cm)</label>
+          <input type="number" step="0.1" id="growth-height" class="form-control" placeholder="75">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Périmètre crânien (cm)</label>
+          <input type="number" step="0.1" id="growth-head" class="form-control" placeholder="45">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="datetime-local" id="growth-time" class="form-control" required>
+        </div>
+        <button type="submit" class="btn-submit" style="background:var(--pink-main);">Enregistrer</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       DATA STORE & INITIALIZATION
+       ========================================================================== */
+    const STORAGE_KEY = 'baby_pwa_data';
+    const SETTINGS_KEY = 'baby_pwa_settings';
+
+    let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [
+      { id: '1', type: 'sleep', start: '2026-08-04T21:00', end: '2026-08-05T07:30', note: 'Sommeil nocturne' },
+      { id: '2', type: 'sleep', start: '2026-08-02T13:15', end: '2026-08-02T14:45', note: 'Sommeil diurne' },
+      { id: '3', type: 'diaper', time: '2026-08-05T08:00', state: 'Mouillée', note: '' },
+      { id: '4', type: 'feed', time: '2026-08-05T08:30', food: 'Allaitement', note: '15min' },
+      { id: '5', type: 'growth', time: '2026-08-01T10:00', weight: 10.0, height: 78 }
+    ];
+
+    let appSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {
+      name: 'Aimé',
+      dob: '2025-01-01'
+    };
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      renderJournal();
+      updateQuickActionTimers();
+      renderGanttChart();
+    }
+
+    function saveSettingsData() {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(appSettings));
+      updateProfileDisplay();
+    }
+
+    /* ==========================================================================
+       NAVIGATION & MODALS
+       ========================================================================== */
+    function switchView(viewId) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById(viewId).classList.add('active');
+      if(viewId === 'view-stats') {
+        renderGanttChart();
+        initBarChart();
+      }
+    }
+
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+      // Set default datetimes to now
+      const now = new Date().toISOString().slice(0, 16);
+      document.querySelectorAll(`#${modalId} input[type="datetime-local"]`).forEach(i => i.value = now);
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    function selectPill(element) {
+      element.parentElement.querySelectorAll('.pill-option').forEach(p => p.classList.remove('active'));
+      element.classList.add('active');
+    }
+
+    /* ==========================================================================
+       PROFILE & AGE CALCULATOR
+       ========================================================================== */
+    function updateProfileDisplay() {
+      document.getElementById('disp-baby-name').innerText = appSettings.name;
+      document.getElementById('cfg-name').value = appSettings.name;
+      document.getElementById('cfg-dob').value = appSettings.dob;
+
+      // Calculate Age
+      const birth = new Date(appSettings.dob);
+      const now = new Date();
+      let years = now.getFullYear() - birth.getFullYear();
+      let months = now.getMonth() - birth.getMonth();
+      let days = now.getDate() - birth.getDate();
+
+      if (days < 0) {
+        months--;
+        days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+      }
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+
+      let ageStr = '';
+      if(years > 0) ageStr += `${years} an${years > 1 ? 's' : ''}, `;
+      ageStr += `${months} mois et ${days} jour${days > 1 ? 's' : ''}`;
+      document.getElementById('disp-baby-age').innerText = ageStr;
+
+      // Update Latest Height & Weight
+      const growthEntries = appData.filter(e => e.type === 'growth').sort((a,b) => new Date(b.time) - new Date(a.time));
+      if(growthEntries.length > 0) {
+        if(growthEntries[0].weight) document.getElementById('disp-baby-weight').innerText = `${growthEntries[0].weight} kg`;
+        if(growthEntries[0].height) document.getElementById('disp-baby-height').innerText = `${growthEntries[0].height} cm`;
+      }
+    }
+
+    function saveSettings() {
+      appSettings.name = document.getElementById('cfg-name').value;
+      appSettings.dob = document.getElementById('cfg-dob').value;
+      saveSettingsData();
+      switchView('view-tracker');
+    }
+
+    /* ==========================================================================
+       JOURNAL / TIMELINE FEED
+       ========================================================================== */
+    function renderJournal() {
+      const feed = document.getElementById('journal-feed');
+      feed.innerHTML = '';
+
+      // Group activities by date
+      const sorted = [...appData].sort((a, b) => {
+        const dateA = new Date(a.start || a.time);
+        const dateB = new Date(b.start || b.time);
+        return dateB - dateA;
+      });
+
+      const groups = {};
+      sorted.forEach(item => {
+        const d = new Date(item.start || item.time);
+        const dateKey = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long' });
+        if(!groups[dateKey]) groups[dateKey] = [];
+        groups[dateKey].push(item);
+      });
+
+      for(const [dateStr, items] of Object.entries(groups)) {
+        const header = document.createElement('div');
+        header.className = 'date-group-header';
+        header.innerText = dateStr;
+        feed.appendChild(header);
+
+        items.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'timeline-item';
+          
+          let iconHtml = '', title = '', subtext = '';
+
+          if(item.type === 'sleep') {
+            iconHtml = `<div class="item-icon" style="background:var(--purple-light); color:var(--purple-main);"><i class="fa-solid fa-bed"></i></div>`;
+            title = item.note || 'Sommeil';
+            const s = new Date(item.start);
+            const e = new Date(item.end);
+            const diffMin = Math.round((e - s) / 60000);
+            const hrs = Math.floor(diffMin / 60);
+            const mins = diffMin % 60;
+            const durStr = hrs > 0 ? `${hrs}h ${mins}min` : `${mins}min`;
+            subtext = `${durStr}, de ${s.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} à ${e.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+          } else if(item.type === 'diaper') {
+            iconHtml = `<div class="item-icon" style="background:var(--orange-light); color:var(--orange-main);"><i class="fa-solid fa-baby-carriage"></i></div>`;
+            title = `Couche ${item.state}`;
+            subtext = `${new Date(item.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} ${item.note ? '- ' + item.note : ''}`;
+          } else if(item.type === 'feed' || item.type === 'solids') {
+            iconHtml = `<div class="item-icon" style="background:var(--green-light); color:var(--green-main);"><i class="fa-solid fa-utensils"></i></div>`;
+            title = item.food || 'Repas';
+            subtext = `${new Date(item.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} ${item.note ? '- ' + item.note : ''}`;
+          } else {
+            iconHtml = `<div class="item-icon" style="background:#e0e0e0; color:#555;"><i class="fa-solid fa-heart"></i></div>`;
+            title = item.type.toUpperCase();
+            subtext = `${new Date(item.time || item.start).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+          }
+
+          row.innerHTML = `${iconHtml}<div class="item-details"><div class="item-title">${title}</div><div class="item-subtext">${subtext}</div></div>`;
+          feed.appendChild(row);
+        });
+      }
+    }
+
+    function updateQuickActionTimers() {
+      const now = new Date();
+      
+      const lastSleep = appData.filter(e => e.type === 'sleep').sort((a,b) => new Date(b.end) - new Date(a.end))[0];
+      if(lastSleep) {
+        const diffHrs = Math.floor((now - new Date(lastSleep.end)) / 3600000);
+        document.getElementById('time-sleep').innerText = `il y a ${diffHrs}h`;
+      }
+
+      const lastDiaper = appData.filter(e => e.type === 'diaper').sort((a,b) => new Date(b.time) - new Date(a.time))[0];
+      if(lastDiaper) {
+        const diffHrs = Math.floor((now - new Date(lastDiaper.time)) / 3600000);
+        document.getElementById('time-diaper').innerText = `il y a ${diffHrs}h`;
+      }
+    }
+
+    /* ==========================================================================
+       EVENT CREATION / TIMERS
+       ========================================================================== */
+    let timerInterval = null;
+    let timerStart = null;
+
+    function toggleSleepTimer() {
+      const btn = document.getElementById('btn-timer-toggle');
+      if(!timerInterval) {
+        timerStart = new Date();
+        document.getElementById('sleep-start').value = timerStart.toISOString().slice(0, 16);
+        btn.innerText = "S'est réveillé";
+        btn.style.background = '#e74c3c';
+        timerInterval = setInterval(() => {
+          const diff = Math.floor((new Date() - timerStart) / 1000);
+          const h = String(Math.floor(diff / 3600)).padStart(2, '0');
+          const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+          const s = String(diff % 60).padStart(2, '0');
+          document.getElementById('sleep-timer').innerText = `${h}:${m}:${s}`;
+        }, 1000);
+      } else {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        document.getElementById('sleep-end').value = new Date().toISOString().slice(0, 16);
+        btn.innerText = "S'est endormi";
+        btn.style.background = 'var(--purple-main)';
+      }
+    }
+
+    function saveSleepEvent(e) {
+      e.preventDefault();
+      appData.push({
+        id: Date.now().toString(),
+        type: 'sleep',
+        start: document.getElementById('sleep-start').value,
+        end: document.getElementById('sleep-end').value,
+        note: document.getElementById('sleep-note').value || 'Sommeil'
+      });
+      saveData();
+      closeModal('modal-sleep');
+    }
+
+    function saveDiaperEvent(e) {
+      e.preventDefault();
+      const activeState = document.querySelector('#diaper-state-selector .pill-option.active').getAttribute('data-val');
+      appData.push({
+        id: Date.now().toString(),
+        type: 'diaper',
+        state: activeState,
+        time: document.getElementById('diaper-time').value,
+        note: document.getElementById('diaper-note').value
+      });
+      saveData();
+      closeModal('modal-diaper');
+    }
+
+    function saveSolidsEvent(e) {
+      e.preventDefault();
+      appData.push({
+        id: Date.now().toString(),
+        type: 'solids',
+        food: document.getElementById('solids-food').value,
+        time: document.getElementById('solids-time').value,
+        note: document.getElementById('solids-note').value
+      });
+      saveData();
+      closeModal('modal-solids');
+    }
+
+    function saveHealthEvent(e) {
+      e.preventDefault();
+      appData.push({
+        id: Date.now().toString(),
+        type: 'health',
+        symptom: document.getElementById('health-type').value,
+        time: document.getElementById('health-time').value,
+        note: document.getElementById('health-note').value
+      });
+      saveData();
+      closeModal('modal-health');
+    }
+
+    function saveGrowthEvent(e) {
+      e.preventDefault();
+      appData.push({
+        id: Date.now().toString(),
+        type: 'growth',
+        weight: parseFloat(document.getElementById('growth-weight').value) || null,
+        height: parseFloat(document.getElementById('growth-height').value) || null,
+        head: parseFloat(document.getElementById('growth-head').value) || null,
+        time: document.getElementById('growth-time').value
+      });
+      saveData();
+      updateProfileDisplay();
+      closeModal('modal-growth');
+    }
+
+    /* ==========================================================================
+       STATISTICS & CHARTS
+       ========================================================================== */
+    function switchStatsTab(tabName) {
+      document.querySelectorAll('.stats-nav-item').forEach(i => i.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      document.getElementById('tab-tendance').style.display = tabName === 'tendance' ? 'block' : 'none';
+      document.getElementById('tab-tendances').style.display = tabName === 'tendances' ? 'block' : 'none';
+      document.getElementById('tab-croissance').style.display = tabName === 'croissance' ? 'block' : 'none';
+
+      if(tabName === 'tendances') initBarChart();
+      if(tabName === 'croissance') initGrowthChart();
+    }
+
+    function setStatsCategory(cat) {
+      document.querySelectorAll('#stats-cat-filters .filter-chip').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      renderGanttChart();
+    }
+
+    /* 24h Activity Timeline Gantt */
+    function renderGanttChart() {
+      const container = document.getElementById('gantt-chart-container');
+      container.innerHTML = '';
+
+      // Get last 5 dates
+      const days = [];
+      for(let i=0; i<5; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        days.push(d.toISOString().split('T')[0]);
+      }
+
+      days.forEach(dayStr => {
+        const row = document.createElement('div');
+        row.className = 'gantt-row';
+        
+        const label = document.createElement('div');
+        label.className = 'gantt-label';
+        const d = new Date(dayStr);
+        label.innerText = `${d.getDate()} ${d.toLocaleDateString('fr-FR', {month:'short'})}`;
+
+        const track = document.createElement('div');
+        track.className = 'gantt-track';
+
+        // Find sleep events on this day
+        const events = appData.filter(e => e.type === 'sleep' && e.start.startsWith(dayStr));
+        events.forEach(ev => {
+          const s = new Date(ev.start);
+          const e = new Date(ev.end);
+          const startMin = s.getHours() * 60 + s.getMinutes();
+          const endMin = e.getHours() * 60 + e.getMinutes();
+          const leftPct = (startMin / 1440) * 100;
+          const widthPct = Math.max(((endMin - startMin) / 1440) * 100, 2);
+
+          const bar = document.createElement('div');
+          bar.className = 'gantt-bar';
+          bar.style.left = `${leftPct}%`;
+          bar.style.width = `${widthPct}%`;
+          bar.style.background = 'var(--purple-main)';
+          track.appendChild(bar);
+        });
+
+        row.appendChild(label);
+        row.appendChild(track);
+        container.appendChild(row);
+      });
+    }
+
+    /* Bar Chart for Trends */
+    let myBarChart = null;
+    function initBarChart() {
+      const ctx = document.getElementById('barChart').getContext('2d');
+      if(myBarChart) myBarChart.destroy();
+
+      myBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['1', '5', '10', '15', '20', '25', '30'],
+          datasets: [{
+            label: 'Sommeil (heures)',
+            data: [4, 10, 8, 12, 6, 9, 11],
+            backgroundColor: '#9b87f5',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { grid: { borderDash: [4, 4] } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function updateChartTimeframe(tf) {
+      document.querySelectorAll('.segmented-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    /* WHO Growth Chart */
+    let myGrowthChart = null;
+    function initGrowthChart() {
+      const ctx = document.getElementById('growthChart').getContext('2d');
+      if(myGrowthChart) myGrowthChart.destroy();
+
+      myGrowthChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['0m', '3m', '6m', '9m', '12m', '15m', '18m'],
+          datasets: [
+            { label: 'Bébé', data: [3.5, 6.0, 7.5, 8.8, 9.5, 10.0, 10.5], borderColor: '#ff6b81', borderWidth: 3, fill: false },
+            { label: 'P50 (OMS)', data: [3.3, 6.2, 8.0, 8.9, 9.6, 10.2, 10.9], borderColor: '#ccc', borderDash: [5, 5], fill: false }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }
+
+    /* ==========================================================================
+       EXPORT & IMPORT
+       ========================================================================== */
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ data: appData, settings: appSettings }));
+      const dlAnchorElem = document.createElement('a');
+      dlAnchorElem.setAttribute("href", dataStr);
+      dlAnchorElem.setAttribute("download", `baby_tracker_backup_${new Date().toISOString().slice(0,10)}.json`);
+      dlAnchorElem.click();
+    }
+
+    function importData(event) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if(imported.data) appData = imported.data;
+          if(imported.settings) appSettings = imported.settings;
+          saveData();
+          saveSettingsData();
+          alert('Données importées avec succès !');
+        } catch(err) {
+          alert('Fichier JSON invalide.');
+        }
+      };
+      reader.readAsText(event.target.files[0]);
+    }
+
+    /* ==========================================================================
+       PWA INLINE SERVICE WORKER & MANIFEST GENERATION
+       ========================================================================== */
+    function initPWA() {
+      // Create Inline Manifest Data URI
+      const manifestObj = {
+        name: "Suivi Bébé PWA",
+        short_name: "BébéTrack",
+        start_url: "./index.html",
+        display: "standalone",
+        background_color: "#6cb0f3",
+        theme_color: "#5b9bd5",
+        icons: [{ src: "https://cdn-icons-png.flaticon.com/512/3082/3082060.png", sizes: "512x512", type: "image/png" }]
+      };
+      const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/json' });
+      const manifestUrl = URL.createObjectURL(manifestBlob);
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = manifestUrl;
+      document.head.appendChild(link);
+
+      // Create Inline Service Worker via Blob
+      if ('serviceWorker' in navigator) {
+        const swCode = `
+          const CACHE_NAME = 'baby-pwa-v1';
+          self.addEventListener('install', (e) => {
+            e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(['./'])));
+          });
+          self.addEventListener('fetch', (e) => {
+            e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
+          });
+        `;
+        const swBlob = new Blob([swCode], { type: 'text/javascript' });
+        const swUrl = URL.createObjectURL(swBlob);
+        navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration error:', err));
+      }
+    }
+
+    // Initialize App
+    window.onload = function() {
+      updateProfileDisplay();
+      renderJournal();
+      updateQuickActionTimers();
+      initPWA();
+    };
+  </script>
+</body>
+</html>
